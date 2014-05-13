@@ -5,7 +5,7 @@
 package lib
 
 import (
-	// "fmt"
+	"fmt"
 	"github.com/SpaceMonkeyGo/errors"
 	"io/ioutil"
 	"os"
@@ -26,12 +26,12 @@ type RequiredFile struct {
 const currDir = "."
 
 var requiredFiles = [...]RequiredFile{
-	RequiredFile{name: "buildFile", fileName: "build.json", fileType: "f"},
-	RequiredFile{name: "vars", fileName: "docker", fileType: "d"},
-	RequiredFile{name: "vars", fileName: "meta", fileType: "d"},
-	RequiredFile{name: "vars", fileName: "tasks", fileType: "d"},
-	RequiredFile{name: "vars", fileName: "tests", fileType: "d"},
-	RequiredFile{name: "vars", fileName: "vars", fileType: "d"},
+	RequiredFile{name: "voom json build file", fileName: "build.json", fileType: "f"},
+	RequiredFile{name: "voom docker dir", fileName: "docker", fileType: "d"},
+	RequiredFile{name: "ansible meta dir", fileName: "meta", fileType: "d"},
+	RequiredFile{name: "ansible tasks dir", fileName: "tasks", fileType: "d"},
+	RequiredFile{name: "ansible test dir", fileName: "tests", fileType: "d"},
+	RequiredFile{name: "ansible var dir", fileName: "vars", fileType: "d"},
 }
 
 // Converts []FileInfo => []string
@@ -67,7 +67,7 @@ func CheckFiles(filesFound []string) (bool, error) {
 
 	for _, file := range requiredFiles {
 		for _, fFile := range filesFound {
-			if fFile == file.name {
+			if fFile == file.fileName {
 				found = append(found, fFile)
 			}
 		}
