@@ -12,7 +12,8 @@ import (
 )
 
 var (
-	BadDir = errors.NewClass("Can't read the current directory")
+	BadDir        = errors.NewClass("Can't read the current directory")
+	FileCheckFail = errors.NewClass("File Check Failed")
 )
 
 // todo: break out into separate file
@@ -33,7 +34,7 @@ var requiredFiles = [...]RequiredFile{
 	RequiredFile{name: "vars", fileName: "vars", fileType: "d"},
 }
 
-// Take a FileInfo slice and convert to string slice
+// Converts []FileInfo => []string
 func ConvertFiles(files []os.FileInfo) []string {
 	convertedFiles := []string{}
 	for _, value := range files {
@@ -43,8 +44,8 @@ func ConvertFiles(files []os.FileInfo) []string {
 	return convertedFiles
 }
 
-// Check for files or return an error
-func CheckForFiles() ([]string, error) {
+// Returns files as []string
+func GetFiles() ([]string, error) {
 	var error error
 	convertedFiles := []string{}
 
@@ -59,4 +60,23 @@ func CheckForFiles() ([]string, error) {
 	}
 
 	return convertedFiles, error
+}
+
+func CheckFiles(filesFound []string) (bool, error) {
+	found := []string{}
+
+	for _, file := range requiredFiles {
+		for _, fFile := range filesFound {
+			if fFile == file.name {
+				found = append(found, fFile)
+			}
+		}
+	}
+
+	if len(found) == len(requiredFiles) {
+		return true, nil
+	} else {
+		return false, FileCheckFail.New("Length was: ", len(found))
+	}
+
 }

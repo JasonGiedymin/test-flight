@@ -34,6 +34,6 @@ func main() {
 	// 	fmt.Println("Repository: ", img.Repository)
 	// }
 
-	files, filesError := lib.CheckForFiles()
+	files, filesError := lib.GetFiles()
 	fmt.Printf("Found these files %v, and these errors: [%v].\n", files, filesError)
 }

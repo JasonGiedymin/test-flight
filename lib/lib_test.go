@@ -2,9 +2,11 @@ package lib
 
 import (
 	"fmt"
+	// "io/ioutil"
 	"testing"
 )
 
+// == Setup ==
 var goodFiles = []string{
 	"build.json",
 	"docker",
@@ -26,7 +28,19 @@ func MockFileIO(good bool) []string {
 	}
 }
 
+// ====
+
 func TestRequiredFiles(t *testing.T) {
+	expectedSize := 6
 	fmt.Println("Testing required files...")
-	fmt.Println(MockFileIO(true))
+	if len(MockFileIO(true)) != expectedSize {
+		t.Error("Expected a array slice of length", expectedSize)
+	}
+}
+
+func TestCheckFiles(t *testing.T) {
+	result, err := CheckFiles(MockFileIO(true))
+	if result != true {
+		t.Error("Expected the MockFileIO good set of files to be valid. Error was", err)
+	}
 }
