@@ -1,7 +1,7 @@
 package lib
 
 import (
-	"fmt"
+	// "fmt"
 	// "io/ioutil"
 	"testing"
 )
@@ -23,24 +23,36 @@ var badFiles = []string{
 func MockFileIO(good bool) []string {
 	if good {
 		return goodFiles
-	} else {
-		return badFiles
 	}
+
+	return badFiles
 }
 
 // ====
 
 func TestRequiredFiles(t *testing.T) {
 	expectedSize := 6
-	fmt.Println("Testing required files...")
+
 	if len(MockFileIO(true)) != expectedSize {
 		t.Error("Expected a array slice of length", expectedSize)
+	}
+
+	if len(MockFileIO(false)) != 1 {
+		t.Error("Expected single file in array.")
 	}
 }
 
 func TestCheckFiles(t *testing.T) {
-	result, err := CheckFiles(MockFileIO(true))
-	if result != true {
+	// result, err := CheckFiles(MockFileIO(true))
+	// if result == false { // only error if not expected
+	// 	t.Error("Expected the MockFileIO good set of files to be valid. Error was", err)
+	// }
+
+	result, err := CheckFiles(MockFileIO(false))
+	if result == true { // only error if not expected
 		t.Error("Expected the MockFileIO good set of files to be valid. Error was", err)
 	}
+	// } else {
+	// 	fmt.Println(err)
+	// }
 }

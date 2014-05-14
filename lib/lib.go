@@ -5,7 +5,7 @@
 package lib
 
 import (
-	"fmt"
+	// "fmt"
 	"github.com/SpaceMonkeyGo/errors"
 	"io/ioutil"
 	"os"
@@ -46,37 +46,48 @@ func ConvertFiles(files []os.FileInfo) []string {
 
 // Returns files as []string
 func GetFiles() ([]string, error) {
-	var error error
-	convertedFiles := []string{}
-
 	// Initial read of files
 	files, err := ioutil.ReadDir(currDir)
 
 	if err != nil {
-		error = BadDir.New("Can't read the directory: [%#v]", currDir)
-	} else {
-		convertedFiles = ConvertFiles(files)
-		error = nil
+		return nil, BadDir.New("Can't read the directory: [%#v]", currDir)
 	}
 
-	return convertedFiles, error
+	return ConvertFiles(files), nil
 }
 
-func CheckFiles(filesFound []string) (bool, error) {
-	found := []string{}
-
-	for _, file := range requiredFiles {
-		for _, fFile := range filesFound {
-			if fFile == file.fileName {
-				found = append(found, fFile)
-			}
+func findFile(filesFound []string, requiredFile RequiredFile) (bool, error) {
+	for _, file := range filesFound {
+		if file == requiredFile.fileName {
+			return true, nil
 		}
 	}
 
-	if len(found) == len(requiredFiles) {
-		return true, nil
-	} else {
-		return false, FileCheckFail.New("Length was: ", len(found))
+	return false, FileCheckFail.New("Required file/dir not found: %#v", requiredFile.fileName)
+}
+
+// TODO: goroutine + channels to further optimize
+// Required files are necessary before starting.
+// Check that each are found within the local dir.
+func CheckFiles(filesFound []string) (bool, error) {
+	for _, file := range requiredFiles {
+		found, err := findFile(filesFound, file)
+
+		if !found {
+			return false, err
+		}
 	}
 
+	return true, nil
+}
+
+func hasRequiredFiles() (bool, error) {
+	files, _ := GetFiles()
+	result, _ := CheckFiles(files)
+
+	if !result { // only error if not expected
+		return false, FileCheckFail.New("Required files/dirs not found.")
+	}
+
+	return true, nil
 }

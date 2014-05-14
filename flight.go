@@ -1,25 +1,32 @@
 package main
 
 import (
-	"./lib"
+	// "./lib"
 	"fmt"
 	// "github.com/fsouza/go-dockerclient"
+	"flag"
 )
 
 /*
-- read build.json
-- require:
-  - build.json
-  - vars/
-  - tests/
-  - meta/
-  - tasks/
-  - docker/
 - require:
   - base image (based on build.json runtime selection)
 */
 
+// func requirements() {
+// 	lib.hasRequiredFiles()
+// }
+
+var checkFlag = flag.Bool("check", true, "Flight check")
+
+func init() {
+
+}
+
 func main() {
+	flag.Parse()
+
+	fmt.Println(*checkFlag)
+
 	// endpoint := "http://localhost:4243"
 	// client, _ := docker.NewClient(endpoint)
 	// imgs, _ := client.ListImages(true)
@@ -34,6 +41,6 @@ func main() {
 	// 	fmt.Println("Repository: ", img.Repository)
 	// }
 
-	files, filesError := lib.GetFiles()
-	fmt.Printf("Found these files %v, and these errors: [%v].\n", files, filesError)
+	// files, filesError := lib.GetFiles()
+	// fmt.Printf("Found these files %v, and these errors: [%v].\n", files, filesError)
 }
