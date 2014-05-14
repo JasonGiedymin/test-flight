@@ -2,9 +2,12 @@ package main
 
 import (
 	// "./lib"
+	"./lib/cli"
 	"fmt"
+	"os"
 	// "github.com/fsouza/go-dockerclient"
-	"flag"
+	// "flag"
+	"github.com/jessevdk/go-flags"
 )
 
 /*
@@ -12,20 +15,35 @@ import (
   - base image (based on build.json runtime selection)
 */
 
-// func requirements() {
-// 	lib.hasRequiredFiles()
-// }
+var checkCommand cli.CheckCommand
 
-var checkFlag = flag.Bool("check", true, "Flight check")
+type LaunchCommand struct{}
+
+type Options struct{}
+
+var launchCommand LaunchCommand
+var options Options
+var parser = flags.NewParser(&options, flags.Default)
 
 func init() {
+	parser.AddCommand("check",
+		"pre-flight check",
+		"Used for pre-flight check of the ansible playbook.",
+		&checkCommand)
 
+	parser.AddCommand("launch",
+		"flight launch",
+		"Launch an ansible playbook test.",
+		&launchCommand)
 }
 
 func main() {
-	flag.Parse()
+	fmt.Println("Started...")
 
-	fmt.Println(*checkFlag)
+	// Verify required commands exist
+	if _, err := parser.Parse(); err != nil {
+		os.Exit(1)
+	}
 
 	// endpoint := "http://localhost:4243"
 	// client, _ := docker.NewClient(endpoint)

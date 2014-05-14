@@ -43,15 +43,16 @@ func TestRequiredFiles(t *testing.T) {
 }
 
 func TestCheckFiles(t *testing.T) {
-	// result, err := CheckFiles(MockFileIO(true))
-	// if result == false { // only error if not expected
-	// 	t.Error("Expected the MockFileIO good set of files to be valid. Error was", err)
-	// }
+	result, err := CheckFiles(MockFileIO(true))
+	if result == false { // only error if not expected
+		t.Error("Expected the MockFileIO good set of files to be valid. Error was", err)
+	}
 
-	result, err := CheckFiles(MockFileIO(false))
+	result, err = CheckFiles(MockFileIO(false))
 	if result == true { // only error if not expected
 		t.Error("Expected the MockFileIO good set of files to be valid. Error was", err)
 	}
+
 	// } else {
 	// 	fmt.Println(err)
 	// }
