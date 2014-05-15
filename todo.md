@@ -1,4 +1,22 @@
-## TODO
+## Dev Todo
 
-1. read files
-1. cli params
+Dev todos:
+
+[x] read files
+[x] cli params {check, launch}
+[x] wire in check files to check & launch command
+[ ] wire in param to specify dir `flight check` or `flight check -d ./thisDir`.
+    when specifying nothing, imply `./`
+[ ] wire in dir to all commands, shared struct?    
+[ ] look at golang code, find examples of composition + errors
+
+
+## Production Todo
+
+Before heading to production.
+
+Prod todos:
+
+[ ] silence full stack trace? Only allow in dev?
+[ ] docs
+[ ] more tests :-)

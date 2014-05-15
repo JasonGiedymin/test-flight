@@ -44,18 +44,6 @@ func ConvertFiles(files []os.FileInfo) []string {
 	return convertedFiles
 }
 
-// Returns files as []string
-func GetFiles() ([]string, error) {
-	// Initial read of files
-	files, err := ioutil.ReadDir(currDir)
-
-	if err != nil {
-		return nil, BadDir.New("Can't read the directory: [%#v]", currDir)
-	}
-
-	return ConvertFiles(files), nil
-}
-
 func findFile(filesFound []string, requiredFile RequiredFile) (bool, error) {
 	for _, file := range filesFound {
 		if file == requiredFile.fileName {
@@ -81,13 +69,16 @@ func CheckFiles(filesFound []string) (bool, error) {
 	return true, nil
 }
 
-func hasRequiredFiles() (bool, error) {
-	files, _ := GetFiles()
-	result, _ := CheckFiles(files)
+/*
+ * Reads the current directory and returns
+ *   - bool: if all the required files were found
+ */
+func HasRequiredFiles() (bool, error) {
+	filesFromDisk, err := ioutil.ReadDir(currDir)
 
-	if !result { // only error if not expected
-		return false, FileCheckFail.New("Required files/dirs not found.")
+	if err != nil {
+		return false, err
 	}
 
-	return true, nil
+	return CheckFiles(ConvertFiles(filesFromDisk))
 }
