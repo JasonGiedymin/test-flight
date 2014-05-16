@@ -6,10 +6,10 @@
 package cli
 
 import (
-	"../"
-	"fmt"
-	"github.com/jessevdk/go-flags"
-	"os"
+  "../"
+  "fmt"
+  "github.com/jessevdk/go-flags"
+  "os"
 )
 
 type Options struct{}
@@ -24,36 +24,36 @@ var launchCommand LaunchCommand
 
 // == Check Command ==
 type CheckCommand struct {
-	Dir string `short:"d" long:"dir" description:"directory to run in"`
+  Dir string `short:"d" long:"dir" description:"directory to run in"`
 }
 
 func (cmd *CheckCommand) Execute(args []string) error {
-	fmt.Printf("Running Pre-Flight Check... in dir: [%v]\n", cmd.Dir)
+  fmt.Printf("Running Pre-Flight Check... in dir: [%v]\n", cmd.Dir)
 
-	_, err := lib.HasRequiredFiles(&cmd.Dir)
-	if err != nil {
-		return err
-	}
+  _, err := lib.HasRequiredFiles(&cmd.Dir)
+  if err != nil {
+    return err
+  }
 
-	fmt.Println("Done.")
-	return nil
+  fmt.Println("Done.")
+  return nil
 }
 
 // == Launch Command ==
 type LaunchCommand struct {
-	Dir string `short:"d" long:"dir" description:"directory to run in"`
+  Dir string `short:"d" long:"dir" description:"directory to run in"`
 }
 
 func (cmd *LaunchCommand) Execute(args []string) error {
-	fmt.Printf("Launching Tests... in dir: [%v]\n", cmd.Dir)
-	_, err := lib.HasRequiredFiles(&cmd.Dir)
+  fmt.Printf("Launching Tests... in dir: [%v]\n", cmd.Dir)
+  _, err := lib.HasRequiredFiles(&cmd.Dir)
 
-	if err != nil {
-		return err
-	}
+  if err != nil {
+    return err
+  }
 
-	fmt.Println("Done.")
-	return nil
+  fmt.Println("Done.")
+  return nil
 }
 
 // func getArgs() {
@@ -64,19 +64,19 @@ func (cmd *LaunchCommand) Execute(args []string) error {
 
 // == Init ==
 func Init() {
-	Parser.AddCommand("check",
-		"pre-flight check",
-		"Used for pre-flight check of the ansible playbook.",
-		&checkCommand)
+  Parser.AddCommand("check",
+    "pre-flight check",
+    "Used for pre-flight check of the ansible playbook.",
+    &checkCommand)
 
-	Parser.AddCommand("launch",
-		"flight launch",
-		"Launch an ansible playbook test.",
-		&launchCommand)
+  Parser.AddCommand("launch",
+    "flight launch",
+    "Launch an ansible playbook test.",
+    &launchCommand)
 }
 
 func Parse() {
-	if _, err := Parser.Parse(); err != nil {
-		os.Exit(1)
-	}
+  if _, err := Parser.Parse(); err != nil {
+    os.Exit(1)
+  }
 }
