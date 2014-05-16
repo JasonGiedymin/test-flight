@@ -7,6 +7,7 @@ package cli
 
 import (
   "../"
+  "../build"
   "fmt"
   "github.com/jessevdk/go-flags"
   "os"
@@ -34,6 +35,8 @@ func (cmd *CheckCommand) Execute(args []string) error {
   if err != nil {
     return err
   }
+
+  build.TryJson(cmd.Dir)
 
   fmt.Println("Done.")
   return nil
