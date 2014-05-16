@@ -8,7 +8,10 @@ Dev todos:
 [x] wire in param to specify dir `flight check` or `flight check -d ./thisDir`.
     when specifying nothing, imply `./`
 [-] wire in dir to all commands, shared struct? => Nope. Bad go practice.
-[ ] look at golang code, find examples of composition + errors
+[-] look at golang code, find examples of composition + errors. => if err tracks are the norm... oh well.
+[ ] read build.json file
+[ ] look for `main.yml` file under each dir
+[ ] run ansible lint/check within a docker, call this `runup` (an actual aircraft term)
 
 
 ## Production Todo
