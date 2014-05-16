@@ -23,7 +23,7 @@ type RequiredFile struct {
 	fileType string // [f]ile, [d]ir
 }
 
-const currDir = "."
+const defaultDir = "."
 
 var requiredFiles = [...]RequiredFile{
 	RequiredFile{name: "voom json build file", fileName: "build.json", fileType: "f"},
@@ -51,7 +51,7 @@ func findFile(filesFound []string, requiredFile RequiredFile) (bool, error) {
 		}
 	}
 
-	return false, FileCheckFail.New("Required file/dir not found: %#v", requiredFile.fileName)
+	return false, FileCheckFail.New("Required file/dir not found: [%#v]", requiredFile.fileName)
 }
 
 // TODO: goroutine + channels to further optimize
@@ -73,7 +73,13 @@ func CheckFiles(filesFound []string) (bool, error) {
  * Reads the current directory and returns
  *   - bool: if all the required files were found
  */
-func HasRequiredFiles() (bool, error) {
+func HasRequiredFiles(dir *string) (bool, error) {
+	var currDir = *dir
+
+	if currDir == "" {
+		currDir = defaultDir
+	}
+
 	filesFromDisk, err := ioutil.ReadDir(currDir)
 
 	if err != nil {

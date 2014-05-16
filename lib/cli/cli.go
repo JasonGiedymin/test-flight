@@ -18,11 +18,6 @@ var options Options
 
 var Parser = flags.NewParser(&options, flags.Default)
 
-// == Std Command Opts ==
-type StandardOption struct {
-	Dir string `short:"f" long:"force" description:"Force removal of files"`
-}
-
 // == Commands ==
 var checkCommand CheckCommand
 var launchCommand LaunchCommand
@@ -34,19 +29,31 @@ type CheckCommand struct {
 
 func (cmd *CheckCommand) Execute(args []string) error {
 	fmt.Printf("Running Pre-Flight Check... in dir: [%v]\n", cmd.Dir)
-	_, err := lib.HasRequiredFiles()
 
-	return err
+	_, err := lib.HasRequiredFiles(&cmd.Dir)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("Done.")
+	return nil
 }
 
 // == Launch Command ==
-type LaunchCommand struct{}
+type LaunchCommand struct {
+	Dir string `short:"d" long:"dir" description:"directory to run in"`
+}
 
 func (cmd *LaunchCommand) Execute(args []string) error {
-	fmt.Println("Launching tests...")
-	_, err := lib.HasRequiredFiles()
+	fmt.Printf("Launching Tests... in dir: [%v]\n", cmd.Dir)
+	_, err := lib.HasRequiredFiles(&cmd.Dir)
 
-	return err
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("Done.")
+	return nil
 }
 
 // func getArgs() {
