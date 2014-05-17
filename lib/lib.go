@@ -12,18 +12,26 @@ import (
 )
 
 var (
+  defaultDir    = "./"
   BadDir        = errors.NewClass("Can't read the current directory")
   FileCheckFail = errors.NewClass("File Check Failed")
 )
 
 // todo: break out into separate file
 type RequiredFile struct {
-  name     string
-  fileName string
-  fileType string // [f]ile, [d]ir
+  name          string
+  fileName      string
+  fileType      string // [f]ile, [d]ir
+  requiredFiles []RequiredFile
 }
 
-const defaultDir = "."
+// const defaultDir = "."
+
+// var mainYaml RequiredFile
+
+// mainYaml = new(RequiredFile)
+var mainYaml = RequiredFile{name: "main yaml", fileName: "main.yml", fileType: "f"}
+var ansibleFiles = []RequiredFile{mainYaml}
 
 var requiredFiles = [...]RequiredFile{
   {name: "voom json build file", fileName: "build.json", fileType: "f"},
@@ -31,7 +39,7 @@ var requiredFiles = [...]RequiredFile{
   {name: "ansible meta dir", fileName: "meta", fileType: "d"},
   {name: "ansible tasks dir", fileName: "tasks", fileType: "d"},
   {name: "ansible test dir", fileName: "tests", fileType: "d"},
-  {name: "ansible var dir", fileName: "vars", fileType: "d"},
+  {name: "ansible var dir", fileName: "vars", fileType: "d", requiredFiles: ansibleFiles},
 }
 
 // Converts []FileInfo => []string
