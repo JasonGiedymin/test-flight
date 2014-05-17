@@ -11,12 +11,6 @@ import (
   "os"
 )
 
-var (
-  defaultDir    = "./"
-  BadDir        = errors.NewClass("Can't read the current directory")
-  FileCheckFail = errors.NewClass("File Check Failed")
-)
-
 // todo: break out into separate file
 type RequiredFile struct {
   name          string
@@ -25,15 +19,15 @@ type RequiredFile struct {
   requiredFiles []RequiredFile
 }
 
-// const defaultDir = "."
+var (
+  defaultDir    = "./"
+  mainYaml      = RequiredFile{name: "main yaml", fileName: "main.yml", fileType: "f"}
+  BadDir        = errors.NewClass("Can't read the current directory")
+  FileCheckFail = errors.NewClass("File Check Failed")
+  ansibleFiles  = []RequiredFile{mainYaml}
+)
 
-// var mainYaml RequiredFile
-
-// mainYaml = new(RequiredFile)
-var mainYaml = RequiredFile{name: "main yaml", fileName: "main.yml", fileType: "f"}
-var ansibleFiles = []RequiredFile{mainYaml}
-
-var requiredFiles = [...]RequiredFile{
+var RequiredFiles = []RequiredFile{
   {name: "voom json build file", fileName: "build.json", fileType: "f"},
   {name: "voom docker dir", fileName: "docker", fileType: "d"},
   {name: "ansible meta dir", fileName: "meta", fileType: "d"},
@@ -52,36 +46,29 @@ func ConvertFiles(files []os.FileInfo) []string {
   return convertedFiles
 }
 
-func findFile(filesFound []string, requiredFile RequiredFile) (bool, error) {
+func findFile(filesFound []string, requiredFile RequiredFile, currDir string) (bool, error) {
   for _, file := range filesFound {
     if file == requiredFile.fileName {
+      if len(requiredFile.requiredFiles) > 0 {
+        nextDir := currDir + "/" + requiredFile.fileName
+        _, err := HasRequiredFiles(&nextDir, requiredFile.requiredFiles)
+        if err != nil {
+          return false, err
+        }
+      }
       return true, nil
     }
   }
 
-  return false, FileCheckFail.New("Required file/dir not found: [%#v]", requiredFile.fileName)
+  return false, FileCheckFail.New("Required file/dir not found: [%v/%v]", currDir, requiredFile.fileName)
 }
 
 // TODO: goroutine + channels to further optimize
-// Required files are necessary before starting.
-// Check that each are found within the local dir.
-func CheckFiles(filesFound []string) (bool, error) {
-  for _, file := range requiredFiles {
-    found, err := findFile(filesFound, file)
-
-    if !found {
-      return false, err
-    }
-  }
-
-  return true, nil
-}
-
 /*
  * Reads the current directory and returns
  *   - bool: if all the required files were found
  */
-func HasRequiredFiles(dir *string) (bool, error) {
+func HasRequiredFiles(dir *string, requiredFiles []RequiredFile) (bool, error) {
   var currDir = *dir
 
   if currDir == "" {
@@ -94,5 +81,13 @@ func HasRequiredFiles(dir *string) (bool, error) {
     return false, err
   }
 
-  return CheckFiles(ConvertFiles(filesFromDisk))
+  for _, requiredFile := range requiredFiles {
+    found, err := findFile(ConvertFiles(filesFromDisk), requiredFile, currDir)
+
+    if !found {
+      return false, err
+    }
+  }
+
+  return true, nil
 }

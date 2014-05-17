@@ -12,7 +12,7 @@ type BuildFile struct {
   Version string
 }
 
-func TryJson(path string) {
+func ReadBuildFile(path string) {
   jsonBlob, _ := ioutil.ReadFile(path + "/build.json")
 
   var buildFile BuildFile

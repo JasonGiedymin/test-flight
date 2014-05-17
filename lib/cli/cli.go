@@ -31,12 +31,12 @@ type CheckCommand struct {
 func (cmd *CheckCommand) Execute(args []string) error {
   fmt.Printf("Running Pre-Flight Check... in dir: [%v]\n", cmd.Dir)
 
-  _, err := lib.HasRequiredFiles(&cmd.Dir)
+  _, err := lib.HasRequiredFiles(&cmd.Dir, lib.RequiredFiles)
   if err != nil {
     return err
   }
 
-  build.TryJson(cmd.Dir)
+  build.ReadBuildFile(cmd.Dir)
 
   fmt.Println("Done.")
   return nil
@@ -49,7 +49,7 @@ type LaunchCommand struct {
 
 func (cmd *LaunchCommand) Execute(args []string) error {
   fmt.Printf("Launching Tests... in dir: [%v]\n", cmd.Dir)
-  _, err := lib.HasRequiredFiles(&cmd.Dir)
+  _, err := lib.HasRequiredFiles(&cmd.Dir, lib.RequiredFiles)
 
   if err != nil {
     return err
