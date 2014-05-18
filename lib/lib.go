@@ -5,13 +5,15 @@
 package lib
 
 import (
-  // "fmt"
+  "./config"
+  "fmt"
   "github.com/SpaceMonkeyGo/errors"
-  "io/ioutil"
+  "github.com/jessevdk/go-flags"
   "os"
 )
 
-// todo: break out into separate file
+// == App Related ==
+
 type RequiredFile struct {
   name          string
   fileName      string
@@ -19,6 +21,40 @@ type RequiredFile struct {
   requiredFiles []RequiredFile
 }
 
+type ApplicationConfig struct {
+  defaultDir string
+}
+
+type ApplicationState struct {
+  ConfigFile  config.ConfigFile
+  BuildFile   *config.BuildFile
+  LastCommand string
+  CurrentMode string
+}
+
+func (appState *ApplicationState) State() string {
+  fmt.Printf("[STATE] - %v\n", appState.CurrentMode)
+  return appState.CurrentMode
+}
+
+type TestFlight struct {
+  AppState      ApplicationState
+  requiredFiles []RequiredFile
+  parser        *flags.Parser
+}
+
+func (app *TestFlight) Parse() {
+  if _, err := app.parser.Parse(); err != nil {
+    os.Exit(1)
+  }
+}
+
+func (app *TestFlight) State() string {
+  fmt.Printf("[STATE] - %v", app.AppState.CurrentMode)
+  return app.AppState.CurrentMode
+}
+
+// == Default vars ==
 var (
   defaultDir    = "./"
   mainYaml      = RequiredFile{name: "main yaml", fileName: "main.yml", fileType: "f"}
@@ -28,66 +64,18 @@ var (
 )
 
 var RequiredFiles = []RequiredFile{
-  {name: "voom json build file", fileName: "build.json", fileType: "f"},
-  {name: "voom docker dir", fileName: "docker", fileType: "d"},
-  {name: "ansible meta dir", fileName: "meta", fileType: "d"},
-  {name: "ansible tasks dir", fileName: "tasks", fileType: "d"},
-  {name: "ansible test dir", fileName: "tests", fileType: "d"},
-  {name: "ansible var dir", fileName: "vars", fileType: "d", requiredFiles: ansibleFiles},
-}
-
-// Converts []FileInfo => []string
-func ConvertFiles(files []os.FileInfo) []string {
-  convertedFiles := []string{}
-  for _, value := range files {
-    convertedFiles = append(convertedFiles, value.Name())
-  }
-
-  return convertedFiles
-}
-
-func findFile(filesFound []string, requiredFile RequiredFile, currDir string) (bool, error) {
-  for _, file := range filesFound {
-    if file == requiredFile.fileName {
-      if len(requiredFile.requiredFiles) > 0 {
-        nextDir := currDir + "/" + requiredFile.fileName
-        _, err := HasRequiredFiles(&nextDir, requiredFile.requiredFiles)
-        if err != nil {
-          return false, err
-        }
-      }
-      return true, nil
-    }
-  }
-
-  return false, FileCheckFail.New("Required file/dir not found: [%v/%v]", currDir, requiredFile.fileName)
-}
-
-// TODO: goroutine + channels to further optimize
-/*
- * Reads the current directory and returns
- *   - bool: if all the required files were found
- */
-func HasRequiredFiles(dir *string, requiredFiles []RequiredFile) (bool, error) {
-  var currDir = *dir
-
-  if currDir == "" {
-    currDir = defaultDir
-  }
-
-  filesFromDisk, err := ioutil.ReadDir(currDir)
-
-  if err != nil {
-    return false, err
-  }
-
-  for _, requiredFile := range requiredFiles {
-    found, err := findFile(ConvertFiles(filesFromDisk), requiredFile, currDir)
-
-    if !found {
-      return false, err
-    }
-  }
-
-  return true, nil
+  {name: "Test-Flight json build file", fileName: "build.json", fileType: "f"},
+  {name: "Test-Flight docker dir", fileName: "docker", fileType: "d",
+    requiredFiles: []RequiredFile{
+      {name: "Ansible inventory file used for Test-Flight", fileName: "inventory", fileType: "f"},
+      {name: "Ansible playbook file used for Test-Flight", fileName: "playbook.yml", fileType: "f"},
+    },
+  },
+  {name: "Ansible handlers dir", fileName: "handlers", fileType: "d", requiredFiles: ansibleFiles},
+  {name: "Ansible meta dir", fileName: "meta", fileType: "d", requiredFiles: ansibleFiles},
+  {name: "Ansible tasks dir", fileName: "tasks", fileType: "d", requiredFiles: ansibleFiles},
+  {name: "Ansible templates dir", fileName: "templates", fileType: "d"},
+  {name: "Ansible test dir", fileName: "tests", fileType: "d", requiredFiles: ansibleFiles},
+  {name: "Ansible var dir for variables", fileName: "vars", fileType: "d", requiredFiles: ansibleFiles},
+  {name: "Ansible vault dir for encrypted files", fileName: "vault", fileType: "d"},
 }

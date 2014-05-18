@@ -1,8 +1,7 @@
-package build
+package config
 
 import (
   "encoding/json"
-  "fmt"
   "io/ioutil"
 )
 
@@ -12,13 +11,14 @@ type BuildFile struct {
   Version string
 }
 
-func ReadBuildFile(path string) {
+func ReadBuildFile(path string) (*BuildFile, error) {
   jsonBlob, _ := ioutil.ReadFile(path + "/build.json")
 
   var buildFile BuildFile
   err := json.Unmarshal(jsonBlob, &buildFile)
   if err != nil {
-    fmt.Println("error:", err)
+    return nil, err
   }
-  fmt.Printf("%+v\n", buildFile)
+
+  return &buildFile, nil
 }
