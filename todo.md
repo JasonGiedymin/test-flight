@@ -17,12 +17,17 @@ Dev todos:
     [x] modify for better oop design
     [x] add app state obj
     [x] modify app state to be populated build file
-    [ ] read local config file (local to bin)
+    [x] read user home config file then local to bin
+    [ ] cleanup `ReadConfigFile`, my gosh is it ugly
+    [ ] better logging, visit spacemonkey libs
+    [ ] find better golang flow (perf functional)
+    [ ] create test-flight file in lib/
+    [ ] move parsing into test-flight within lib
     [ ] docker endpoint specified in test-flight config & build.json (build overrides config)
     [ ] check that docker socket/ip exists
     [ ] create dockerfile and pass to docker
     [ ] run ansible lint/check within a docker, call this `runup` (an actual aircraft term)
-    [ ] better logging, visit spacemonkey libs
+
     [ ] log file
 
 ### v0.9.5 - Beta release

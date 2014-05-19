@@ -40,18 +40,30 @@ func (appState *ApplicationState) State() string {
 type TestFlight struct {
   AppState      ApplicationState
   requiredFiles []RequiredFile
-  parser        *flags.Parser
+  Parser        *flags.Parser
 }
 
 func (app *TestFlight) Parse() {
-  if _, err := app.parser.Parse(); err != nil {
+  if _, err := app.Parser.Parse(); err != nil {
     os.Exit(1)
   }
 }
 
 func (app *TestFlight) State() string {
-  fmt.Printf("[STATE] - %v", app.AppState.CurrentMode)
+  fmt.Printf("[STATE] - %v\n", app.AppState.CurrentMode)
   return app.AppState.CurrentMode
+}
+
+func (app *TestFlight) Init() (error) {
+  app.AppState.CurrentMode = "INIT"
+  app.State()
+
+  _, err := config.ReadConfigFile()
+  if (err != nil) {
+    return err
+  }
+
+  return nil
 }
 
 // == Default vars ==

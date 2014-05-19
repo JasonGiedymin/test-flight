@@ -2,7 +2,7 @@ package main
 
 import (
   "./lib"
-  "./lib/config"
+  // "./lib/config"
   "fmt"
   "os"
   // "github.com/fsouza/go-dockerclient"
@@ -10,46 +10,31 @@ import (
   "github.com/jessevdk/go-flags"
 )
 
-type TestFlight struct {
-  appState      lib.ApplicationState
-  configFile    config.ConfigFile
-  buildFile     config.BuildFile
-  requiredFiles []lib.RequiredFile
-  parser        *flags.Parser
-}
-
 type CommandOptions struct{}
 
-func (app *TestFlight) Parse() {
-  if _, err := app.parser.Parse(); err != nil {
-    os.Exit(1)
-  }
-}
-
-func (app *TestFlight) State() {
-  app.appState.State()
-}
-
 var (
-  app           TestFlight
+  app           lib.TestFlight
   options       CommandOptions
-  checkCommand  = lib.CheckCommand{AppState: &app.appState}
+  checkCommand  = lib.CheckCommand{AppState: &app.AppState}
   launchCommand lib.LaunchCommand
 )
 
 // == App ==
 func init() {
-  app.appState.CurrentMode = "INIT"
-  app.State()
+  err := app.Init()
+  if (err != nil) {
+    fmt.Println(err)
+    os.Exit(1)
+  }
 
-  app.parser = flags.NewParser(&options, flags.Default)
+  app.Parser = flags.NewParser(&options, flags.Default)
 
-  app.parser.AddCommand("check",
+  app.Parser.AddCommand("check",
     "pre-flight check",
     "Used for pre-flight check of the ansible playbook.",
     &checkCommand)
 
-  app.parser.AddCommand("launch",
+  app.Parser.AddCommand("launch",
     "flight launch",
     "Launch an ansible playbook test.",
     &launchCommand)
@@ -58,7 +43,7 @@ func init() {
 func main() {
   fmt.Println("Started...")
   app.Parse()
-  fmt.Println(*app.appState.BuildFile)
+  fmt.Println(*app.AppState.BuildFile)
 
   // endpoint := "http://localhost:4243"
   // client, _ := docker.NewClient(endpoint)
