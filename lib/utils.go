@@ -1,9 +1,13 @@
 package lib
 
 import (
-  "os"
   "io/ioutil"
+  "os"
+  // "github.com/kdar/factorlog"
 )
+
+// var Info = factorlog.New(os.Stdout, factorlog.NewStdFormatter(`%{Color "green"}%{Date} %{Time} %{File}:%{Line} %{Message}%{Color "reset"}`))
+// var Error = factorlog.New(os.Stdout, factorlog.NewStdFormatter(`%{Color "red"}%{Date} %{Time} %{File}:%{Line} %{Message}%{Color "reset"}`))
 
 // Converts []FileInfo => []string
 func ConvertFiles(files []os.FileInfo) []string {

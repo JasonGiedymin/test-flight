@@ -2,11 +2,9 @@ package main
 
 import (
   "./lib"
-  // "./lib/config"
+  Log "./lib/logging"
   "fmt"
   "os"
-  // "github.com/fsouza/go-dockerclient"
-  // "flag"
   "github.com/jessevdk/go-flags"
 )
 
@@ -41,7 +39,7 @@ func init() {
 }
 
 func main() {
-  fmt.Println("Started...")
+  Log.Info.Print("Started")
   app.Parse()
   fmt.Println(*app.AppState.BuildFile)
 

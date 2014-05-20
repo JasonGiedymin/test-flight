@@ -18,20 +18,21 @@ Dev todos:
     [x] add app state obj
     [x] modify app state to be populated build file
     [x] read user home config file then local to bin
-    [ ] cleanup `ReadConfigFile`, my gosh is it ugly
-    [ ] better logging, visit spacemonkey libs
-    [ ] find better golang flow (perf functional)
+    [x] better logging, visit ~~spacemonkey libs~~ factorlog
+    [x] find better golang flow (perf functional) => custom functional every time
+    [ ] apply logging levels and logging messages all around
     [ ] create test-flight file in lib/
     [ ] move parsing into test-flight within lib
     [ ] docker endpoint specified in test-flight config & build.json (build overrides config)
     [ ] check that docker socket/ip exists
     [ ] create dockerfile and pass to docker
     [ ] run ansible lint/check within a docker, call this `runup` (an actual aircraft term)
-
     [ ] log file
+    [ ] cleanup `ReadConfigFile`, my gosh is it ugly
 
 ### v0.9.5 - Beta release
 
+    [ ] create debug.log
     [ ] build.json - add entries to specify list of tests to run and their order
     [ ] test-flight config.json - add entry to specify run timeout
 

@@ -26,6 +26,7 @@ Once built, test-flight can be used like so:
     - [go-dockerclient](https://github.com/fsouza/go-dockerclient)
     - [SpaceMonkeyGo Errors](https://github.com/SpaceMonkeyGo/errors)
     - [Go Flags](https://github.com/jessevdk/go-flags)
+    - [FactorLog](github.com/kdar/factorlog)
   - go get:
     - go get github.com/fsouza/go-dockerclient
     - go get github.com/SpaceMonkeyGo/errors

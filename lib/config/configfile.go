@@ -17,6 +17,23 @@ type ConfigFile struct {
   DockerEndpoint string
 }
 
+// type ConfigProcessor func(inStr string) (string, error)
+//
+// // If err, next; otherwise return err
+// func ConfigCompose(fx []ConfigProcessor, path string) (*ConfigFile, error) {
+//   var configFile *ConfigFile
+//   var err error
+//
+//   for i := range fx {
+//     configFile, err := fx[i](path)
+//     if configFile != nil && err != nil {
+//       return configFile, nil
+//     }
+//   }
+//
+//   return nil, err
+// }
+
 func ReadConfigFile() (*ConfigFile, error) {
   var configFile ConfigFile
 
