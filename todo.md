@@ -22,9 +22,11 @@ Dev todos:
     [x] find better golang flow (perf functional) => custom functional every time
     [x] apply logging levels => Error, Warn, Info, Debug, Trace
     [x] create debug.log
-    [ ] use logging where there is fmt.Println
-    [ ] create test-flight file in lib/
-    [ ] move parsing into test-flight within lib
+    [x] define usage of logging levels
+    [x] use logging where there is fmt.Println
+    [x] start linting (though the atom goplus plugin which calls golint seems to fail often)
+    [-] create test-flight file in lib/
+    [-] move parsing into test-flight within lib
     [ ] docker endpoint specified in test-flight config & build.json (build overrides config)
     [ ] check that docker socket/ip exists
     [ ] create dockerfile and pass to docker

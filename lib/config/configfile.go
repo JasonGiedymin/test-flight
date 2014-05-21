@@ -1,8 +1,8 @@
 package config
 
 import (
+  Logger "../logging"
   "encoding/json"
-  "fmt"
   "github.com/SpaceMonkeyGo/errors"
   "io/ioutil"
   "os"
@@ -35,21 +35,21 @@ type ConfigFile struct {
 // }
 
 func ReadConfigFile() (*ConfigFile, error) {
+  configFileName := "test-flight-config.json"
   var configFile ConfigFile
-
-  fmt.Println("Looking for test-flight-config.json...")
 
   usr, err := user.Current()
   if err != nil {
-    return nil, ReadFileError.New("Can't read test-flight-config.json file in user home.")
+    Logger.Error("Can't read user home.")
+    return nil, ReadFileError.New("Can't read user home.")
   }
 
+  Logger.Debug("Looking for config file in user HOME: " + usr.HomeDir + "/test-flight-config.json")
   jsonBlob, _ := ioutil.ReadFile(usr.HomeDir + "/test-flight-config.json")
   err = json.Unmarshal(jsonBlob, &configFile)
 
   if err != nil {
-    //TODO: log noting prog is trying local now
-    fmt.Println("Checking for local pwd config file...")
+    Logger.Warn(configFileName + " not found in user HOME: " + usr.HomeDir)
 
     // Get user home first
     pwd, err := os.Getwd()
@@ -58,13 +58,15 @@ func ReadConfigFile() (*ConfigFile, error) {
     }
 
     // with user home find config file
-    jsonBlob, err = ioutil.ReadFile(pwd + "/test-flight-config.json")
+    Logger.Debug("Now checking for config file in local running pwd: " + pwd + "/" + configFileName)
+    jsonBlob, err = ioutil.ReadFile(pwd + "/" + configFileName)
     err = json.Unmarshal(jsonBlob, &configFile)
     if err != nil {
+      Logger.Error("Can't find " + configFileName + "in local pwd or user home. Please create the file.")
       return nil, ReadFileError.New("Can't find test-flight-config.json file in local pwd.")
     }
   }
 
-  fmt.Printf("Got config file: %v\n", configFile)
+  Logger.Debug("Found config file, contents:", configFile)
   return &configFile, nil
 }

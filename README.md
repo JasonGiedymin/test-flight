@@ -23,6 +23,7 @@ Once built, test-flight can be used like so:
   - deps managed by [godev](https://github.com/tools/godep).
     Installed via `go get github.com/tools/godep`
   - uses:
+    - [golint](go get github.com/golang/lint/golint)
     - [go-dockerclient](https://github.com/fsouza/go-dockerclient)
     - [SpaceMonkeyGo Errors](https://github.com/SpaceMonkeyGo/errors)
     - [Go Flags](https://github.com/jessevdk/go-flags)

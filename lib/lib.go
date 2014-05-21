@@ -6,10 +6,10 @@ package lib
 
 import (
   "./config"
-  "fmt"
   "github.com/SpaceMonkeyGo/errors"
   "github.com/jessevdk/go-flags"
   "os"
+  Logger "./logging"
 )
 
 // == App Related ==
@@ -33,7 +33,14 @@ type ApplicationState struct {
 }
 
 func (appState *ApplicationState) State() string {
-  fmt.Printf("[STATE] - %v\n", appState.CurrentMode)
+  Logger.Debug("STATE - ", appState.CurrentMode)
+  return appState.CurrentMode
+}
+
+func (appState *ApplicationState) SetState(newState string) string {
+  appState.CurrentMode = newState
+  Logger.Debug("STATE changed to", appState.CurrentMode)
+  // Logger.Debug("STATE -", appState.CurrentMode)
   return appState.CurrentMode
 }
 
@@ -44,19 +51,14 @@ type TestFlight struct {
 }
 
 func (app *TestFlight) Parse() {
+  app.AppState.SetState("PARSE_COMMAND_LINE")
   if _, err := app.Parser.Parse(); err != nil {
     os.Exit(1)
   }
 }
 
-func (app *TestFlight) State() string {
-  fmt.Printf("[STATE] - %v\n", app.AppState.CurrentMode)
-  return app.AppState.CurrentMode
-}
-
 func (app *TestFlight) Init() (error) {
-  app.AppState.CurrentMode = "INIT"
-  app.State()
+  app.AppState.SetState("INIT")
 
   _, err := config.ReadConfigFile()
   if (err != nil) {

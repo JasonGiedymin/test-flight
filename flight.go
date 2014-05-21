@@ -2,7 +2,7 @@ package main
 
 import (
   "./lib"
-  Logger "./lib/logging"
+  // Logger "./lib/logging"
   "fmt"
   "github.com/jessevdk/go-flags"
   "os"
@@ -39,9 +39,7 @@ func init() {
 }
 
 func main() {
-  Logger.Debug("Started")
-  app.Parse()
-  fmt.Println(*app.AppState.BuildFile)
+  app.Parse() // parse command line options now
 
   // endpoint := "http://localhost:4243"
   // client, _ := docker.NewClient(endpoint)
@@ -59,4 +57,5 @@ func main() {
 
   // files, filesError := lib.GetFiles()
   // fmt.Printf("Found these files %v, and these errors: [%v].\n", files, filesError)
+  app.AppState.SetState("END")
 }

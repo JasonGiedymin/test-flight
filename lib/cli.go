@@ -1,20 +1,10 @@
-/*
- * [x] Moved all cli here
- * [ ] Might be helpful to create custom struct and move everything within
- */
-
 package lib
 
 import (
   "./config"
   "fmt"
-  // "github.com/jessevdk/go-flags"
-  // "os"
+  Logger "./logging"
 )
-
-// == Commands ==
-// var checkCommand CheckCommand
-// var launchCommand LaunchCommand
 
 // == Check Command ==
 type CheckCommand struct {
@@ -23,10 +13,8 @@ type CheckCommand struct {
 }
 
 func (cmd *CheckCommand) Execute(args []string) error {
-  fmt.Printf("Running Pre-Flight Check... in dir: [%v]\n", cmd.Dir)
-
-  cmd.AppState.CurrentMode = "CHECK_FILES"
-  cmd.AppState.State()
+  cmd.AppState.SetState("CHECK_FILES")
+  Logger.Info("Running Pre-Flight Check... in dir:", cmd.Dir)
 
   _, err := HasRequiredFiles(&cmd.Dir, RequiredFiles)
   if err != nil {
@@ -40,7 +28,7 @@ func (cmd *CheckCommand) Execute(args []string) error {
 
   cmd.AppState.BuildFile = buildFile
 
-  fmt.Println("Done.")
+  Logger.Debug("Buildfile found, contents:", *buildFile)
   return nil
 }
 

@@ -3,7 +3,6 @@ package lib
 import (
   "io/ioutil"
   "os"
-  // "github.com/kdar/factorlog"
 )
 
 // var Info = factorlog.New(os.Stdout, factorlog.NewStdFormatter(`%{Color "green"}%{Date} %{Time} %{File}:%{Line} %{Message}%{Color "reset"}`))
