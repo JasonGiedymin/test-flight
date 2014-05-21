@@ -20,7 +20,9 @@ Dev todos:
     [x] read user home config file then local to bin
     [x] better logging, visit ~~spacemonkey libs~~ factorlog
     [x] find better golang flow (perf functional) => custom functional every time
-    [ ] apply logging levels and logging messages all around
+    [x] apply logging levels => Error, Warn, Info, Debug, Trace
+    [x] create debug.log
+    [ ] use logging where there is fmt.Println
     [ ] create test-flight file in lib/
     [ ] move parsing into test-flight within lib
     [ ] docker endpoint specified in test-flight config & build.json (build overrides config)
@@ -32,7 +34,6 @@ Dev todos:
 
 ### v0.9.5 - Beta release
 
-    [ ] create debug.log
     [ ] build.json - add entries to specify list of tests to run and their order
     [ ] test-flight config.json - add entry to specify run timeout
 

@@ -2,10 +2,10 @@ package main
 
 import (
   "./lib"
-  Log "./lib/logging"
+  Logger "./lib/logging"
   "fmt"
-  "os"
   "github.com/jessevdk/go-flags"
+  "os"
 )
 
 type CommandOptions struct{}
@@ -20,7 +20,7 @@ var (
 // == App ==
 func init() {
   err := app.Init()
-  if (err != nil) {
+  if err != nil {
     fmt.Println(err)
     os.Exit(1)
   }
@@ -39,7 +39,7 @@ func init() {
 }
 
 func main() {
-  Log.Info.Print("Started")
+  Logger.Debug("Started")
   app.Parse()
   fmt.Println(*app.AppState.BuildFile)
 
