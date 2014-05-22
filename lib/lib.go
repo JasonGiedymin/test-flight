@@ -31,7 +31,7 @@ type ApplicationMeta struct {
 type ApplicationState struct {
   Meta        ApplicationMeta
   Options     commandOptions
-  ConfigFile  config.ConfigFile
+  ConfigFile  *config.ConfigFile
   BuildFile   *config.BuildFile
   LastCommand string
   CurrentMode string
@@ -95,7 +95,7 @@ var (
 )
 
 var meta = ApplicationMeta{
-  Version: "0.9.0",
+  Version: "0.9.1",
 }
 
 var RequiredFiles = []RequiredFile{

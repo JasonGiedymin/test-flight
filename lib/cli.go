@@ -6,12 +6,14 @@ import (
   "os"
 )
 
-func commandPreReq(state func(string) string) {
-  state("CHECK_PREREQS")
-  _, err := config.ReadConfigFile()
+func commandPreReq(appState *ApplicationState) {
+  appState.SetState("CHECK_PREREQS")
+  configFile, err := config.ReadConfigFile()
   if config.ReadFileError.Contains(err) {
     os.Exit(ExitCodes["config_missing"])
   }
+
+  appState.ConfigFile = configFile
 }
 
 // == Version Command ==
@@ -32,7 +34,7 @@ type CheckCommand struct {
 }
 
 func (cmd *CheckCommand) Execute(args []string) error {
-  commandPreReq(cmd.AppState.SetState) // I'm lazy
+  commandPreReq(cmd.AppState) // I'm lazy
 
   cmd.AppState.SetState("CHECK_FILES")
   Logger.Info("Running Pre-Flight Check... in dir:", cmd.Dir)
@@ -60,7 +62,7 @@ type LaunchCommand struct {
 }
 
 func (cmd *LaunchCommand) Execute(args []string) error {
-  commandPreReq(cmd.AppState.SetState)
+  commandPreReq(cmd.AppState)
 
   Logger.Info("Launching Tests... in dir:", cmd.Dir)
   _, err := HasRequiredFiles(&cmd.Dir, RequiredFiles)

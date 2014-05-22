@@ -44,7 +44,7 @@ func ReadConfigFile() (*ConfigFile, error) {
     return nil, ReadFileError.New("Can't read user home.")
   }
 
-  Logger.Debug("Looking for config file in user HOME: " + usr.HomeDir + "/test-flight-config.json")
+  Logger.Debug("Checking for config file in user HOME: " + usr.HomeDir + "/test-flight-config.json")
   jsonBlob, _ := ioutil.ReadFile(usr.HomeDir + "/test-flight-config.json")
   err = json.Unmarshal(jsonBlob, &configFile)
 
@@ -58,7 +58,7 @@ func ReadConfigFile() (*ConfigFile, error) {
     }
 
     // with user home find config file
-    Logger.Debug("Now checking for config file in local running pwd: " + pwd + "/" + configFileName)
+    Logger.Debug("Checking for config file in local pwd: " + pwd + "/" + configFileName)
     jsonBlob, err = ioutil.ReadFile(pwd + "/" + configFileName)
     err = json.Unmarshal(jsonBlob, &configFile)
     if err != nil {

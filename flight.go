@@ -3,6 +3,7 @@ package main
 import (
   "./lib"
   "os"
+  "./lib/docker"
 )
 
 var (
@@ -15,12 +16,16 @@ func init() {
   if err != nil {
     os.Exit(lib.ExitCodes["init_fail"])
   }
-
 }
 
 // Runs Test-Flight
 func main() {
   app.ProcessCommands() // parse command line options now
+
+  var dc = docker.DockerClient{ConfigFile: app.AppState.ConfigFile}
+  dc.ShowInfo()
+
+  // app.AppState.ConfigFile
 
   // endpoint := "http://localhost:4243"
   // client, _ := docker.NewClient(endpoint)

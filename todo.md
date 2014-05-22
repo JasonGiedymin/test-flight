@@ -36,13 +36,15 @@ Dev todos:
 
 #### v0.9.1 - Alpha
 
-    [ ] add version flag
-    [ ] docker endpoint specified in test-flight config & build.json (build overrides config)
-    [ ] check that docker socket/ip exists
+    [x] change version
+    [x] fix bug - forgot to set configfile when reading
+    [x] docker endpoint specified in test-flight config & build.json (build overrides config)
+    [-] check that docker socket/ip exists => client lib should do it
     [ ] create dockerfile and pass to docker
     [ ] run ansible lint/check within a docker, call this `runup` (an actual aircraft term)
     [ ] add help flag
     [ ] cleanup code (lib is a mess, need more {})
+    [ ] constrain test-flight-config info to sections, pass appropriate sections to libs
 
 ### v0.9.5 - Beta release
 

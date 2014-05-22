@@ -35,12 +35,15 @@ Other commands:
     - [go-dockerclient](https://github.com/fsouza/go-dockerclient)
     - [SpaceMonkeyGo Errors](https://github.com/SpaceMonkeyGo/errors)
     - [Go Flags](https://github.com/jessevdk/go-flags)
-    - [FactorLog](github.com/kdar/factorlog)
+    - [FactorLog](https://github.com/kdar/factorlog)
   - go get:
+    - go get github.com/golang/lint/golint
     - go get github.com/fsouza/go-dockerclient
     - go get github.com/SpaceMonkeyGo/errors
     - go get github.com/jessevdk/go-flags
-
+    - go get github.com/kdar/factorlog
+  - update libs:
+    - go get -u all
 
 ## Building
 
