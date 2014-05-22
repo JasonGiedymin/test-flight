@@ -62,7 +62,7 @@ func ReadConfigFile() (*ConfigFile, error) {
     jsonBlob, err = ioutil.ReadFile(pwd + "/" + configFileName)
     err = json.Unmarshal(jsonBlob, &configFile)
     if err != nil {
-      Logger.Error("Can't find " + configFileName + "in local pwd or user home. Please create the file.")
+      Logger.Error("Can't find " + configFileName + " in local pwd or user home. Please create the file.")
       return nil, ReadFileError.New("Can't find test-flight-config.json file in local pwd.")
     }
   }

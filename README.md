@@ -15,7 +15,15 @@ Once built, test-flight can be used like so:
     flight launch .
 
     # To run test-flight in the another directory named 'test'
-    flight launch -d ./test
+    clear && go run flight.go launch -d ./test
+
+Other commands:
+
+    # Run check
+    clear && go run flight.go check
+
+    # Or In another directory
+    clear && go run flight.go check -d ./test
 
 
 ## Notes

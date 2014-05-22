@@ -2,44 +2,25 @@ package main
 
 import (
   "./lib"
-  // Logger "./lib/logging"
-  "fmt"
-  "github.com/jessevdk/go-flags"
   "os"
 )
 
-type CommandOptions struct{}
-
 var (
-  app           lib.TestFlight
-  options       CommandOptions
-  checkCommand  = lib.CheckCommand{AppState: &app.AppState}
-  launchCommand lib.LaunchCommand
+  app lib.TestFlight
 )
 
 // == App ==
 func init() {
   err := app.Init()
   if err != nil {
-    fmt.Println(err)
-    os.Exit(1)
+    os.Exit(lib.ExitCodes["init_fail"])
   }
 
-  app.Parser = flags.NewParser(&options, flags.Default)
-
-  app.Parser.AddCommand("check",
-    "pre-flight check",
-    "Used for pre-flight check of the ansible playbook.",
-    &checkCommand)
-
-  app.Parser.AddCommand("launch",
-    "flight launch",
-    "Launch an ansible playbook test.",
-    &launchCommand)
 }
 
+// Runs Test-Flight
 func main() {
-  app.Parse() // parse command line options now
+  app.ProcessCommands() // parse command line options now
 
   // endpoint := "http://localhost:4243"
   // client, _ := docker.NewClient(endpoint)

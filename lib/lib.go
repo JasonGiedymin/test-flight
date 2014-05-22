@@ -6,10 +6,10 @@ package lib
 
 import (
   "./config"
+  Logger "./logging"
   "github.com/SpaceMonkeyGo/errors"
   "github.com/jessevdk/go-flags"
   "os"
-  Logger "./logging"
 )
 
 // == App Related ==
@@ -21,26 +21,25 @@ type RequiredFile struct {
   requiredFiles []RequiredFile
 }
 
-type ApplicationConfig struct {
-  defaultDir string
+type commandOptions struct {
+}
+
+type ApplicationMeta struct {
+  Version string
 }
 
 type ApplicationState struct {
+  Meta        ApplicationMeta
+  Options     commandOptions
   ConfigFile  config.ConfigFile
   BuildFile   *config.BuildFile
   LastCommand string
   CurrentMode string
 }
 
-func (appState *ApplicationState) State() string {
-  Logger.Debug("STATE - ", appState.CurrentMode)
-  return appState.CurrentMode
-}
-
 func (appState *ApplicationState) SetState(newState string) string {
   appState.CurrentMode = newState
-  Logger.Debug("STATE changed to", appState.CurrentMode)
-  // Logger.Debug("STATE -", appState.CurrentMode)
+  Logger.Trace("STATE changed to", appState.CurrentMode)
   return appState.CurrentMode
 }
 
@@ -50,32 +49,54 @@ type TestFlight struct {
   Parser        *flags.Parser
 }
 
-func (app *TestFlight) Parse() {
+func (app *TestFlight) ProcessCommands() {
   app.AppState.SetState("PARSE_COMMAND_LINE")
   if _, err := app.Parser.Parse(); err != nil {
-    os.Exit(1)
+    os.Exit(ExitCodes["command_fail"])
   }
 }
 
-func (app *TestFlight) Init() (error) {
+func (app *TestFlight) Init() error {
+  app.AppState.Meta = meta
+
+  checkCommand = CheckCommand{AppState: &app.AppState}
+  versionCommand = VersionCommand{AppState: &app.AppState}
   app.AppState.SetState("INIT")
 
-  _, err := config.ReadConfigFile()
-  if (err != nil) {
-    return err
-  }
+  app.Parser = flags.NewParser(&app.AppState.Options, flags.Default)
+  app.Parser.AddCommand("check",
+    "pre-flight check",
+    "Used for pre-flight check of the ansible playbook.",
+    &checkCommand)
+
+  app.Parser.AddCommand("launch",
+    "flight launch",
+    "Launch an ansible playbook test.",
+    &launchCommand)
+
+  app.Parser.AddCommand("version",
+    "shows version",
+    "Show Test-Flight version number.",
+    &versionCommand)
 
   return nil
 }
 
 // == Default vars ==
 var (
-  defaultDir    = "./"
-  mainYaml      = RequiredFile{name: "main yaml", fileName: "main.yml", fileType: "f"}
-  BadDir        = errors.NewClass("Can't read the current directory")
-  FileCheckFail = errors.NewClass("File Check Failed")
-  ansibleFiles  = []RequiredFile{mainYaml}
+  defaultDir     = "./"
+  mainYaml       = RequiredFile{name: "main yaml", fileName: "main.yml", fileType: "f"}
+  BadDir         = errors.NewClass("Can't read the current directory")
+  FileCheckFail  = errors.NewClass("File Check Failed")
+  ansibleFiles   = []RequiredFile{mainYaml}
+  checkCommand   CheckCommand
+  launchCommand  LaunchCommand
+  versionCommand VersionCommand
 )
+
+var meta = ApplicationMeta{
+  Version: "0.9.0",
+}
 
 var RequiredFiles = []RequiredFile{
   {name: "Test-Flight json build file", fileName: "build.json", fileType: "f"},

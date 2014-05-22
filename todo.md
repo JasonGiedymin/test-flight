@@ -27,17 +27,28 @@ Dev todos:
     [x] start linting (though the atom goplus plugin which calls golint seems to fail often)
     [-] create test-flight file in lib/
     [-] move parsing into test-flight within lib
+    [x] add version flag
+    [x] cleanup code from flight to lib
+    [x] add exit codes
+    [x] add more state to the config file reading
+    [x] remove logging line and class (since I proxy it's useless - for now)
+    [x] set state to trace logging level
+
+#### v0.9.1 - Alpha
+
+    [ ] add version flag
     [ ] docker endpoint specified in test-flight config & build.json (build overrides config)
     [ ] check that docker socket/ip exists
     [ ] create dockerfile and pass to docker
     [ ] run ansible lint/check within a docker, call this `runup` (an actual aircraft term)
-    [ ] log file
-    [ ] cleanup `ReadConfigFile`, my gosh is it ugly
+    [ ] add help flag
+    [ ] cleanup code (lib is a mess, need more {})
 
 ### v0.9.5 - Beta release
 
     [ ] build.json - add entries to specify list of tests to run and their order
     [ ] test-flight config.json - add entry to specify run timeout
+    [ ] get rid of commandPreReq plz
 
 ### v1.0.0
 
