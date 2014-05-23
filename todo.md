@@ -40,11 +40,24 @@ Dev todos:
     [x] fix bug - forgot to set configfile when reading
     [x] docker endpoint specified in test-flight config & build.json (build overrides config)
     [-] check that docker socket/ip exists => client lib should do it
-    [ ] create dockerfile and pass to docker
+    [x] cleanup docker api struct
+    [x] show docker images
+    [x] create dockerfile methods and placeholder
+    [x] placeholder for Dockerfile template
+    [x] placeholder for inventory template
+    [x] placeholder for playbook template
+    [ ] create template constructs for use with creating dockerfile
+    [ ] change docker dir name to test-flight (in reqs)
+    [ ] create templates for inventory and playbook
+    [ ] create templates in .test-flight/cache
+    [ ] create dockerfile and pass to docker api client
     [ ] run ansible lint/check within a docker, call this `runup` (an actual aircraft term)
     [ ] add help flag
     [ ] cleanup code (lib is a mess, need more {})
     [ ] constrain test-flight-config info to sections, pass appropriate sections to libs
+    [ ] create TestFlight.New()
+    [ ] create/show test-flight specific images?
+    [ ] test-flight cleanup
 
 ### v0.9.5 - Beta release
 
@@ -65,6 +78,7 @@ Dev todos:
     [ ] test-flight launch command sub-command to disable dependency building of children
     [ ] build.json - add entries for next docker to build
     [ ] build.json - add triggers to build dependent dockers
+    [ ] nested docker template sections for when creating Dockerfile would be nice
 
 ### v1.5.0
 

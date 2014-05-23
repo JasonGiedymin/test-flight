@@ -14,4 +14,5 @@ var ExitCodes = map[string]int{
   "init_fail":      2,
   "config_missing": 3,
   "command_fail":   4,
+  "docker_error":   5,
 }
