@@ -13,10 +13,13 @@ FROM {{.Owner}}/{{.ImageName}}
 MAINTAINER {{.Owner}}
 
 # Working dir
-ENV WORKDIR {{WorkDir}}
+ENV WORKDIR {{.WorkDir}}
 
 ## !!Env Loop
-ENV {{.Env[i].key}} {{.Env[i].value}}
+{{range .Env}}
+ENV {{.key}} {{.value}}
+{{end}}
+
 
 # Add current playbook scripts
 ADD docker $WORKDIR/docker
@@ -35,6 +38,8 @@ ADD docker/playbook.yml $WORKDIR/playbook.yml
 RUN ansible-playbook $WORKDIR/playbook.yml -c local -vvvv
 
 # !!Expose Loop
-ENV {{.Expose[i]}}
+{{range .Expose}}
+Expose {{.port}}
+{{end}}
 
 CMD {{.Cmd}}

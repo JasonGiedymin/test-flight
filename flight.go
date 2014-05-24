@@ -4,6 +4,7 @@ import (
   "./lib"
   "./lib/docker"
   "os"
+  Logger "./lib/logging"
 )
 
 var (
@@ -22,10 +23,14 @@ func init() {
 func main() {
   app.ProcessCommands() // parse command line options now
 
-  var dc = docker.NewApi(app.AppState.ConfigFile)
-  dc.ShowInfo()
-  dc.ShowImages()
-  dc.CreateDocker()
+  Logger.Trace(*app.AppState.ConfigFile)
+  Logger.Trace(*app.AppState.BuildFile)
+
+  var dc = docker.NewApi(app.AppState.ConfigFile, app.AppState.BuildFile)
+  // dc.ShowInfo()
+  // dc.ShowImages()
+  // dc.CreateDocker()
+  dc.CreateTemplate()
 
   app.AppState.SetState("END")
 }

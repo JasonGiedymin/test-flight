@@ -1,5 +1,7 @@
 {
-  "name": "test-docker-name1",
-  "parent": "",
-  "version": "0.1.0"
+  "Owner": "Amuxbit",
+  "ImageName": "test-docker-name1",
+  "Version": "0.1.0",
+  "RequiresDocker": "",
+  "RequiresDockerUrl": ""
 }

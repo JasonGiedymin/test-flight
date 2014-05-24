@@ -51,7 +51,6 @@ func ReadConfigFile() (*ConfigFile, error) {
   if err != nil {
     Logger.Warn(configFileName + " not found in user HOME: " + usr.HomeDir)
 
-    // Get user home first
     pwd, err := os.Getwd()
     if err != nil {
       return nil, err

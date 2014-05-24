@@ -6,9 +6,11 @@ import (
 )
 
 type BuildFile struct {
-  Name    string
-  Parent  string
+  Owner string
+  ImageName string
   Version string
+  RequiresDocker string
+  RequiresDockerUrl string
 }
 
 func ReadBuildFile(path string) (*BuildFile, error) {

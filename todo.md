@@ -46,6 +46,11 @@ Dev todos:
     [x] placeholder for Dockerfile template
     [x] placeholder for inventory template
     [x] placeholder for playbook template
+    [x] move templates out
+    [x] documentation about building
+    [x] template var struct
+    [x] populate template var with test-flight-config.json + build.json
+    [ ] create template constructs for use with creating inventory and playbook
     [ ] create template constructs for use with creating dockerfile
     [ ] change docker dir name to test-flight (in reqs)
     [ ] create templates for inventory and playbook
