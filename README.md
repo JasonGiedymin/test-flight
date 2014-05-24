@@ -6,6 +6,8 @@ Test + Build your Ansible Playbooks with Docker.
 
 ## Usage
 
+### Production Build
+
 Once built, test-flight can be used like so:
 
     # To run test-flight in the current directory
@@ -15,9 +17,12 @@ Once built, test-flight can be used like so:
     flight launch .
 
     # To run test-flight in the another directory named 'test'
-    clear && go run flight.go launch -d ./test
+    flight launch -d ./test
 
-Other commands:
+
+### Development Build
+
+During development these commands can be used:
 
     # Run check
     clear && go run flight.go check
