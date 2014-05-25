@@ -3,5 +3,9 @@
   "ImageName": "test-docker-name1",
   "Version": "0.1.0",
   "RequiresDocker": "",
-  "RequiresDockerUrl": ""
+  "RequiresDockerUrl": "",
+  "Env": {
+    "ENV_MODE": "dev"
+  },
+  "Expose": []
 }

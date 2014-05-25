@@ -15,6 +15,13 @@ var (
 
 type ConfigFile struct {
   DockerEndpoint string
+  WorkDir string
+}
+
+func NewConfigFile() *ConfigFile {
+  return &ConfigFile{
+    DockerEndpoint: "http://localhost:4243",
+  }
 }
 
 // type ConfigProcessor func(inStr string) (string, error)
@@ -36,7 +43,7 @@ type ConfigFile struct {
 
 func ReadConfigFile() (*ConfigFile, error) {
   configFileName := "test-flight-config.json"
-  var configFile ConfigFile
+  configFile := NewConfigFile()
 
   usr, err := user.Current()
   if err != nil {
@@ -67,5 +74,5 @@ func ReadConfigFile() (*ConfigFile, error) {
   }
 
   Logger.Debug("Found config file, contents:", configFile)
-  return &configFile, nil
+  return configFile, nil
 }

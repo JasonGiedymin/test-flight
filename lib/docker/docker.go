@@ -11,15 +11,17 @@ import (
 )
 
 type TemplateVar struct {
-  Owner string
-  ImageName string
-  Version string
-  RequiresDocker string
+  Owner             string
+  ImageName         string
+  Version           string
+  RequiresDocker    string
   RequiresDockerUrl string
-  WorkDir string
-  Env map[string]string
-  Expose map[string]string
-  Cmd string
+  WorkDir           string
+  Env               map[string]string
+  Expose            map[string]string
+  Cmd               string
+  ConfigFile        *config.ConfigFile
+  BuildFile         *config.BuildFile
 }
 
 // Proxy Client
@@ -43,11 +45,18 @@ func NewApi(configFile *config.ConfigFile, buildFile *config.BuildFile) *DockerA
 
 func (api *DockerApi) getTemplateVar() *TemplateVar {
   return &TemplateVar{
-    Owner: api.buildFile.Owner,
-    ImageName: api.buildFile.ImageName,
-    Version: api.buildFile.Version,
-    RequiresDocker: api.buildFile.RequiresDocker,
+    // Direct:
+    ConfigFile:        api.configFile,
+    BuildFile:         api.buildFile,
+
+    // Helpers for common accessors
+    Owner:             api.buildFile.Owner,
+    ImageName:         api.buildFile.ImageName,
+    Version:           api.buildFile.Version,
+    RequiresDocker:    api.buildFile.RequiresDocker,
     RequiresDockerUrl: api.buildFile.RequiresDockerUrl,
+    WorkDir:           api.configFile.WorkDir,
+    Env:               api.buildFile.Env,
   }
 }
 
@@ -57,7 +66,7 @@ func (api *DockerApi) CreateTemplate() {
     // return nil, err
   }
 
-  pattern := filepath.Join(pwd + "/templates/", "*.tmpl")
+  pattern := filepath.Join(pwd+"/templates/", "*.tmpl")
   tmpl := template.Must(template.ParseGlob(pattern))
 
   // var x = TemplateVar{
@@ -108,5 +117,4 @@ func (api *DockerApi) createDockerFile() string {
 }
 
 func (api *DockerApi) CreateDocker() {
-  Logger.Trace( api.createDockerFile() )
 }

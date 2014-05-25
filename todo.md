@@ -50,8 +50,13 @@ Dev todos:
     [x] documentation about building
     [x] template var struct
     [x] populate template var with test-flight-config.json + build.json
+    [x] add additional template fields required by template
+    [x] add better defaults via New() methods to conf/build files
+    [x] add build/config files directly into TemplateVar for complete access (helpful for user)
+    [x] start of `wiki/buildfile.md` which describes the makeup of the buildfile
+    [x] create template constructs for use with creating dockerfile
+    [ ] finalize template
     [ ] create template constructs for use with creating inventory and playbook
-    [ ] create template constructs for use with creating dockerfile
     [ ] change docker dir name to test-flight (in reqs)
     [ ] create templates for inventory and playbook
     [ ] create templates in .test-flight/cache
@@ -69,6 +74,7 @@ Dev todos:
     [ ] build.json - add entries to specify list of tests to run and their order
     [ ] test-flight config.json - add entry to specify run timeout
     [ ] get rid of commandPreReq plz
+    [ ] template file newline cleanup
 
 ### v1.0.0
 

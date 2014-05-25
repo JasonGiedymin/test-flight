@@ -1,3 +1,4 @@
 {
-  "dockerEndPoint": "http://localhost:4243"
+  "dockerEndPoint": "http://localhost:4243",
+  "workDir": "/tmp/build"
 }

@@ -2,24 +2,26 @@
 # Test-Flight Generated Dockerfile
 #
 # {{.Owner}}/{{.ImageName}}
-#   docker build -t jasongiedymin/voom-launchpage .
+#   docker build -t {{.Owner}}/{{.ImageName}} .
 #
+# {{if .RequiresDocker}}
 # Requires:
 # {{.RequiresDocker}}
 #   {{.RequiresDockerUrl}}
-#
+# {{end}}
 
 FROM {{.Owner}}/{{.ImageName}}
 MAINTAINER {{.Owner}}
 
 # Working dir
-ENV WORKDIR {{.WorkDir}}
+ENV WORKDIR {{.WorkDir}}/{{.ImageName}}
 
-## !!Env Loop
-{{range .Env}}
-ENV {{.key}} {{.value}}
+{{if .Env}}
+{{range $key, $value := .Env}}
+# Env variables
+ENV {{$key}} {{$value}}
 {{end}}
-
+{{end}}
 
 # Add current playbook scripts
 ADD docker $WORKDIR/docker

@@ -3,8 +3,8 @@ package main
 import (
   "./lib"
   "./lib/docker"
+  // Logger "./lib/logging"
   "os"
-  Logger "./lib/logging"
 )
 
 var (
@@ -22,9 +22,6 @@ func init() {
 // Runs Test-Flight
 func main() {
   app.ProcessCommands() // parse command line options now
-
-  Logger.Trace(*app.AppState.ConfigFile)
-  Logger.Trace(*app.AppState.BuildFile)
 
   var dc = docker.NewApi(app.AppState.ConfigFile, app.AppState.BuildFile)
   // dc.ShowInfo()
