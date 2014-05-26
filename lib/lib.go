@@ -95,7 +95,7 @@ var (
 )
 
 var meta = ApplicationMeta{
-  Version: "0.9.1",
+  Version: "0.9.2",
 }
 
 var RequiredFiles = []RequiredFile{

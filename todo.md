@@ -9,8 +9,8 @@ Dev todos:
   - [x] wire in check files to check & launch command
   - [x] wire in param to specify dir `flight check` or `flight check -d ./thisDir`.
         when specifying nothing, imply `./`
-  - [-] wire in dir to all commands, shared struct? => Nope. Bad go practice.
-  - [-] look at golang code, find examples of composition + errors. => if err tracks are the norm... oh well.
+  - [x] ~~wire in dir to all commands, shared struct? => Nope. Bad go practice.~~
+  - [x] ~~look at golang code, find examples of composition + errors. => if err tracks are the norm... oh well.~~
   - [x] read build.json file
   - [x] look for `main.yml` file under each dir
   - [x] look for all dirs and all files required (vault, templates, docker, inventory file...)
@@ -25,8 +25,8 @@ Dev todos:
   - [x] define usage of logging levels
   - [x] use logging where there is fmt.Println
   - [x] start linting (though the atom goplus plugin which calls golint seems to fail often)
-  - [-] create test-flight file in lib/
-  - [-] move parsing into test-flight within lib
+  - [x] ~~create test-flight file in lib/~~
+  - [x] ~~move parsing into test-flight within lib~~
   - [x] add version flag
   - [x] cleanup code from flight to lib
   - [x] add exit codes
@@ -39,7 +39,7 @@ Dev todos:
   - [x] change version
   - [x] fix bug - forgot to set configfile when reading
   - [x] docker endpoint specified in test-flight config & build.json (build overrides config)
-  - [-] check that docker socket/ip exists => client lib should do it
+  - [x] ~~check that docker socket/ip exists => client lib should do it~~
   - [x] cleanup docker api struct
   - [x] show docker images
   - [x] create dockerfile methods and placeholder
@@ -55,14 +55,14 @@ Dev todos:
   - [x] add build/config files directly into TemplateVar for complete access (helpful for user)
   - [x] start of `wiki/buildfile.md` which describes the makeup of the buildfile
   - [x] create template constructs for use with creating dockerfile
-  - [ ] finalize template
   - [x] extra error handling in cli & parse methods
   - [x] consolidate docker package pack into lib, for more consolidation in future
 
 #### v0.9.2 - Alpha
 
-  - [ ] new repo
-  - [ ] version
+  - [x] new repo
+  - [x] version
+  - [ ] finalize template
   - [ ] create template constructs for use with creating inventory and playbook
   - [ ] change docker dir name to test-flight (in reqs)
   - [ ] create templates for inventory and playbook
