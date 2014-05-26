@@ -56,6 +56,13 @@ Dev todos:
     [x] start of `wiki/buildfile.md` which describes the makeup of the buildfile
     [x] create template constructs for use with creating dockerfile
     [ ] finalize template
+    [x] extra error handling in cli & parse methods
+    [x] consolidate docker package pack into lib, for more consolidation in future
+
+#### v0.9.2 - Alpha
+
+    [ ] new repo
+    [ ] version
     [ ] create template constructs for use with creating inventory and playbook
     [ ] change docker dir name to test-flight (in reqs)
     [ ] create templates for inventory and playbook
@@ -82,6 +89,7 @@ Dev todos:
 
 ### v1.1.0
 
+    [ ] user defined template vars
     [ ] test-flight config - keep track of dockerfiles on filesystem that it built
     [ ] test-flight config - entries to enable/disable dependency building (all)
     [ ] test-flight config - entries to enable/disable dependency building (parent)
@@ -93,8 +101,11 @@ Dev todos:
 
 ### v1.5.0
 
+    [ ] ansible npm repo - oh yeah...
     [ ] atom apm plugin
     [ ] test-flight UI to report status/state
+    [ ] sub-templates in each template, to start hooking into (for plugins later)
+    [ ] plugins for templates, config, build...
 
 ## Production Todo
 

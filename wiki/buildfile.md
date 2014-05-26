@@ -5,7 +5,6 @@ The build file `build.json` should exist in all Test-Flight ready Ansible Playbo
 
 ## Build File Fields
 
-
   - `Owner`: _Optional_, Default=``
   - "ImageName": _Optional_, Default=``
   - "Version": _Optional_, Default=``

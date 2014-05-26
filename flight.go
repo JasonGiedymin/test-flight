@@ -2,7 +2,6 @@ package main
 
 import (
   "./lib"
-  "./lib/docker"
   // Logger "./lib/logging"
   "os"
 )
@@ -22,12 +21,6 @@ func init() {
 // Runs Test-Flight
 func main() {
   app.ProcessCommands() // parse command line options now
-
-  var dc = docker.NewApi(app.AppState.ConfigFile, app.AppState.BuildFile)
-  // dc.ShowInfo()
-  // dc.ShowImages()
-  // dc.CreateDocker()
-  dc.CreateTemplate()
 
   app.AppState.SetState("END")
 }

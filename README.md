@@ -24,11 +24,17 @@ Once built, test-flight can be used like so:
 
 During development these commands can be used:
 
-    # Run check
+    # Run Check
     clear && go run flight.go check
 
     # Or In another directory
     clear && go run flight.go check -d ./test
+
+    # Run Launch
+    clear && go run flight.go launch
+
+    # Or In another directory
+    clear && go run flight.go launch -d ./test
 
 
 ## Building

@@ -6,6 +6,19 @@ import (
   "os"
 )
 
+// TODO: Make as a member of Parser later...
+func setConfigFiles(dir string, appState *ApplicationState) error {
+  buildFile, err := config.ReadBuildFile(dir)
+  if err != nil {
+    Logger.Error(err)
+    return err
+  }
+
+  appState.BuildFile = buildFile
+  Logger.Debug("Buildfile found, contents:", *buildFile)
+  return nil
+}
+
 func commandPreReq(appState *ApplicationState) {
   appState.SetState("CHECK_PREREQS")
   configFile, err := config.ReadConfigFile()
@@ -64,11 +77,23 @@ type LaunchCommand struct {
 func (cmd *LaunchCommand) Execute(args []string) error {
   commandPreReq(cmd.AppState)
 
+  cmd.AppState.SetState("LAUNCH")
   Logger.Info("Launching Tests... in dir:", cmd.Dir)
-  _, err := HasRequiredFiles(&cmd.Dir, RequiredFiles)
 
-  if err != nil {
+  if _, err := HasRequiredFiles(&cmd.Dir, RequiredFiles); err != nil {
+    Logger.Error(err)
     return err
   }
+
+  if err := setConfigFiles(cmd.Dir, cmd.AppState); err != nil {
+    return err
+  }
+
+  var dc = NewDockerApi(cmd.AppState.ConfigFile, cmd.AppState.BuildFile)
+  // dc.ShowInfo()
+  // dc.ShowImages()
+  // dc.CreateDocker()
+  dc.CreateTemplate()
+
   return nil
 }

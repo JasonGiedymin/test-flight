@@ -1,4 +1,21 @@
 {
   "dockerEndPoint": "http://localhost:4243",
-  "workDir": "/tmp/build"
+
+  "workDir": "/tmp/build",
+
+  "dockerAdd": {
+    "system": [
+      "docker",
+      "artifacts",
+      "tasks",
+      "tests",
+      "vars",
+      "templates",
+      "handlers"
+    ],
+    "user": [
+      {"name": "temp", "location": "{{.WorkDir}}/temp"}
+    ]
+  }
+
 }

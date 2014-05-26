@@ -13,9 +13,20 @@ var (
   ReadFileError = errors.NewClass("Could not read file.")
 )
 
+type ConfigFileUserAdd struct {
+  Name string
+  Location string
+}
+
+type ConfigFileDockerAdd struct {
+  System []string
+  User   []ConfigFileUserAdd
+}
+
 type ConfigFile struct {
   DockerEndpoint string
   WorkDir string
+  DockerAdd ConfigFileDockerAdd
 }
 
 func NewConfigFile() *ConfigFile {
@@ -68,7 +79,9 @@ func ReadConfigFile() (*ConfigFile, error) {
     jsonBlob, err = ioutil.ReadFile(pwd + "/" + configFileName)
     err = json.Unmarshal(jsonBlob, &configFile)
     if err != nil {
-      Logger.Error("Can't find " + configFileName + " in local pwd or user home. Please create the file.")
+      Logger.Error("Can't find or having trouble reading " + configFileName +
+        " in local pwd or user home. Please create the file or address syntax issues.")
+      Logger.Error(err)
       return nil, ReadFileError.New("Can't find test-flight-config.json file in local pwd.")
     }
   }

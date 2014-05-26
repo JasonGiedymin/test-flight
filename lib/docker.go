@@ -1,9 +1,8 @@
-package docker
+package lib
 
 import (
-  "../"
-  "../config"
-  Logger "../logging"
+  "./config"
+  Logger "./logging"
   "github.com/fsouza/go-dockerclient"
   "os"
   "path/filepath"
@@ -31,12 +30,12 @@ type DockerApi struct {
   client     *docker.Client
 }
 
-func NewApi(configFile *config.ConfigFile, buildFile *config.BuildFile) *DockerApi {
+func NewDockerApi(configFile *config.ConfigFile, buildFile *config.BuildFile) *DockerApi {
   api := DockerApi{configFile: configFile, buildFile: buildFile}
   client, err := docker.NewClient(configFile.DockerEndpoint)
   if err != nil {
     Logger.Error("Docker API Client Error:", err)
-    os.Exit(lib.ExitCodes["docker_error"])
+    os.Exit(ExitCodes["docker_error"])
   }
 
   api.client = client
@@ -75,8 +74,7 @@ func (api *DockerApi) CreateTemplate() {
 
   Logger.Trace("-->", *api.getTemplateVar())
 
-  err = tmpl.Execute(os.Stdout, *api.getTemplateVar())
-  if err != nil {
+  if err := tmpl.Execute(os.Stdout, *api.getTemplateVar()); err != nil {
     Logger.Error("template execution: %s", err)
   }
 }
