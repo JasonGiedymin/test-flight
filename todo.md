@@ -1,6 +1,6 @@
 ## Dev Todo
 
-Dev todos:
+Version todos:
 
 ### v0.9.0 - Alpha
 
