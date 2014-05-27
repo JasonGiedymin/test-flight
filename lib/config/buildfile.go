@@ -13,6 +13,7 @@ type BuildFile struct {
   RequiresDockerUrl string
   Env               map[string]string
   Expose            []int
+  Add               []ConfigFileUserAdd
 }
 
 // For specific defaults

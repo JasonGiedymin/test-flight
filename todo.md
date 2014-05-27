@@ -62,11 +62,15 @@ Dev todos:
 
   - [x] new repo
   - [x] version
-  - [ ] finalize template
-  - [ ] create template constructs for use with creating inventory and playbook
+  - [x] create template constructs for use with creating inventory and playbook
+  - [x] First workable Dockerfile template
+  - [x] create nested template for test-flight run command
+  - [ ] change config.user to config.complex, move user to build.json
+  - [ ] clean up three add sections
+  - [ ] create nested template for other sections (add, expose, etc...)
+  - [ ] create nested templates for inventory and playbook
+  - [ ] create nested templates in .test-flight/cache
   - [ ] change docker dir name to test-flight (in reqs)
-  - [ ] create templates for inventory and playbook
-  - [ ] create templates in .test-flight/cache
   - [ ] create dockerfile and pass to docker api client
   - [ ] run ansible lint/check within a docker, call this `runup` (an actual aircraft term)
   - [ ] add help flag
@@ -86,6 +90,8 @@ Dev todos:
 ### v1.0.0
 
   - [ ] user feedback...
+  - [ ] tests, tests, tests
+  - [ ] some dirs should be optional, some mandatory
 
 ### v1.1.0
 

@@ -13,9 +13,8 @@
       "templates",
       "handlers"
     ],
-    "user": [
-      {"name": "temp", "location": "{{.WorkDir}}/temp"}
-    ]
-  }
+    "user": []
+  },
 
+  "dockerRun": "RUN ansible-playbook $WORKDIR/playbook.yml -c local"
 }

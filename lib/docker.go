@@ -19,6 +19,9 @@ type TemplateVar struct {
   Env               map[string]string
   Expose            map[string]string
   Cmd               string
+  AddSystem         []string
+  AddUser           []config.ConfigFileUserAdd
+  // AddUser            map[string]string
   ConfigFile        *config.ConfigFile
   BuildFile         *config.BuildFile
 }
@@ -42,6 +45,7 @@ func NewDockerApi(configFile *config.ConfigFile, buildFile *config.BuildFile) *D
   return &api
 }
 
+// One big proxy obj to help users. Slowly phase this out.
 func (api *DockerApi) getTemplateVar() *TemplateVar {
   return &TemplateVar{
     // Direct:
@@ -49,6 +53,7 @@ func (api *DockerApi) getTemplateVar() *TemplateVar {
     BuildFile:         api.buildFile,
 
     // Helpers for common accessors
+    // Keep names simple!
     Owner:             api.buildFile.Owner,
     ImageName:         api.buildFile.ImageName,
     Version:           api.buildFile.Version,
@@ -56,6 +61,8 @@ func (api *DockerApi) getTemplateVar() *TemplateVar {
     RequiresDockerUrl: api.buildFile.RequiresDockerUrl,
     WorkDir:           api.configFile.WorkDir,
     Env:               api.buildFile.Env,
+    AddSystem:         api.configFile.DockerAdd.System,
+    AddUser:           api.configFile.DockerAdd.User,
   }
 }
 
@@ -67,12 +74,6 @@ func (api *DockerApi) CreateTemplate() {
 
   pattern := filepath.Join(pwd+"/templates/", "*.tmpl")
   tmpl := template.Must(template.ParseGlob(pattern))
-
-  // var x = TemplateVar{
-  //   Owner: api.buildFile.Owner,
-  // }
-
-  Logger.Trace("-->", *api.getTemplateVar())
 
   if err := tmpl.Execute(os.Stdout, *api.getTemplateVar()); err != nil {
     Logger.Error("template execution: %s", err)

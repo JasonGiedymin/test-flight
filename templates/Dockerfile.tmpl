@@ -13,35 +13,37 @@
 FROM {{.Owner}}/{{.ImageName}}
 MAINTAINER {{.Owner}}
 
-# Working dir
+# Required Test-Flight Working dir
 ENV WORKDIR {{.WorkDir}}/{{.ImageName}}
 
 {{if .Env}}
+# -----> Env variables
 {{range $key, $value := .Env}}
-# Env variables
 ENV {{$key}} {{$value}}
 {{end}}
+# <----- end Env
 {{end}}
 
-# Add current playbook scripts
-ADD docker $WORKDIR/docker
-ADD artifacts $WORKDIR/artifacts
-ADD tasks $WORKDIR/tasks
-ADD tests $WORKDIR/tests
-ADD vars $WORKDIR/vars
-ADD templates $WORKDIR/templates
-ADD handlers $WORKDIR/handlers
+{{template "testFlightDockerAdd" .}}
 
-# Add Test-Flight docker playbook and inventory
-ADD docker/inventory /etc/ansible/hosts
-ADD docker/playbook.yml $WORKDIR/playbook.yml
+{{if .AddUser}}
+# -----> Add User Entries
+{{range $item := .AddUser}}
+ADD {{$item.Name}} {{$item.Location}}
+{{end}}
+# <----- end Add User Entries
+{{end}}
 
-# Execute ansible
-RUN ansible-playbook $WORKDIR/playbook.yml -c local -vvvv
+{{template "testFlightDockerRun"}}
 
-# !!Expose Loop
+{{if .Expose}}
+# -----> Expose
 {{range .Expose}}
 Expose {{.port}}
 {{end}}
+# <----- Expose
+{{end}}
 
+{{if .Cmd}}
 CMD {{.Cmd}}
+{{end}}

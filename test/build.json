@@ -1,11 +1,12 @@
 {
-  "Owner": "Amuxbit",
-  "ImageName": "test-docker-name1",
-  "Version": "0.1.0",
-  "RequiresDocker": "",
-  "RequiresDockerUrl": "",
-  "Env": {
+  "owner": "Amuxbit",
+  "imageName": "test-docker-name1",
+  "version": "0.1.0",
+  "requiresDocker": "",
+  "requiresDockerUrl": "",
+  "env": {
     "ENV_MODE": "dev"
   },
-  "Expose": []
+  "add": [],
+  "expose": []
 }

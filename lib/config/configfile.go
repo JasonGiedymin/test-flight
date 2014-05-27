@@ -14,12 +14,13 @@ var (
 )
 
 type ConfigFileUserAdd struct {
-  Name string
+  Name     string
   Location string
 }
 
 type ConfigFileDockerAdd struct {
   System []string
+  // User   []map[string]string
   User   []ConfigFileUserAdd
 }
 
