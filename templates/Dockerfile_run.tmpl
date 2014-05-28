@@ -1,4 +1,4 @@
-{{define "testFlightDockerRun"}}
+{{define "Dockerfile_run"}}
 # Execute Test-Flight Playbook
 RUN ansible-playbook $WORKDIR/playbook.yml -c local -vvvv
 {{end}}

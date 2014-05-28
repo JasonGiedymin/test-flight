@@ -1,0 +1,21 @@
+{{define "Dockerfile_add"}}
+{{if .AddSimple}}
+# -----> Add Simple Entries
+{{range $item := .AddSimple}}
+ADD {{$item}} $WORKDIR/{{$item}}
+{{end}}
+# <----- end Add System Entries
+{{end}}
+
+{{if .AddComplex}}
+# -----> Add Complex Entries
+{{range $item := .AddComplex}}
+ADD {{$item.Name}} {{$item.Location}}
+{{end}}
+# <----- end Add Complex Entries
+{{end}}
+
+# Required Test-Flight docker playbook and inventory
+ADD docker/inventory /etc/ansible/hosts
+ADD docker/playbook.yml $WORKDIR/playbook.yml
+{{end}}

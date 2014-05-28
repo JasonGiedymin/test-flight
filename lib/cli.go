@@ -70,7 +70,7 @@ func (cmd *CheckCommand) Execute(args []string) error {
 
 // == Launch Command ==
 type LaunchCommand struct {
-  Dir string `short:"d" long:"dir" description:"directory to run in"`
+  Dir      string `short:"d" long:"dir" description:"directory to run in"`
   AppState *ApplicationState
 }
 
@@ -89,7 +89,7 @@ func (cmd *LaunchCommand) Execute(args []string) error {
     return err
   }
 
-  var dc = NewDockerApi(cmd.AppState.ConfigFile, cmd.AppState.BuildFile)
+  var dc = NewDockerApi(cmd.AppState.Meta, cmd.AppState.ConfigFile, cmd.AppState.BuildFile)
   // dc.ShowInfo()
   // dc.ShowImages()
   // dc.CreateDocker()

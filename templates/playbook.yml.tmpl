@@ -1,1 +1,15 @@
-# Test-Flight Playbook File
+{{define "test_flight_playbook"}}
+# Test-Flight Generated Playbook File
+---
+
+#
+# Test Playbook
+#
+
+- hosts: localhost
+  sudo: True
+  roles:
+    - role: ./
+
+# - include: tests/integration-tests.yml
+{{end}}

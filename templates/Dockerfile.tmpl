@@ -1,49 +1,5 @@
-#
-# Test-Flight Generated Dockerfile
-#
-# {{.Owner}}/{{.ImageName}}
-#   docker build -t {{.Owner}}/{{.ImageName}} .
-#
-# {{if .RequiresDocker}}
-# Requires:
-# {{.RequiresDocker}}
-#   {{.RequiresDockerUrl}}
-# {{end}}
-
-FROM {{.Owner}}/{{.ImageName}}
-MAINTAINER {{.Owner}}
-
-# Required Test-Flight Working dir
-ENV WORKDIR {{.WorkDir}}/{{.ImageName}}
-
-{{if .Env}}
-# -----> Env variables
-{{range $key, $value := .Env}}
-ENV {{$key}} {{$value}}
-{{end}}
-# <----- end Env
-{{end}}
-
-{{template "testFlightDockerAdd" .}}
-
-{{if .AddUser}}
-# -----> Add User Entries
-{{range $item := .AddUser}}
-ADD {{$item.Name}} {{$item.Location}}
-{{end}}
-# <----- end Add User Entries
-{{end}}
-
-{{template "testFlightDockerRun"}}
-
-{{if .Expose}}
-# -----> Expose
-{{range .Expose}}
-Expose {{.port}}
-{{end}}
-# <----- Expose
-{{end}}
-
-{{if .Cmd}}
-CMD {{.Cmd}}
-{{end}}
+{{template "Dockerfile_header" .}}
+{{template "Dockerfile_env" .}}
+{{template "Dockerfile_add" .}}
+{{template "Dockerfile_run" .}}
+{{template "Dockerfile_cmd" .}}

@@ -13,15 +13,15 @@ var (
   ReadFileError = errors.NewClass("Could not read file.")
 )
 
-type ConfigFileUserAdd struct {
+type DockerAddComplexEntry struct {
   Name     string
   Location string
 }
 
 type ConfigFileDockerAdd struct {
-  System []string
+  Simple    []string
   // User   []map[string]string
-  User   []ConfigFileUserAdd
+  Complex   []DockerAddComplexEntry
 }
 
 type ConfigFile struct {

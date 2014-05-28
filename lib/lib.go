@@ -7,6 +7,7 @@ package lib
 import (
   "./config"
   Logger "./logging"
+  "./types"
   "github.com/SpaceMonkeyGo/errors"
   "github.com/jessevdk/go-flags"
   "os"
@@ -24,12 +25,8 @@ type RequiredFile struct {
 type commandOptions struct {
 }
 
-type ApplicationMeta struct {
-  Version string
-}
-
 type ApplicationState struct {
-  Meta        ApplicationMeta
+  Meta        *types.ApplicationMeta
   Options     commandOptions
   ConfigFile  *config.ConfigFile
   BuildFile   *config.BuildFile
@@ -57,13 +54,15 @@ func (app *TestFlight) ProcessCommands() {
 }
 
 func (app *TestFlight) Init() error {
-  app.AppState.Meta = meta
-
-  checkCommand = CheckCommand{AppState: &app.AppState}
-  versionCommand = VersionCommand{AppState: &app.AppState}
   app.AppState.SetState("INIT")
 
+  app.AppState.Meta = &meta
+  checkCommand = CheckCommand{AppState: &app.AppState}
+  launchCommand = LaunchCommand{AppState: &app.AppState}
+  versionCommand = VersionCommand{AppState: &app.AppState}
+
   app.Parser = flags.NewParser(&app.AppState.Options, flags.Default)
+
   app.Parser.AddCommand("check",
     "pre-flight check",
     "Used for pre-flight check of the ansible playbook.",
@@ -94,7 +93,7 @@ var (
   versionCommand VersionCommand
 )
 
-var meta = ApplicationMeta{
+var meta = types.ApplicationMeta{
   Version: "0.9.2",
 }
 

@@ -4,7 +4,7 @@
   "workDir": "/tmp/build",
 
   "dockerAdd": {
-    "system": [
+    "simple": [
       "docker",
       "artifacts",
       "tasks",
@@ -13,7 +13,7 @@
       "templates",
       "handlers"
     ],
-    "user": []
+    "complex": []
   },
 
   "dockerRun": "RUN ansible-playbook $WORKDIR/playbook.yml -c local"

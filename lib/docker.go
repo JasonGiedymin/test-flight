@@ -1,6 +1,7 @@
 package lib
 
 import (
+  "./types"
   "./config"
   Logger "./logging"
   "github.com/fsouza/go-dockerclient"
@@ -10,6 +11,10 @@ import (
 )
 
 type TemplateVar struct {
+  Meta              *types.ApplicationMeta
+  ConfigFile        *config.ConfigFile
+  BuildFile         *config.BuildFile
+
   Owner             string
   ImageName         string
   Version           string
@@ -17,24 +22,23 @@ type TemplateVar struct {
   RequiresDockerUrl string
   WorkDir           string
   Env               map[string]string
-  Expose            map[string]string
+  Expose            []int
   Cmd               string
-  AddSystem         []string
-  AddUser           []config.ConfigFileUserAdd
-  // AddUser            map[string]string
-  ConfigFile        *config.ConfigFile
-  BuildFile         *config.BuildFile
+  AddSimple         []string
+  AddComplex        []config.DockerAddComplexEntry
+  AddUser           []config.DockerAddComplexEntry
 }
 
 // Proxy Client
 type DockerApi struct {
+  meta       *types.ApplicationMeta
   configFile *config.ConfigFile
   buildFile  *config.BuildFile
   client     *docker.Client
 }
 
-func NewDockerApi(configFile *config.ConfigFile, buildFile *config.BuildFile) *DockerApi {
-  api := DockerApi{configFile: configFile, buildFile: buildFile}
+func NewDockerApi(meta *types.ApplicationMeta, configFile *config.ConfigFile, buildFile *config.BuildFile) *DockerApi {
+  api := DockerApi{meta: meta, configFile: configFile, buildFile: buildFile}
   client, err := docker.NewClient(configFile.DockerEndpoint)
   if err != nil {
     Logger.Error("Docker API Client Error:", err)
@@ -49,6 +53,7 @@ func NewDockerApi(configFile *config.ConfigFile, buildFile *config.BuildFile) *D
 func (api *DockerApi) getTemplateVar() *TemplateVar {
   return &TemplateVar{
     // Direct:
+    Meta:              api.meta,
     ConfigFile:        api.configFile,
     BuildFile:         api.buildFile,
 
@@ -61,8 +66,11 @@ func (api *DockerApi) getTemplateVar() *TemplateVar {
     RequiresDockerUrl: api.buildFile.RequiresDockerUrl,
     WorkDir:           api.configFile.WorkDir,
     Env:               api.buildFile.Env,
-    AddSystem:         api.configFile.DockerAdd.System,
-    AddUser:           api.configFile.DockerAdd.User,
+    Expose:            api.buildFile.Expose,
+    Cmd:               api.buildFile.Cmd,
+    AddSimple:         api.configFile.DockerAdd.Simple,
+    AddComplex:        api.configFile.DockerAdd.Complex,
+    AddUser:           api.buildFile.Add,
   }
 }
 

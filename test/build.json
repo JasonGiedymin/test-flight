@@ -8,5 +8,6 @@
     "ENV_MODE": "dev"
   },
   "add": [],
-  "expose": []
+  "expose": [3000, 3001],
+  "cmd": "pwd"
 }

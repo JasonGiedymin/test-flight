@@ -66,11 +66,17 @@ Version todos:
   - [x] First workable Dockerfile template
   - [x] create nested template for test-flight run command
   - [x] add .gitignore (better late than never :-))
-  - [ ] change config.user to config.complex, move user to build.json
-  - [ ] clean up three add sections
-  - [ ] create nested template for other sections (add, expose, etc...)
-  - [ ] create nested templates for inventory and playbook
-  - [ ] create nested templates in .test-flight/cache
+  - [x] change config.user to config.complex, move user to build.json
+  - [x] better test build.json (at least for what is available)
+  - [x] clean up three add sections
+  - [x] create nested template for other sections (add, expose, etc...)
+  - [x] create friendlier template and nested template naming scheme
+  - [x] wiki the naming concept
+  - [x] add test-flight version in template
+  - [x] fix meta in AppState
+  - [x] create nested templates for inventory and playbook
+  - [x] create nested templates in .test-flight/cache
+  - [ ] add test-flight version signature to all first level templates
   - [ ] change docker dir name to test-flight (in reqs)
   - [ ] create dockerfile and pass to docker api client
   - [ ] run ansible lint/check within a docker, call this `runup` (an actual aircraft term)
@@ -93,6 +99,7 @@ Version todos:
   - [ ] user feedback...
   - [ ] tests, tests, tests
   - [ ] some dirs should be optional, some mandatory
+  - [ ] add more documentation along with sample build/config file usage (docs)
 
 ### v1.1.0
 
