@@ -65,6 +65,7 @@ Version todos:
   - [x] create template constructs for use with creating inventory and playbook
   - [x] First workable Dockerfile template
   - [x] create nested template for test-flight run command
+  - [x] add .gitignore (better late than never :-))
   - [ ] change config.user to config.complex, move user to build.json
   - [ ] clean up three add sections
   - [ ] create nested template for other sections (add, expose, etc...)
