@@ -78,14 +78,19 @@ Version todos:
   - [x] create nested templates in .test-flight/cache
   - [x] add test-flight version signature to all first level templates
   - [x] change docker dir name to test-flight (in reqs)
+  - [x] fix `inventory`, and `playbook.yml` template not generating
+  - [x] get dir of where test-flight binary is running from
+  - [x] move more into types so refactor and pruning of structs can be done later
   - [ ] generate test-flight files in `./.test-flight`
   - [ ] create flag to disable `./.test-flight` file generation
   - [ ] create dockerfile and pass to docker api client
   - [ ] run ansible lint/check within a docker, call this `runup` (an actual aircraft term)
   - [ ] add help flag
   - [ ] cleanup code (lib is a mess, need more {})
-  - [ ] constrain test-flight-config info to sections, pass appropriate sections to libs
+  - [ ] test-flight verbose/debug via config and/or cli
   - [ ] create TestFlight.New()
+  - [ ] dist/builds for various platforms
+  - [ ] CI for builds and packaging
   - [ ] create/show test-flight specific images?
   - [ ] test-flight cleanup
 
@@ -101,7 +106,9 @@ Version todos:
   - [ ] user feedback...
   - [ ] tests, tests, tests
   - [ ] some dirs should be optional, some mandatory
+  - [ ] constrain test-flight-config info to sections, pass appropriate sections to libs
   - [ ] add more documentation along with sample build/config file usage (docs)
+  - [ ] stop passing state everywhere
 
 ### v1.1.0
 

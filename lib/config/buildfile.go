@@ -3,23 +3,12 @@ package config
 import (
   "encoding/json"
   "io/ioutil"
+  "../types"
 )
 
-type BuildFile struct {
-  Owner             string
-  ImageName         string
-  Version           string
-  RequiresDocker    string
-  RequiresDockerUrl string
-  Env               map[string]string
-  Expose            []int
-  Add               []DockerAddComplexEntry
-  Cmd               string
-}
-
 // For specific defaults
-func NewBuildFile() *BuildFile {
-  return &BuildFile{
+func NewBuildFile() *types.BuildFile {
+  return &types.BuildFile{
     Owner:             "Test-Flight-User",
     ImageName:         "Test-Flight-Test-Image",
     Version:           "0.0.1",
@@ -28,7 +17,7 @@ func NewBuildFile() *BuildFile {
   }
 }
 
-func ReadBuildFile(path string) (*BuildFile, error) {
+func ReadBuildFile(path string) (*types.BuildFile, error) {
   jsonBlob, _ := ioutil.ReadFile(path + "/build.json")
 
   var buildFile = NewBuildFile()

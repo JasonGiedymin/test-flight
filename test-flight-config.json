@@ -1,4 +1,8 @@
 {
+  "templateDir": ".test-flight",
+
+  "overwriteTemplates": true,
+
   "dockerEndPoint": "http://localhost:4243",
 
   "workDir": "/tmp/build",

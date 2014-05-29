@@ -67,12 +67,14 @@ can be obtained by obtaining it like so:
     - [SpaceMonkeyGo Errors](https://github.com/SpaceMonkeyGo/errors)
     - [Go Flags](https://github.com/jessevdk/go-flags)
     - [FactorLog](https://github.com/kdar/factorlog)
+    - [osext](https://bitbucket.org/kardianos/osext/src)
   - go get:
     - go get github.com/golang/lint/golint
     - go get github.com/fsouza/go-dockerclient
     - go get github.com/SpaceMonkeyGo/errors
     - go get github.com/jessevdk/go-flags
     - go get github.com/kdar/factorlog
+    - go get bitbucket.org/kardianos/osext
   - update libs:
     - go get -u all
 

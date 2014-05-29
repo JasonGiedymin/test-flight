@@ -4,10 +4,11 @@ import (
   "./config"
   Logger "./logging"
   "os"
+  "./types"
 )
 
 // TODO: Make as a member of Parser later...
-func setConfigFiles(dir string, appState *ApplicationState) error {
+func setConfigFiles(dir string, appState *types.ApplicationState) error {
   buildFile, err := config.ReadBuildFile(dir)
   if err != nil {
     Logger.Error(err)
@@ -19,7 +20,7 @@ func setConfigFiles(dir string, appState *ApplicationState) error {
   return nil
 }
 
-func commandPreReq(appState *ApplicationState) {
+func commandPreReq(appState *types.ApplicationState) {
   appState.SetState("CHECK_PREREQS")
   configFile, err := config.ReadConfigFile()
   if config.ReadFileError.Contains(err) {
@@ -31,7 +32,7 @@ func commandPreReq(appState *ApplicationState) {
 
 // == Version Command ==
 type VersionCommand struct {
-  AppState *ApplicationState
+  AppState *types.ApplicationState
 }
 
 func (cmd *VersionCommand) Execute(args []string) error {
@@ -43,7 +44,7 @@ func (cmd *VersionCommand) Execute(args []string) error {
 // == Check Command ==
 type CheckCommand struct {
   Dir      string `short:"d" long:"dir" description:"directory to run in"`
-  AppState *ApplicationState
+  AppState *types.ApplicationState
 }
 
 func (cmd *CheckCommand) Execute(args []string) error {
@@ -71,7 +72,7 @@ func (cmd *CheckCommand) Execute(args []string) error {
 // == Launch Command ==
 type LaunchCommand struct {
   Dir      string `short:"d" long:"dir" description:"directory to run in"`
-  AppState *ApplicationState
+  AppState *types.ApplicationState
 }
 
 func (cmd *LaunchCommand) Execute(args []string) error {

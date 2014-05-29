@@ -1,9 +1,8 @@
 package lib
 
 import (
-  "./types"
-  "./config"
   Logger "./logging"
+  "./types"
   "github.com/fsouza/go-dockerclient"
   "os"
   "path/filepath"
@@ -11,9 +10,9 @@ import (
 )
 
 type TemplateVar struct {
-  Meta              *types.ApplicationMeta
-  ConfigFile        *config.ConfigFile
-  BuildFile         *config.BuildFile
+  Meta       *types.ApplicationMeta
+  ConfigFile *types.ConfigFile
+  BuildFile  *types.BuildFile
 
   Owner             string
   ImageName         string
@@ -25,19 +24,19 @@ type TemplateVar struct {
   Expose            []int
   Cmd               string
   AddSimple         []string
-  AddComplex        []config.DockerAddComplexEntry
-  AddUser           []config.DockerAddComplexEntry
+  AddComplex        []types.DockerAddComplexEntry
+  AddUser           []types.DockerAddComplexEntry
 }
 
 // Proxy Client
 type DockerApi struct {
   meta       *types.ApplicationMeta
-  configFile *config.ConfigFile
-  buildFile  *config.BuildFile
+  configFile *types.ConfigFile
+  buildFile  *types.BuildFile
   client     *docker.Client
 }
 
-func NewDockerApi(meta *types.ApplicationMeta, configFile *config.ConfigFile, buildFile *config.BuildFile) *DockerApi {
+func NewDockerApi(meta *types.ApplicationMeta, configFile *types.ConfigFile, buildFile *types.BuildFile) *DockerApi {
   api := DockerApi{meta: meta, configFile: configFile, buildFile: buildFile}
   client, err := docker.NewClient(configFile.DockerEndpoint)
   if err != nil {
@@ -53,9 +52,9 @@ func NewDockerApi(meta *types.ApplicationMeta, configFile *config.ConfigFile, bu
 func (api *DockerApi) getTemplateVar() *TemplateVar {
   return &TemplateVar{
     // Direct:
-    Meta:              api.meta,
-    ConfigFile:        api.configFile,
-    BuildFile:         api.buildFile,
+    Meta:       api.meta,
+    ConfigFile: api.configFile,
+    BuildFile:  api.buildFile,
 
     // Helpers for common accessors
     // Keep names simple!
@@ -75,15 +74,50 @@ func (api *DockerApi) getTemplateVar() *TemplateVar {
 }
 
 func (api *DockerApi) CreateTemplate() {
-  pwd, err := os.Getwd()
+  var (
+    pattern string
+    tmpl    *template.Template
+    pwd     string
+    err     error
+    baseTemplateDir string
+    testTemplateDir string
+  )
+
+  pwd, err = os.Getwd()
   if err != nil {
     // return nil, err
   }
 
-  pattern := filepath.Join(pwd+"/templates/", "*.tmpl")
-  tmpl := template.Must(template.ParseGlob(pattern))
+  // baseTemplateDir = api.meta.ExecPath + "./templates/"
+  testTemplateDir = pwd + "/" + api.configFile.TemplateDir + "/"
+  baseTemplateDir = pwd + "/templates/"
 
-  if err := tmpl.Execute(os.Stdout, *api.getTemplateVar()); err != nil {
+  Logger.Trace("Base Template Dir:", baseTemplateDir)
+  Logger.Trace("Test Template Dir:", testTemplateDir)
+
+  // Dockerfile
+  pattern = filepath.Join(baseTemplateDir, "Dockerfile*.tmpl")
+  tmpl = template.Must(template.ParseGlob(pattern))
+
+  if err = tmpl.ExecuteTemplate(os.Stdout, "Dockerfile", *api.getTemplateVar()); err != nil {
+    Logger.Error("template execution: %s", err)
+  }
+
+  // Inventory
+  pattern = filepath.Join(baseTemplateDir, "inventory*.tmpl")
+  tmpl = template.Must(template.ParseGlob(pattern))
+  // tmpl := template.Must(template.ParseFiles()
+
+  if err = tmpl.ExecuteTemplate(os.Stdout, "inventory", *api.getTemplateVar()); err != nil {
+    Logger.Error("template execution: %s", err)
+  }
+
+  // Inventory
+  pattern = filepath.Join(baseTemplateDir, "playbook.yml*.tmpl")
+  tmpl = template.Must(template.ParseGlob(pattern))
+  // tmpl := template.Must(template.ParseFiles()
+
+  if err = tmpl.ExecuteTemplate(os.Stdout, "playbook", *api.getTemplateVar()); err != nil {
     Logger.Error("template execution: %s", err)
   }
 }

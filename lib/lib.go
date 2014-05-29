@@ -5,12 +5,12 @@
 package lib
 
 import (
-  "./config"
-  Logger "./logging"
   "./types"
   "github.com/SpaceMonkeyGo/errors"
   "github.com/jessevdk/go-flags"
   "os"
+  "bitbucket.org/kardianos/osext"
+  Logger "./logging"
 )
 
 // == App Related ==
@@ -22,26 +22,8 @@ type RequiredFile struct {
   requiredFiles []RequiredFile
 }
 
-type commandOptions struct {
-}
-
-type ApplicationState struct {
-  Meta        *types.ApplicationMeta
-  Options     commandOptions
-  ConfigFile  *config.ConfigFile
-  BuildFile   *config.BuildFile
-  LastCommand string
-  CurrentMode string
-}
-
-func (appState *ApplicationState) SetState(newState string) string {
-  appState.CurrentMode = newState
-  Logger.Trace("STATE changed to", appState.CurrentMode)
-  return appState.CurrentMode
-}
-
 type TestFlight struct {
-  AppState      ApplicationState
+  AppState      types.ApplicationState
   requiredFiles []RequiredFile
   Parser        *flags.Parser
 }
@@ -54,9 +36,14 @@ func (app *TestFlight) ProcessCommands() {
 }
 
 func (app *TestFlight) Init() error {
+  app.AppState.Meta = &meta
+  
+  Logger.Trace("State", app.AppState)
   app.AppState.SetState("INIT")
 
-  app.AppState.Meta = &meta
+  execPath, _ := osext.Executable()
+  app.AppState.Meta.ExecPath = execPath
+
   checkCommand = CheckCommand{AppState: &app.AppState}
   launchCommand = LaunchCommand{AppState: &app.AppState}
   versionCommand = VersionCommand{AppState: &app.AppState}
