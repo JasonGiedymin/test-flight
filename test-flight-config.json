@@ -5,7 +5,7 @@
 
   "dockerAdd": {
     "simple": [
-      "docker",
+      ".test-flight",
       "artifacts",
       "tasks",
       "tests",

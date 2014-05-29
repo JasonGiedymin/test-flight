@@ -99,7 +99,7 @@ var meta = types.ApplicationMeta{
 
 var RequiredFiles = []RequiredFile{
   {name: "Test-Flight json build file", fileName: "build.json", fileType: "f"},
-  {name: "Test-Flight docker dir", fileName: "docker", fileType: "d",
+  {name: "Test-Flight dir", fileName: ".test-flight", fileType: "d",
     requiredFiles: []RequiredFile{
       {name: "Ansible inventory file used for Test-Flight", fileName: "inventory", fileType: "f"},
       {name: "Ansible playbook file used for Test-Flight", fileName: "playbook.yml", fileType: "f"},

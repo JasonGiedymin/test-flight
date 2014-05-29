@@ -76,8 +76,10 @@ Version todos:
   - [x] fix meta in AppState
   - [x] create nested templates for inventory and playbook
   - [x] create nested templates in .test-flight/cache
-  - [ ] add test-flight version signature to all first level templates
-  - [ ] change docker dir name to test-flight (in reqs)
+  - [x] add test-flight version signature to all first level templates
+  - [x] change docker dir name to test-flight (in reqs)
+  - [ ] generate test-flight files in `./.test-flight`
+  - [ ] create flag to disable `./.test-flight` file generation
   - [ ] create dockerfile and pass to docker api client
   - [ ] run ansible lint/check within a docker, call this `runup` (an actual aircraft term)
   - [ ] add help flag

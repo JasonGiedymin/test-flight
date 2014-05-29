@@ -15,7 +15,7 @@ ADD {{$item.Name}} {{$item.Location}}
 # <----- end Add Complex Entries
 {{end}}
 
-# Required Test-Flight docker playbook and inventory
-ADD docker/inventory /etc/ansible/hosts
-ADD docker/playbook.yml $WORKDIR/playbook.yml
+# Required Test-Flight test-flight playbook and inventory
+ADD .test-flight/inventory /etc/ansible/hosts
+ADD .test-flight/playbook.yml $WORKDIR/playbook.yml
 {{end}}
