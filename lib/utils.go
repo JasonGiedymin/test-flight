@@ -35,16 +35,22 @@ func findFile(filesFound []string, requiredFile RequiredFile, currDir string) (b
   return false, FileCheckFail.New("Required file/dir not found: [%v/%v]", currDir, requiredFile.fileName)
 }
 
-func CreateFile(dir *string, requiredFile RequiredFile) (bool, error) {
-  if (requiredFile.FileType == "d") {
-    if err := os.Mkdir(*dir + "/" + requiredFile.fileName, 0777); err != nil {
-      return false, err
-    }
+func CreateFile(dir *string, requiredFile RequiredFile) (*os.File, error) {
+  var fileName = *dir + "/" + requiredFile.fileName
+  var err error
+  var file *os.File
 
-    return true, nil
+  if (requiredFile.FileType == "d") {
+    if err = os.Mkdir(fileName, 0755); err != nil {
+      return nil, err
+    }
+  } else if (requiredFile.FileType == "f") {
+    if _, err = os.Create(fileName); err != nil {
+      return nil, nil
+    }
   }
 
-  return false, nil
+  return file, nil
 }
 
 // TODO: goroutine + channels to further optimize

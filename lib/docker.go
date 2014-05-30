@@ -7,6 +7,7 @@ import (
   "os"
   "path/filepath"
   "text/template"
+  "strings"
 )
 
 type TemplateVar struct {
@@ -50,26 +51,62 @@ func NewDockerApi(meta *types.ApplicationMeta, configFile *types.ConfigFile, bui
 }
 
 func (api *DockerApi) createTestTemplates() error {
-  var templateDir = RequiredFile{name: "Test-Flight Template Dir", fileName: ".test-flight", FileType: "d"}
-  var inventory = RequiredFile{name: "Test-Flight Test Inventory file", fileName: templateDir.fileName + "/inventory", FileType: "f"}
-  var playbook = RequiredFile{name: "Test-Flight Test Playbook file", fileName: templateDir.fileName + "/playbook.yml", FileType: "f"}
-  //
-  // check that dir exists
-  if hasFiles, err := HasRequiredFile(&api.meta.Dir, templateDir); !hasFiles {
-    return err
+  var templateDir = RequiredFile{
+    name: "Test-Flight Template Dir", fileName: api.configFile.TemplateDir, FileType: "d",
   }
 
-  if hasFiles, err := HasRequiredFile(&api.meta.Dir, inventory); !hasFiles {
-    return err
+  var inventory = RequiredFile{
+    name: "Test-Flight Test Inventory file", fileName: "inventory", FileType: "f",
   }
 
-  if hasFiles, err := HasRequiredFile(&api.meta.Dir, playbook); !hasFiles {
-    return err
+  var playbook = RequiredFile{
+    name: "Test-Flight Test Playbook file", fileName: "playbook.yml", FileType: "f",
   }
 
-  // create it doesn't
-  // delete files if exist
-  // create files
+  templateOutputDir := strings.Join([]string{api.meta.Pwd, api.meta.Dir, templateDir.fileName}, "/")
+  templateInputDir := api.meta.Pwd + "/templates/"
+  // var err error
+
+  createFilesFromTemplate := func(
+    templateInputDir string,
+    templateOutputDir string,
+    requiredFile RequiredFile) error {
+    // check that inventory files exist
+    if hasFiles, err := HasRequiredFile(&templateOutputDir, requiredFile); err != nil {
+      Logger.Error("Error: ", err)
+      return err
+    } else if hasFiles {
+      // Inventory
+      fileToCreate := strings.Join([]string{templateOutputDir,requiredFile.fileName}, "/")
+      file, _ := os.Create(fileToCreate)
+
+      pattern := filepath.Join(templateInputDir, requiredFile.fileName + "*.tmpl")
+      tmpl := template.Must(template.ParseGlob(pattern))
+
+      if err = tmpl.ExecuteTemplate(file, requiredFile.fileName, *api.getTemplateVar()); err != nil {
+        Logger.Error("template execution: %s", err)
+        return err
+      }
+
+      Logger.Debug("Created file from template:", fileToCreate)
+    }
+
+    // check that dir exists
+    // TODO: major cleanup here, need another pass
+    if hasFiles, err := HasRequiredFile(&api.meta.Dir, templateDir); err != nil {
+      return err
+    } else if !hasFiles { // create it doesn't
+      if _, err = CreateFile(&api.meta.Dir, templateDir); err != nil {
+        return err
+      }
+    }
+    return nil
+  }
+
+  // if api.build
+  _ = createFilesFromTemplate(templateInputDir, templateOutputDir, inventory)
+  _ = createFilesFromTemplate(templateInputDir, templateOutputDir, playbook)
+
   return nil
 }
 
@@ -129,16 +166,9 @@ func (api *DockerApi) CreateTemplate() {
     Logger.Error("template execution: %s", err)
   }
 
-  // Inventory
-  pattern = filepath.Join(baseTemplateDir, "inventory*.tmpl")
-  tmpl = template.Must(template.ParseGlob(pattern))
-  // tmpl := template.Must(template.ParseFiles()
 
-  if err = tmpl.ExecuteTemplate(os.Stdout, "inventory", *api.getTemplateVar()); err != nil {
-    Logger.Error("template execution: %s", err)
-  }
 
-  // Inventory
+  // Playbook
   pattern = filepath.Join(baseTemplateDir, "playbook.yml*.tmpl")
   tmpl = template.Must(template.ParseGlob(pattern))
   // tmpl := template.Must(template.ParseFiles()

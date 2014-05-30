@@ -81,7 +81,9 @@ Version todos:
   - [x] fix `inventory`, and `playbook.yml` template not generating
   - [x] get dir of where test-flight binary is running from
   - [x] move more into types so refactor and pruning of structs can be done later
-  - [ ] generate test-flight files in `./.test-flight`
+  - [x] generate test-flight files in `./.test-flight`
+  - [ ] slim down createTestTemplates()
+  - [ ] bring things back into test-flight struct for state management
   - [ ] create simple map for docker hasFiles (I need functional programming!)
   - [ ] create flag to disable `./.test-flight` file generation
   - [ ] create dockerfile and pass to docker api client
