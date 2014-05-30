@@ -11,5 +11,8 @@
   roles:
     - role: ./
 
-# - include: tests/integration-tests.yml
+{{if .RunTests}}
+- include: tests/integration-tests.yml
+{{end}}
+
 {{end}}

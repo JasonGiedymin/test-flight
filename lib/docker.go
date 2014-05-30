@@ -26,6 +26,7 @@ type TemplateVar struct {
   AddSimple         []string
   AddComplex        []types.DockerAddComplexEntry
   AddUser           []types.DockerAddComplexEntry
+  RunTests          bool
 }
 
 // Proxy Client
@@ -46,6 +47,30 @@ func NewDockerApi(meta *types.ApplicationMeta, configFile *types.ConfigFile, bui
 
   api.client = client
   return &api
+}
+
+func (api *DockerApi) createTestTemplates() error {
+  var templateDir = RequiredFile{name: "Test-Flight Template Dir", fileName: ".test-flight", FileType: "d"}
+  var inventory = RequiredFile{name: "Test-Flight Test Inventory file", fileName: templateDir.fileName + "/inventory", FileType: "f"}
+  var playbook = RequiredFile{name: "Test-Flight Test Playbook file", fileName: templateDir.fileName + "/playbook.yml", FileType: "f"}
+  //
+  // check that dir exists
+  if hasFiles, err := HasRequiredFile(&api.meta.Dir, templateDir); !hasFiles {
+    return err
+  }
+
+  if hasFiles, err := HasRequiredFile(&api.meta.Dir, inventory); !hasFiles {
+    return err
+  }
+
+  if hasFiles, err := HasRequiredFile(&api.meta.Dir, playbook); !hasFiles {
+    return err
+  }
+
+  // create it doesn't
+  // delete files if exist
+  // create files
+  return nil
 }
 
 // One big proxy obj to help users. Slowly phase this out.
@@ -70,15 +95,16 @@ func (api *DockerApi) getTemplateVar() *TemplateVar {
     AddSimple:         api.configFile.DockerAdd.Simple,
     AddComplex:        api.configFile.DockerAdd.Complex,
     AddUser:           api.buildFile.Add,
+    RunTests:          api.buildFile.RunTests,
   }
 }
 
 func (api *DockerApi) CreateTemplate() {
   var (
-    pattern string
-    tmpl    *template.Template
-    pwd     string
-    err     error
+    pattern         string
+    tmpl            *template.Template
+    pwd             string
+    err             error
     baseTemplateDir string
     testTemplateDir string
   )

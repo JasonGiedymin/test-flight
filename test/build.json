@@ -9,5 +9,6 @@
   },
   "add": [],
   "expose": [3000, 3001],
-  "cmd": "pwd"
+  "cmd": "pwd",
+  "runTests": true
 }

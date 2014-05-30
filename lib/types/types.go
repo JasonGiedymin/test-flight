@@ -30,6 +30,7 @@ type BuildFile struct {
   Expose            []int
   Add               []DockerAddComplexEntry
   Cmd               string
+  RunTests          bool
 }
 
 type ApplicationMeta struct {
@@ -37,6 +38,8 @@ type ApplicationMeta struct {
   LastCommand string
   CurrentMode string
   ExecPath    string
+  Pwd         string
+  Dir         string
 }
 
 type CommandOptions struct {

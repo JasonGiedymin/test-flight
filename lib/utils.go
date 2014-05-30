@@ -21,7 +21,7 @@ func ConvertFiles(files []os.FileInfo) []string {
 func findFile(filesFound []string, requiredFile RequiredFile, currDir string) (bool, error) {
   for _, file := range filesFound {
     if file == requiredFile.fileName {
-      if len(requiredFile.requiredFiles) > 0 && requiredFile.fileType == "d" {
+      if len(requiredFile.requiredFiles) > 0 && requiredFile.FileType == "d" {
         nextDir := currDir + "/" + requiredFile.fileName
         _, err := HasRequiredFiles(&nextDir, requiredFile.requiredFiles)
         if err != nil {
@@ -33,6 +33,18 @@ func findFile(filesFound []string, requiredFile RequiredFile, currDir string) (b
   }
 
   return false, FileCheckFail.New("Required file/dir not found: [%v/%v]", currDir, requiredFile.fileName)
+}
+
+func CreateFile(dir *string, requiredFile RequiredFile) (bool, error) {
+  if (requiredFile.FileType == "d") {
+    if err := os.Mkdir(*dir + "/" + requiredFile.fileName, 0777); err != nil {
+      return false, err
+    }
+
+    return true, nil
+  }
+
+  return false, nil
 }
 
 // TODO: goroutine + channels to further optimize
@@ -62,4 +74,8 @@ func HasRequiredFiles(dir *string, requiredFiles []RequiredFile) (bool, error) {
   }
 
   return true, nil
+}
+
+func HasRequiredFile(dir *string, requiredFile RequiredFile) (bool, error) {
+  return HasRequiredFiles(dir, []RequiredFile{requiredFile})
 }

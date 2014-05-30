@@ -3,8 +3,8 @@ package lib
 import (
   "./config"
   Logger "./logging"
-  "os"
   "./types"
+  "os"
 )
 
 // TODO: Make as a member of Parser later...
@@ -52,6 +52,7 @@ func (cmd *CheckCommand) Execute(args []string) error {
 
   cmd.AppState.SetState("CHECK_FILES")
   Logger.Info("Running Pre-Flight Check... in dir:", cmd.Dir)
+  cmd.AppState.Meta.Dir = cmd.Dir
 
   _, err := HasRequiredFiles(&cmd.Dir, RequiredFiles)
   if err != nil {
@@ -80,6 +81,7 @@ func (cmd *LaunchCommand) Execute(args []string) error {
 
   cmd.AppState.SetState("LAUNCH")
   Logger.Info("Launching Tests... in dir:", cmd.Dir)
+  cmd.AppState.Meta.Dir = cmd.Dir
 
   if _, err := HasRequiredFiles(&cmd.Dir, RequiredFiles); err != nil {
     Logger.Error(err)
@@ -91,10 +93,11 @@ func (cmd *LaunchCommand) Execute(args []string) error {
   }
 
   var dc = NewDockerApi(cmd.AppState.Meta, cmd.AppState.ConfigFile, cmd.AppState.BuildFile)
-  // dc.ShowInfo()
-  // dc.ShowImages()
+  dc.ShowInfo()
+  dc.ShowImages()
   // dc.CreateDocker()
-  dc.CreateTemplate()
+  dc.createTestTemplates()
+  // dc.CreateTemplate()
 
   return nil
 }

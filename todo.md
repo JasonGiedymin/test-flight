@@ -82,6 +82,7 @@ Version todos:
   - [x] get dir of where test-flight binary is running from
   - [x] move more into types so refactor and pruning of structs can be done later
   - [ ] generate test-flight files in `./.test-flight`
+  - [ ] create simple map for docker hasFiles (I need functional programming!)
   - [ ] create flag to disable `./.test-flight` file generation
   - [ ] create dockerfile and pass to docker api client
   - [ ] run ansible lint/check within a docker, call this `runup` (an actual aircraft term)

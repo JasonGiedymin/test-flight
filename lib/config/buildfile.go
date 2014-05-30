@@ -14,6 +14,7 @@ func NewBuildFile() *types.BuildFile {
     Version:           "0.0.1",
     RequiresDocker:    "",
     RequiresDockerUrl: "",
+    RunTests:          false,
   }
 }
 

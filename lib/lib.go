@@ -18,7 +18,7 @@ import (
 type RequiredFile struct {
   name          string
   fileName      string
-  fileType      string // [f]ile, [d]ir
+  FileType      string // [f]ile, [d]ir
   requiredFiles []RequiredFile
 }
 
@@ -37,12 +37,23 @@ func (app *TestFlight) ProcessCommands() {
 
 func (app *TestFlight) Init() error {
   app.AppState.Meta = &meta
-  
+
   Logger.Trace("State", app.AppState)
   app.AppState.SetState("INIT")
 
-  execPath, _ := osext.Executable()
+  execPath, error := osext.Executable()
+  if (error != nil) {
+    Logger.Error("Could not find executable path.")
+    os.Exit(ExitCodes["init_fail"])
+  }
   app.AppState.Meta.ExecPath = execPath
+
+  pwd, error := os.Getwd()
+  if (error != nil) {
+    Logger.Error("Could not find working directory.")
+    os.Exit(ExitCodes["init_fail"])
+  }
+  app.AppState.Meta.Pwd = pwd
 
   checkCommand = CheckCommand{AppState: &app.AppState}
   launchCommand = LaunchCommand{AppState: &app.AppState}
@@ -71,7 +82,7 @@ func (app *TestFlight) Init() error {
 // == Default vars ==
 var (
   defaultDir     = "./"
-  mainYaml       = RequiredFile{name: "main yaml", fileName: "main.yml", fileType: "f"}
+  mainYaml       = RequiredFile{name: "main yaml", fileName: "main.yml", FileType: "f"}
   BadDir         = errors.NewClass("Can't read the current directory")
   FileCheckFail  = errors.NewClass("File Check Failed")
   ansibleFiles   = []RequiredFile{mainYaml}
@@ -85,18 +96,18 @@ var meta = types.ApplicationMeta{
 }
 
 var RequiredFiles = []RequiredFile{
-  {name: "Test-Flight json build file", fileName: "build.json", fileType: "f"},
-  {name: "Test-Flight dir", fileName: ".test-flight", fileType: "d",
+  {name: "Test-Flight json build file", fileName: "build.json", FileType: "f"},
+  {name: "Test-Flight dir", fileName: ".test-flight", FileType: "d",
     requiredFiles: []RequiredFile{
-      {name: "Ansible inventory file used for Test-Flight", fileName: "inventory", fileType: "f"},
-      {name: "Ansible playbook file used for Test-Flight", fileName: "playbook.yml", fileType: "f"},
+      {name: "Ansible inventory file used for Test-Flight", fileName: "inventory", FileType: "f"},
+      {name: "Ansible playbook file used for Test-Flight", fileName: "playbook.yml", FileType: "f"},
     },
   },
-  {name: "Ansible handlers dir", fileName: "handlers", fileType: "d", requiredFiles: ansibleFiles},
-  {name: "Ansible meta dir", fileName: "meta", fileType: "d", requiredFiles: ansibleFiles},
-  {name: "Ansible tasks dir", fileName: "tasks", fileType: "d", requiredFiles: ansibleFiles},
-  {name: "Ansible templates dir", fileName: "templates", fileType: "d"},
-  {name: "Ansible test dir", fileName: "tests", fileType: "d", requiredFiles: ansibleFiles},
-  {name: "Ansible var dir for variables", fileName: "vars", fileType: "d", requiredFiles: ansibleFiles},
-  {name: "Ansible vault dir for encrypted files", fileName: "vault", fileType: "d"},
+  {name: "Ansible handlers dir", fileName: "handlers", FileType: "d", requiredFiles: ansibleFiles},
+  {name: "Ansible meta dir", fileName: "meta", FileType: "d", requiredFiles: ansibleFiles},
+  {name: "Ansible tasks dir", fileName: "tasks", FileType: "d", requiredFiles: ansibleFiles},
+  {name: "Ansible templates dir", fileName: "templates", FileType: "d"},
+  {name: "Ansible test dir", fileName: "tests", FileType: "d", requiredFiles: ansibleFiles},
+  {name: "Ansible var dir for variables", fileName: "vars", FileType: "d", requiredFiles: ansibleFiles},
+  {name: "Ansible vault dir for encrypted files", fileName: "vault", FileType: "d"},
 }
