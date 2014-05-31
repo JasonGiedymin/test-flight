@@ -32,6 +32,7 @@ func commandPreReq(appState *types.ApplicationState) {
 
 // == Version Command ==
 type VersionCommand struct {
+  App      *TestFlight
   AppState *types.ApplicationState
 }
 
@@ -43,11 +44,22 @@ func (cmd *VersionCommand) Execute(args []string) error {
 
 // == Check Command ==
 type CheckCommand struct {
+  App      *TestFlight
   Dir      string `short:"d" long:"dir" description:"directory to run in"`
   AppState *types.ApplicationState
 }
 
-func (cmd *CheckCommand) Execute(args []string) error {
+type CheckCommand2 struct {
+  App *TestFlight
+  Dir string `short:"d" long:"dir" description:"directory to run in"`
+}
+
+func (cmd *CheckCommand2) Execute(args []string) error {
+  Logger.Trace("Yo")
+  return nil
+}
+
+func (cmd *CheckCommand) Execute1(args []string) error {
   commandPreReq(cmd.AppState) // I'm lazy
 
   cmd.AppState.SetState("CHECK_FILES")
@@ -72,6 +84,7 @@ func (cmd *CheckCommand) Execute(args []string) error {
 
 // == Launch Command ==
 type LaunchCommand struct {
+  App      *TestFlight
   Dir      string `short:"d" long:"dir" description:"directory to run in"`
   AppState *types.ApplicationState
 }

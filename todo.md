@@ -82,6 +82,7 @@ Version todos:
   - [x] get dir of where test-flight binary is running from
   - [x] move more into types so refactor and pruning of structs can be done later
   - [x] generate test-flight files in `./.test-flight`
+  - [ ] invert test-flight struct, lib, and parser
   - [ ] slim down createTestTemplates()
   - [ ] bring things back into test-flight struct for state management
   - [ ] create simple map for docker hasFiles (I need functional programming!)
