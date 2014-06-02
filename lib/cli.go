@@ -20,39 +20,39 @@ func setConfigFiles(dir string, appState *types.ApplicationState) error {
   return nil
 }
 
-func commandPreReq(appState *types.ApplicationState) {
-  appState.SetState("CHECK_PREREQS")
+func commandPreReq() *types.ConfigFile {
   configFile, err := config.ReadConfigFile()
   if config.ReadFileError.Contains(err) {
     os.Exit(ExitCodes["config_missing"])
   }
 
-  appState.ConfigFile = configFile
+  return configFile
 }
 
 // == Version Command ==
 type VersionCommand struct {
-  AppState *types.ApplicationState
+  App *TestFlight
 }
 
 func (cmd *VersionCommand) Execute(args []string) error {
-  cmd.AppState.SetState("VERSION_QUERY")
-  Logger.Info("Test-Flight Version:", cmd.AppState.Meta.Version)
+  cmd.App.AppState.SetState("VERSION_QUERY")
+  Logger.Info("Test-Flight Version:", cmd.App.AppState.Meta.Version)
   return nil
 }
 
 // == Check Command ==
 type CheckCommand struct {
-  Dir      string `short:"d" long:"dir" description:"directory to run in"`
-  AppState *types.ApplicationState
+  App *TestFlight
+  Dir string `short:"d" long:"dir" description:"directory to run in"`
 }
 
 func (cmd *CheckCommand) Execute(args []string) error {
-  commandPreReq(cmd.AppState) // I'm lazy
+  cmd.App.AppState.SetState("CHECK_PREREQS")
+  cmd.App.AppState.ConfigFile = commandPreReq()
 
-  cmd.AppState.SetState("CHECK_FILES")
+  cmd.App.AppState.SetState("CHECK_FILES")
   Logger.Info("Running Pre-Flight Check... in dir:", cmd.Dir)
-  cmd.AppState.Meta.Dir = cmd.Dir
+  cmd.App.AppState.Meta.Dir = cmd.Dir
 
   _, err := HasRequiredFiles(&cmd.Dir, RequiredFiles)
   if err != nil {
@@ -64,7 +64,7 @@ func (cmd *CheckCommand) Execute(args []string) error {
     return err
   }
 
-  cmd.AppState.BuildFile = buildFile
+  cmd.App.AppState.BuildFile = buildFile
 
   Logger.Debug("Buildfile found, contents:", *buildFile)
   return nil
@@ -72,27 +72,28 @@ func (cmd *CheckCommand) Execute(args []string) error {
 
 // == Launch Command ==
 type LaunchCommand struct {
-  Dir      string `short:"d" long:"dir" description:"directory to run in"`
-  AppState *types.ApplicationState
+  App *TestFlight
+  Dir string `short:"d" long:"dir" description:"directory to run in"`
 }
 
 func (cmd *LaunchCommand) Execute(args []string) error {
-  commandPreReq(cmd.AppState)
+  cmd.App.SetState("CHECK_PREREQS")
+  cmd.App.AppState.ConfigFile = commandPreReq()
 
-  cmd.AppState.SetState("LAUNCH")
+  cmd.App.AppState.SetState("LAUNCH")
   Logger.Info("Launching Tests... in dir:", cmd.Dir)
-  cmd.AppState.Meta.Dir = cmd.Dir
+  cmd.App.AppState.Meta.Dir = cmd.Dir
 
   if _, err := HasRequiredFiles(&cmd.Dir, RequiredFiles); err != nil {
     Logger.Error(err)
     return err
   }
 
-  if err := setConfigFiles(cmd.Dir, cmd.AppState); err != nil {
+  if err := setConfigFiles(cmd.Dir, &cmd.App.AppState); err != nil {
     return err
   }
 
-  var dc = NewDockerApi(cmd.AppState.Meta, cmd.AppState.ConfigFile, cmd.AppState.BuildFile)
+  var dc = NewDockerApi(cmd.App.AppState.Meta, cmd.App.AppState.ConfigFile, cmd.App.AppState.BuildFile)
   dc.ShowInfo()
   dc.ShowImages()
   // dc.CreateDocker()
