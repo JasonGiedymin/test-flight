@@ -87,6 +87,9 @@ Version todos:
         DockerApi which expects config and build files [refactor-dockerapi]
   - [x] bring things back into test-flight struct for state management [refactor-parser]
   - [x] move RequiredFiles into Types [refactor-types]
+
+#### v0.9.3 - Alpha
+
   - [ ] create simple map for docker hasFiles (I need functional programming!)
   - [ ] create flag to disable `./.test-flight` file generation
   - [ ] create dockerfile and pass to docker api client
