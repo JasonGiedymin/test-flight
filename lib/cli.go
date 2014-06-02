@@ -20,13 +20,23 @@ func setConfigFiles(dir string, appState *types.ApplicationState) error {
   return nil
 }
 
-func commandPreReq() *types.ConfigFile {
+// func commandPreReq() *types.ConfigFile {
+//   configFile, err := config.ReadConfigFile()
+//   if config.ReadFileError.Contains(err) {
+//     os.Exit(ExitCodes["config_missing"])
+//   }
+//
+//   return configFile
+// }
+
+func commandPreReq(app *TestFlight) {
+  // Prereqs
+  app.SetState("CHECK_PREREQS")
   configFile, err := config.ReadConfigFile()
   if config.ReadFileError.Contains(err) {
     os.Exit(ExitCodes["config_missing"])
   }
-
-  return configFile
+  app.SetConfigFile(configFile)
 }
 
 // == Version Command ==
@@ -35,7 +45,7 @@ type VersionCommand struct {
 }
 
 func (cmd *VersionCommand) Execute(args []string) error {
-  cmd.App.AppState.SetState("VERSION_QUERY")
+  cmd.App.SetState("VERSION_QUERY")
   Logger.Info("Test-Flight Version:", cmd.App.AppState.Meta.Version)
   return nil
 }
@@ -47,10 +57,9 @@ type CheckCommand struct {
 }
 
 func (cmd *CheckCommand) Execute(args []string) error {
-  cmd.App.AppState.SetState("CHECK_PREREQS")
-  cmd.App.AppState.ConfigFile = commandPreReq()
+  commandPreReq(cmd.App)
 
-  cmd.App.AppState.SetState("CHECK_FILES")
+  cmd.App.SetState("CHECK_FILES")
   Logger.Info("Running Pre-Flight Check... in dir:", cmd.Dir)
   cmd.App.AppState.Meta.Dir = cmd.Dir
 
@@ -77,10 +86,9 @@ type LaunchCommand struct {
 }
 
 func (cmd *LaunchCommand) Execute(args []string) error {
-  cmd.App.SetState("CHECK_PREREQS")
-  cmd.App.AppState.ConfigFile = commandPreReq()
+  commandPreReq(cmd.App)
 
-  cmd.App.AppState.SetState("LAUNCH")
+  cmd.App.SetState("LAUNCH")
   Logger.Info("Launching Tests... in dir:", cmd.Dir)
   cmd.App.AppState.Meta.Dir = cmd.Dir
 
@@ -97,8 +105,32 @@ func (cmd *LaunchCommand) Execute(args []string) error {
   dc.ShowInfo()
   dc.ShowImages()
   // dc.CreateDocker()
-  dc.createTestTemplates()
+
+  if cmd.App.AppState.ConfigFile.OverwriteTemplates {
+    dc.createTestTemplates()
+  }
   // dc.CreateTemplate()
+
+  return nil
+}
+
+// == Template Command ==
+type TemplateCommand struct {
+  App *TestFlight
+  Dir string `short:"d" long:"dir" description:"directory to run in"`
+}
+
+func (cmd *TemplateCommand) Execute(args []string) error {
+  commandPreReq(cmd.App)
+
+  cmd.App.SetState("TEMPLATE")
+  Logger.Info("Creating Templates... in dir:", cmd.Dir)
+  cmd.App.AppState.Meta.Dir = cmd.Dir
+
+  dc := NewDockerApi(cmd.App.AppState.Meta, cmd.App.AppState.ConfigFile, cmd.App.AppState.BuildFile)
+  if cmd.App.AppState.ConfigFile.OverwriteTemplates {
+    return dc.createTestTemplates()
+  }
 
   return nil
 }

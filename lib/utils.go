@@ -1,9 +1,9 @@
 package lib
 
 import (
+  "./types"
   "io/ioutil"
   "os"
-  "./types"
 )
 
 // var Info = factorlog.New(os.Stdout, factorlog.NewStdFormatter(`%{Color "green"}%{Date} %{Time} %{File}:%{Line} %{Message}%{Color "reset"}`))
@@ -41,11 +41,11 @@ func CreateFile(dir *string, requiredFile types.RequiredFile) (*os.File, error) 
   var err error
   var file *os.File
 
-  if (requiredFile.FileType == "d") {
+  if requiredFile.FileType == "d" {
     if err = os.Mkdir(fileName, 0755); err != nil {
       return nil, err
     }
-  } else if (requiredFile.FileType == "f") {
+  } else if requiredFile.FileType == "f" {
     if _, err = os.Create(fileName); err != nil {
       return nil, nil
     }

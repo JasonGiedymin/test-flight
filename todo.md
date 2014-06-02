@@ -90,8 +90,9 @@ Version todos:
 
 #### v0.9.3 - Alpha
 
-  - [ ] create simple map for docker hasFiles (I need functional programming!)
-  - [ ] create flag to disable `./.test-flight` file generation
+  - [x] create flag to disable `./.test-flight` file generation
+  - [x] command to just create templates `templates`
+  - [x] slim down parser pre-reqs for parser commands, lots of repetition
   - [ ] create dockerfile and pass to docker api client
   - [ ] run ansible lint/check within a docker, call this `runup` (an actual aircraft term)
   - [ ] add help flag
@@ -101,6 +102,7 @@ Version todos:
   - [ ] dist/builds for various platforms
   - [ ] CI for builds and packaging
   - [ ] create/show test-flight specific images?
+  - [ ] create simple map for docker hasFiles (I need functional programming!)
   - [ ] test-flight cleanup
 
 ### v0.9.5 - Beta release
@@ -169,4 +171,3 @@ Section 2:
   - [x] refactor-parser - invert parser and test-flight so parser is not part of test-flight
   - [ ] refactor-prime - refactor so not passing so much app state around
   - [ ] refactor-dockerapi - refactor dockerApi so that it at least conforms to above and is slimmer
-  - [ ]

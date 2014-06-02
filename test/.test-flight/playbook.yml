@@ -2,7 +2,7 @@
 #
 # Test-Flight Test Playbook
 #
-# Test-Flight v0.9.2 Generated Playbook File
+# Test-Flight v0.9.3 Generated Playbook File
 #
 
 - hosts: localhost
@@ -10,7 +10,5 @@
   roles:
     - role: ./
 
-
-- include: tests/integration-tests.yml
 
 

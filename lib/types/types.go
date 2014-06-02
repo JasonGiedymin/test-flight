@@ -8,16 +8,17 @@ type DockerAddComplexEntry struct {
 }
 
 type ConfigFileDockerAdd struct {
-  Simple    []string
+  Simple []string
   // User   []map[string]string
-  Complex   []DockerAddComplexEntry
+  Complex []DockerAddComplexEntry
 }
 
 type ConfigFile struct {
-  TemplateDir string
+  TemplateDir    string
   DockerEndpoint string
-  WorkDir string
-  DockerAdd ConfigFileDockerAdd
+  WorkDir        string
+  DockerAdd      ConfigFileDockerAdd
+  OverwriteTemplates bool
 }
 
 type BuildFile struct {
@@ -34,7 +35,7 @@ type BuildFile struct {
 }
 
 type ApplicationMeta struct {
-  Version string
+  Version     string
   LastCommand string
   CurrentMode string
   ExecPath    string
@@ -46,10 +47,10 @@ type CommandOptions struct {
 }
 
 type ApplicationState struct {
-  Meta        *ApplicationMeta
-  Options     CommandOptions
-  ConfigFile  *ConfigFile
-  BuildFile   *BuildFile
+  Meta       *ApplicationMeta
+  Options    CommandOptions
+  ConfigFile *ConfigFile
+  BuildFile  *BuildFile
 }
 
 func (appState *ApplicationState) SetState(newState string) string {
@@ -65,17 +66,14 @@ type RequiredFile struct {
   RequiredFiles []RequiredFile
 }
 
-type MapLike interface {
-  Map(v interface{})
-}
+// type MapLike interface {
+//   Map(v interface{})
+// }
 
-type mapFunc func(v interface{}) 
+type requiredFileMapFunc func(in RequiredFile) RequiredFile
 
 // requiredFile.Map(MapLike)
-func (req *RequiredFile) Map(v interface{}) []RequiredFile {
+func (req *RequiredFile) Map(fx requiredFileMapFunc) []RequiredFile {
   returnSlice := make([]RequiredFile, len(req.RequiredFiles))
-
-  Logger.Trace(v)
-
   return returnSlice
 }
