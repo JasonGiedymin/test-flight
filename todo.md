@@ -1,6 +1,6 @@
 ## Dev Todo
 
-Dev todos:
+Version todos:
 
 ### v0.9.0 - Alpha
 
@@ -62,17 +62,44 @@ Dev todos:
 
   - [x] new repo
   - [x] version
-  - [ ] finalize template
-  - [ ] create template constructs for use with creating inventory and playbook
-  - [ ] change docker dir name to test-flight (in reqs)
-  - [ ] create templates for inventory and playbook
-  - [ ] create templates in .test-flight/cache
+  - [x] create template constructs for use with creating inventory and playbook
+  - [x] First workable Dockerfile template
+  - [x] create nested template for test-flight run command
+  - [x] add .gitignore (better late than never :-))
+  - [x] change config.user to config.complex, move user to build.json
+  - [x] better test build.json (at least for what is available)
+  - [x] clean up three add sections
+  - [x] create nested template for other sections (add, expose, etc...)
+  - [x] create friendlier template and nested template naming scheme
+  - [x] wiki the naming concept
+  - [x] add test-flight version in template
+  - [x] fix meta in AppState
+  - [x] create nested templates for inventory and playbook
+  - [x] create nested templates in .test-flight/cache
+  - [x] add test-flight version signature to all first level templates
+  - [x] change docker dir name to test-flight (in reqs)
+  - [x] fix `inventory`, and `playbook.yml` template not generating
+  - [x] get dir of where test-flight binary is running from
+  - [x] move more into types so refactor and pruning of structs can be done later
+  - [x] generate test-flight files in `./.test-flight`
+  - [x] invert test-flight struct, lib, and parser [refactor-parser]
+  - [-] ~~slim down createTestTemplates()~~ Needs more intensive refactor of
+        DockerApi which expects config and build files [refactor-dockerapi]
+  - [x] bring things back into test-flight struct for state management [refactor-parser]
+  - [x] move RequiredFiles into Types [refactor-types]
+
+#### v0.9.3 - Alpha
+
+  - [ ] create simple map for docker hasFiles (I need functional programming!)
+  - [ ] create flag to disable `./.test-flight` file generation
   - [ ] create dockerfile and pass to docker api client
   - [ ] run ansible lint/check within a docker, call this `runup` (an actual aircraft term)
   - [ ] add help flag
   - [ ] cleanup code (lib is a mess, need more {})
-  - [ ] constrain test-flight-config info to sections, pass appropriate sections to libs
+  - [ ] test-flight verbose/debug via config and/or cli
   - [ ] create TestFlight.New()
+  - [ ] dist/builds for various platforms
+  - [ ] CI for builds and packaging
   - [ ] create/show test-flight specific images?
   - [ ] test-flight cleanup
 
@@ -86,6 +113,12 @@ Dev todos:
 ### v1.0.0
 
   - [ ] user feedback...
+  - [ ] tests, tests, tests
+  - [ ] some dirs should be optional, some mandatory
+  - [ ] constrain test-flight-config info to sections, pass appropriate sections to libs
+  - [ ] add more documentation along with sample build/config file usage (docs)
+  - [ ] stop passing state everywhere [refactor-prime]
+  - [ ] stop passing app everywhere, modularize [refactor-prime]
 
 ### v1.1.0
 
@@ -107,6 +140,7 @@ Dev todos:
   - [ ] sub-templates in each template, to start hooking into (for plugins later)
   - [ ] plugins for templates, config, build...
 
+
 ## Production Todo
 
 Before heading to production.
@@ -116,3 +150,23 @@ Prod todos:
   - [ ] silence full stack trace? Only allow in dev?
   - [ ] docs
   - [ ] more tests :-)
+
+
+## Major Refactor Tags
+
+These tags represent major refactor intentions that will span multiple tasks. Each refactor
+must be done within a defined section and each section must be done in sequence. There
+is no particular order within the section.
+
+Section 1:
+
+  - [ ] refactor-types - Move all custom types to types package for future analysis and future refactors.
+        But first must see what the lanscape is.
+
+
+Section 2:
+
+  - [x] refactor-parser - invert parser and test-flight so parser is not part of test-flight
+  - [ ] refactor-prime - refactor so not passing so much app state around
+  - [ ] refactor-dockerapi - refactor dockerApi so that it at least conforms to above and is slimmer
+  - [ ]

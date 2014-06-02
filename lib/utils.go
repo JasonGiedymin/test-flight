@@ -3,6 +3,7 @@ package lib
 import (
   "io/ioutil"
   "os"
+  "./types"
 )
 
 // var Info = factorlog.New(os.Stdout, factorlog.NewStdFormatter(`%{Color "green"}%{Date} %{Time} %{File}:%{Line} %{Message}%{Color "reset"}`))
@@ -18,12 +19,12 @@ func ConvertFiles(files []os.FileInfo) []string {
   return convertedFiles
 }
 
-func findFile(filesFound []string, requiredFile RequiredFile, currDir string) (bool, error) {
+func findFile(filesFound []string, requiredFile types.RequiredFile, currDir string) (bool, error) {
   for _, file := range filesFound {
-    if file == requiredFile.fileName {
-      if len(requiredFile.requiredFiles) > 0 && requiredFile.fileType == "d" {
-        nextDir := currDir + "/" + requiredFile.fileName
-        _, err := HasRequiredFiles(&nextDir, requiredFile.requiredFiles)
+    if file == requiredFile.FileName {
+      if len(requiredFile.RequiredFiles) > 0 && requiredFile.FileType == "d" {
+        nextDir := currDir + "/" + requiredFile.FileName
+        _, err := HasRequiredFiles(&nextDir, requiredFile.RequiredFiles)
         if err != nil {
           return false, err
         }
@@ -32,7 +33,25 @@ func findFile(filesFound []string, requiredFile RequiredFile, currDir string) (b
     }
   }
 
-  return false, FileCheckFail.New("Required file/dir not found: [%v/%v]", currDir, requiredFile.fileName)
+  return false, FileCheckFail.New("Required file/dir not found: [%v/%v]", currDir, requiredFile.FileName)
+}
+
+func CreateFile(dir *string, requiredFile types.RequiredFile) (*os.File, error) {
+  var fileName = *dir + "/" + requiredFile.FileName
+  var err error
+  var file *os.File
+
+  if (requiredFile.FileType == "d") {
+    if err = os.Mkdir(fileName, 0755); err != nil {
+      return nil, err
+    }
+  } else if (requiredFile.FileType == "f") {
+    if _, err = os.Create(fileName); err != nil {
+      return nil, nil
+    }
+  }
+
+  return file, nil
 }
 
 // TODO: goroutine + channels to further optimize
@@ -40,7 +59,7 @@ func findFile(filesFound []string, requiredFile RequiredFile, currDir string) (b
  * Reads the current directory and returns
  *   - bool: if all the required files were found
  */
-func HasRequiredFiles(dir *string, requiredFiles []RequiredFile) (bool, error) {
+func HasRequiredFiles(dir *string, requiredFiles []types.RequiredFile) (bool, error) {
   var currDir = *dir
 
   if currDir == "" {
@@ -62,4 +81,8 @@ func HasRequiredFiles(dir *string, requiredFiles []RequiredFile) (bool, error) {
   }
 
   return true, nil
+}
+
+func HasRequiredFile(dir *string, requiredFile types.RequiredFile) (bool, error) {
+  return HasRequiredFiles(dir, []types.RequiredFile{requiredFile})
 }

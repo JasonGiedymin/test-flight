@@ -1,0 +1,19 @@
+{{define "Dockerfile_header"}}
+#
+# ------------------------------------------------------
+#                       Dockerfile
+# ------------------------------------------------------
+# image:   {{.ImageName}}
+# name:    {{.Owner}}/{{.ImageName}}
+# version: v{{.Version}}
+# how-to:  docker build -t {{.Owner}}/{{.ImageName}} .
+# {{if .RequiresDocker}}Requires:
+# {{.RequiresDocker}}
+#   {{.RequiresDockerUrl}}
+# {{end}}
+#       Test-Flight v{{.Meta.Version}} Generated Dockerfile
+# ------------------------------------------------------
+
+FROM {{.Owner}}/{{.ImageName}}
+MAINTAINER {{.Owner}}
+{{end}}

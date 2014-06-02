@@ -1,8 +1,8 @@
-{{define "playbook.yml"}}---
+---
 #
 # Test-Flight Test Playbook
 #
-# Test-Flight v{{.Meta.Version}} Generated Playbook File
+# Test-Flight v0.9.2 Generated Playbook File
 #
 
 - hosts: localhost
@@ -10,8 +10,7 @@
   roles:
     - role: ./
 
-{{if .RunTests}}
-- include: tests/integration-tests.yml
-{{end}}
 
-{{end}}
+- include: tests/integration-tests.yml
+
+

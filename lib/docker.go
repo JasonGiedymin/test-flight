@@ -1,15 +1,20 @@
 package lib
 
 import (
-  "./config"
   Logger "./logging"
+  "./types"
   "github.com/fsouza/go-dockerclient"
   "os"
   "path/filepath"
+  "strings"
   "text/template"
 )
 
 type TemplateVar struct {
+  Meta       *types.ApplicationMeta
+  ConfigFile *types.ConfigFile
+  BuildFile  *types.BuildFile
+
   Owner             string
   ImageName         string
   Version           string
@@ -17,21 +22,24 @@ type TemplateVar struct {
   RequiresDockerUrl string
   WorkDir           string
   Env               map[string]string
-  Expose            map[string]string
+  Expose            []int
   Cmd               string
-  ConfigFile        *config.ConfigFile
-  BuildFile         *config.BuildFile
+  AddSimple         []string
+  AddComplex        []types.DockerAddComplexEntry
+  AddUser           []types.DockerAddComplexEntry
+  RunTests          bool
 }
 
 // Proxy Client
 type DockerApi struct {
-  configFile *config.ConfigFile
-  buildFile  *config.BuildFile
+  meta       *types.ApplicationMeta
+  configFile *types.ConfigFile
+  buildFile  *types.BuildFile
   client     *docker.Client
 }
 
-func NewDockerApi(configFile *config.ConfigFile, buildFile *config.BuildFile) *DockerApi {
-  api := DockerApi{configFile: configFile, buildFile: buildFile}
+func NewDockerApi(meta *types.ApplicationMeta, configFile *types.ConfigFile, buildFile *types.BuildFile) *DockerApi {
+  api := DockerApi{meta: meta, configFile: configFile, buildFile: buildFile}
   client, err := docker.NewClient(configFile.DockerEndpoint)
   if err != nil {
     Logger.Error("Docker API Client Error:", err)
@@ -42,13 +50,75 @@ func NewDockerApi(configFile *config.ConfigFile, buildFile *config.BuildFile) *D
   return &api
 }
 
+func (api *DockerApi) createTestTemplates() error {
+  var templateDir = types.RequiredFile{
+    Name: "Test-Flight Template Dir", FileName: api.configFile.TemplateDir, FileType: "d",
+  }
+
+  var inventory = types.RequiredFile{
+    Name: "Test-Flight Test Inventory file", FileName: "inventory", FileType: "f",
+  }
+
+  var playbook = types.RequiredFile{
+    Name: "Test-Flight Test Playbook file", FileName: "playbook.yml", FileType: "f",
+  }
+
+  templateOutputDir := strings.Join([]string{api.meta.Pwd, api.meta.Dir, templateDir.FileName}, "/")
+  templateInputDir := api.meta.Pwd + "/templates/"
+
+  createFilesFromTemplate := func(
+    templateInputDir string,
+    templateOutputDir string,
+    requiredFile types.RequiredFile) error {
+    // check that inventory files exist
+    if hasFiles, err := HasRequiredFile(&templateOutputDir, requiredFile); err != nil {
+      Logger.Error("Error: ", err)
+      return err
+    } else if hasFiles {
+      // Inventory
+      fileToCreate := strings.Join([]string{templateOutputDir, requiredFile.FileName}, "/")
+      file, _ := os.Create(fileToCreate)
+
+      pattern := filepath.Join(templateInputDir, requiredFile.FileName+"*.tmpl")
+      tmpl := template.Must(template.ParseGlob(pattern))
+
+      if err = tmpl.ExecuteTemplate(file, requiredFile.FileName, *api.getTemplateVar()); err != nil {
+        Logger.Error("template execution: %s", err)
+        return err
+      }
+
+      Logger.Debug("Created file from template:", fileToCreate)
+    }
+
+    // check that dir exists
+    // TODO: major cleanup here, need another pass
+    if hasFiles, err := HasRequiredFile(&api.meta.Dir, templateDir); err != nil {
+      return err
+    } else if !hasFiles { // create it doesn't
+      if _, err = CreateFile(&api.meta.Dir, templateDir); err != nil {
+        return err
+      }
+    }
+    return nil
+  }
+
+  // if api.build
+  _ = createFilesFromTemplate(templateInputDir, templateOutputDir, inventory)
+  _ = createFilesFromTemplate(templateInputDir, templateOutputDir, playbook)
+
+  return nil
+}
+
+// One big proxy obj to help users. Slowly phase this out.
 func (api *DockerApi) getTemplateVar() *TemplateVar {
   return &TemplateVar{
     // Direct:
-    ConfigFile:        api.configFile,
-    BuildFile:         api.buildFile,
+    Meta:       api.meta,
+    ConfigFile: api.configFile,
+    BuildFile:  api.buildFile,
 
     // Helpers for common accessors
+    // Keep names simple!
     Owner:             api.buildFile.Owner,
     ImageName:         api.buildFile.ImageName,
     Version:           api.buildFile.Version,
@@ -56,25 +126,42 @@ func (api *DockerApi) getTemplateVar() *TemplateVar {
     RequiresDockerUrl: api.buildFile.RequiresDockerUrl,
     WorkDir:           api.configFile.WorkDir,
     Env:               api.buildFile.Env,
+    Expose:            api.buildFile.Expose,
+    Cmd:               api.buildFile.Cmd,
+    AddSimple:         api.configFile.DockerAdd.Simple,
+    AddComplex:        api.configFile.DockerAdd.Complex,
+    AddUser:           api.buildFile.Add,
+    RunTests:          api.buildFile.RunTests,
   }
 }
 
 func (api *DockerApi) CreateTemplate() {
-  pwd, err := os.Getwd()
+  var (
+    pattern         string
+    tmpl            *template.Template
+    pwd             string
+    err             error
+    baseTemplateDir string
+    testTemplateDir string
+  )
+
+  pwd, err = os.Getwd()
   if err != nil {
     // return nil, err
   }
 
-  pattern := filepath.Join(pwd+"/templates/", "*.tmpl")
-  tmpl := template.Must(template.ParseGlob(pattern))
+  // baseTemplateDir = api.meta.ExecPath + "./templates/"
+  testTemplateDir = pwd + "/" + api.configFile.TemplateDir + "/"
+  baseTemplateDir = pwd + "/templates/"
 
-  // var x = TemplateVar{
-  //   Owner: api.buildFile.Owner,
-  // }
+  Logger.Trace("Base Template Dir:", baseTemplateDir)
+  Logger.Trace("Test Template Dir:", testTemplateDir)
 
-  Logger.Trace("-->", *api.getTemplateVar())
+  // Dockerfile
+  pattern = filepath.Join(baseTemplateDir, "Dockerfile*.tmpl")
+  tmpl = template.Must(template.ParseGlob(pattern))
 
-  if err := tmpl.Execute(os.Stdout, *api.getTemplateVar()); err != nil {
+  if err = tmpl.ExecuteTemplate(os.Stdout, "Dockerfile", *api.getTemplateVar()); err != nil {
     Logger.Error("template execution: %s", err)
   }
 }

@@ -1,11 +1,15 @@
 {
+  "templateDir": ".test-flight",
+
+  "overwriteTemplates": true,
+
   "dockerEndPoint": "http://localhost:4243",
 
   "workDir": "/tmp/build",
 
   "dockerAdd": {
-    "system": [
-      "docker",
+    "simple": [
+      ".test-flight",
       "artifacts",
       "tasks",
       "tests",
@@ -13,9 +17,8 @@
       "templates",
       "handlers"
     ],
-    "user": [
-      {"name": "temp", "location": "{{.WorkDir}}/temp"}
-    ]
-  }
+    "complex": []
+  },
 
+  "dockerRun": "RUN ansible-playbook $WORKDIR/playbook.yml -c local"
 }

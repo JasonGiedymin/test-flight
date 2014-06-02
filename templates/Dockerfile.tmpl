@@ -1,47 +1,7 @@
-#
-# Test-Flight Generated Dockerfile
-#
-# {{.Owner}}/{{.ImageName}}
-#   docker build -t {{.Owner}}/{{.ImageName}} .
-#
-# {{if .RequiresDocker}}
-# Requires:
-# {{.RequiresDocker}}
-#   {{.RequiresDockerUrl}}
-# {{end}}
-
-FROM {{.Owner}}/{{.ImageName}}
-MAINTAINER {{.Owner}}
-
-# Working dir
-ENV WORKDIR {{.WorkDir}}/{{.ImageName}}
-
-{{if .Env}}
-{{range $key, $value := .Env}}
-# Env variables
-ENV {{$key}} {{$value}}
+{{define "Dockerfile"}}
+{{template "Dockerfile_header" .}}
+{{template "Dockerfile_env" .}}
+{{template "Dockerfile_add" .}}
+{{template "Dockerfile_run" .}}
+{{template "Dockerfile_cmd" .}}
 {{end}}
-{{end}}
-
-# Add current playbook scripts
-ADD docker $WORKDIR/docker
-ADD artifacts $WORKDIR/artifacts
-ADD tasks $WORKDIR/tasks
-ADD tests $WORKDIR/tests
-ADD vars $WORKDIR/vars
-ADD templates $WORKDIR/templates
-ADD handlers $WORKDIR/handlers
-
-# Add Test-Flight docker playbook and inventory
-ADD docker/inventory /etc/ansible/hosts
-ADD docker/playbook.yml $WORKDIR/playbook.yml
-
-# Execute ansible
-RUN ansible-playbook $WORKDIR/playbook.yml -c local -vvvv
-
-# !!Expose Loop
-{{range .Expose}}
-Expose {{.port}}
-{{end}}
-
-CMD {{.Cmd}}
