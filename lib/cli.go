@@ -104,12 +104,12 @@ func (cmd *LaunchCommand) Execute(args []string) error {
   var dc = NewDockerApi(cmd.App.AppState.Meta, cmd.App.AppState.ConfigFile, cmd.App.AppState.BuildFile)
   dc.ShowInfo()
   dc.ShowImages()
-  // dc.CreateDocker()
 
-  if cmd.App.AppState.ConfigFile.OverwriteTemplates {
-    dc.createTestTemplates()
+  if err := testFlightTemplates(dc, cmd.App.AppState.ConfigFile); err != nil {
+    return err
   }
-  // dc.CreateTemplate()
+
+  // dc.CreateDocker()
 
   return nil
 }
@@ -120,6 +120,14 @@ type TemplateCommand struct {
   Dir string `short:"d" long:"dir" description:"directory to run in"`
 }
 
+func testFlightTemplates(dc *DockerApi, configFile *types.ConfigFile) error {
+  if configFile.OverwriteTemplates {
+    return dc.createTestTemplates()
+  }
+
+  return nil
+}
+
 func (cmd *TemplateCommand) Execute(args []string) error {
   commandPreReq(cmd.App)
 
@@ -128,9 +136,5 @@ func (cmd *TemplateCommand) Execute(args []string) error {
   cmd.App.AppState.Meta.Dir = cmd.Dir
 
   dc := NewDockerApi(cmd.App.AppState.Meta, cmd.App.AppState.ConfigFile, cmd.App.AppState.BuildFile)
-  if cmd.App.AppState.ConfigFile.OverwriteTemplates {
-    return dc.createTestTemplates()
-  }
-
-  return nil
+  return testFlightTemplates(dc, cmd.App.AppState.ConfigFile)
 }

@@ -11,4 +11,6 @@
     - role: ./
 
 
+- include: tests/integration-tests.yml
+
 

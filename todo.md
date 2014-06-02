@@ -93,9 +93,11 @@ Version todos:
   - [x] create flag to disable `./.test-flight` file generation
   - [x] command to just create templates `templates`
   - [x] slim down parser pre-reqs for parser commands, lots of repetition
-  - [ ] create dockerfile and pass to docker api client
+  - [x] refactor cli template command as a function so they can be composed
+  - [ ] create Dockerfile and pass to docker api client
   - [ ] run ansible lint/check within a docker, call this `runup` (an actual aircraft term)
   - [ ] add help flag
+  - [ ] remove AppState completely
   - [ ] cleanup code (lib is a mess, need more {})
   - [ ] test-flight verbose/debug via config and/or cli
   - [ ] create TestFlight.New()
