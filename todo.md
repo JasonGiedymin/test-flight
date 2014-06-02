@@ -82,9 +82,11 @@ Version todos:
   - [x] get dir of where test-flight binary is running from
   - [x] move more into types so refactor and pruning of structs can be done later
   - [x] generate test-flight files in `./.test-flight`
-  - [ ] invert test-flight struct, lib, and parser
-  - [ ] slim down createTestTemplates()
-  - [ ] bring things back into test-flight struct for state management
+  - [x] invert test-flight struct, lib, and parser [refactor-parser]
+  - [-] ~~slim down createTestTemplates()~~ Needs more intensive refactor of
+        DockerApi which expects config and build files [refactor-dockerapi]
+  - [x] bring things back into test-flight struct for state management [refactor-parser]
+  - [x] move RequiredFiles into Types [refactor-types]
   - [ ] create simple map for docker hasFiles (I need functional programming!)
   - [ ] create flag to disable `./.test-flight` file generation
   - [ ] create dockerfile and pass to docker api client
@@ -112,7 +114,8 @@ Version todos:
   - [ ] some dirs should be optional, some mandatory
   - [ ] constrain test-flight-config info to sections, pass appropriate sections to libs
   - [ ] add more documentation along with sample build/config file usage (docs)
-  - [ ] stop passing state everywhere
+  - [ ] stop passing state everywhere [refactor-prime]
+  - [ ] stop passing app everywhere, modularize [refactor-prime]
 
 ### v1.1.0
 
@@ -134,6 +137,7 @@ Version todos:
   - [ ] sub-templates in each template, to start hooking into (for plugins later)
   - [ ] plugins for templates, config, build...
 
+
 ## Production Todo
 
 Before heading to production.
@@ -143,3 +147,23 @@ Prod todos:
   - [ ] silence full stack trace? Only allow in dev?
   - [ ] docs
   - [ ] more tests :-)
+
+
+## Major Refactor Tags
+
+These tags represent major refactor intentions that will span multiple tasks. Each refactor
+must be done within a defined section and each section must be done in sequence. There
+is no particular order within the section.
+
+Section 1:
+
+  - [ ] refactor-types - Move all custom types to types package for future analysis and future refactors.
+        But first must see what the lanscape is.
+
+
+Section 2:
+
+  - [x] refactor-parser - invert parser and test-flight so parser is not part of test-flight
+  - [ ] refactor-prime - refactor so not passing so much app state around
+  - [ ] refactor-dockerapi - refactor dockerApi so that it at least conforms to above and is slimmer
+  - [ ]

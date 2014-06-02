@@ -8,13 +8,23 @@ import (
   "os"
 )
 
+/* Limited to the app, parser, and commands */
 var (
   app            lib.TestFlight
-  checkCommand   lib.CheckCommand2
+  parser         *flags.Parser
+  checkCommand   lib.CheckCommand
   launchCommand  lib.LaunchCommand
   versionCommand lib.VersionCommand
   options        types.CommandOptions
 )
+
+// Func to parse the app commands
+func ProcessCommands() {
+  app.SetState("PARSE_COMMAND_LINE")
+  if _, err := parser.Parse(); err != nil {
+    os.Exit(lib.ExitCodes["command_fail"])
+  }
+}
 
 // == App ==
 func init() {
@@ -23,30 +33,30 @@ func init() {
     os.Exit(lib.ExitCodes["init_fail"])
   }
 
-  checkCommand := lib.CheckCommand2{App: &app}
-  // launchCommand := lib.LaunchCommand{App: &app, AppState: &app.AppState}
-  // versionCommand := lib.VersionCommand{App: &app, AppState: &app.AppState}
+  checkCommand := lib.CheckCommand{App: &app}
+  launchCommand := lib.LaunchCommand{App: &app}
+  versionCommand := lib.VersionCommand{App: &app}
 
-  parser := flags.NewParser(&options, flags.Default)
+  parser = flags.NewParser(&options, flags.Default)
 
   parser.AddCommand("check",
     "pre-flight check",
     "Used for pre-flight check of the ansible playbook.",
     &checkCommand)
 
-  // parser.AddCommand("launch",
-  //   "flight launch",
-  //   "Launch an ansible playbook test.",
-  //   &launchCommand)
-  //
-  // parser.AddCommand("version",
-  //   "shows version",
-  //   "Show Test-Flight version number.",
-  //   &versionCommand)
+  parser.AddCommand("launch",
+    "flight launch",
+    "Launch an ansible playbook test.",
+    &launchCommand)
+
+  parser.AddCommand("version",
+    "shows version",
+    "Show Test-Flight version number.",
+    &versionCommand)
 }
 
 // Runs Test-Flight
 func main() {
-  // app.ProcessCommands() // parse command line options now
-  app.AppState.SetState("END")
+  ProcessCommands() // parse command line options now
+  app.SetState("END")
 }

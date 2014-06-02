@@ -57,3 +57,25 @@ func (appState *ApplicationState) SetState(newState string) string {
   Logger.Trace("STATE changed to", appState.Meta.CurrentMode)
   return appState.Meta.CurrentMode
 }
+
+type RequiredFile struct {
+  Name          string
+  FileName      string
+  FileType      string // [f]ile, [d]ir
+  RequiredFiles []RequiredFile
+}
+
+type MapLike interface {
+  Map(v interface{})
+}
+
+type mapFunc func(v interface{}) 
+
+// requiredFile.Map(MapLike)
+func (req *RequiredFile) Map(v interface{}) []RequiredFile {
+  returnSlice := make([]RequiredFile, len(req.RequiredFiles))
+
+  Logger.Trace(v)
+
+  return returnSlice
+}
