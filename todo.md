@@ -94,6 +94,7 @@ Version todos:
   - [x] command to just create templates `templates`
   - [x] slim down parser pre-reqs for parser commands, lots of repetition
   - [x] refactor cli template command as a function so they can be composed
+  - [x] test byte buffer when creating Dockerfile
   - [ ] create Dockerfile and pass to docker api client
   - [ ] run ansible lint/check within a docker, call this `runup` (an actual aircraft term)
   - [ ] add help flag

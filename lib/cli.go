@@ -109,7 +109,7 @@ func (cmd *LaunchCommand) Execute(args []string) error {
     return err
   }
 
-  // dc.CreateDocker()
+  dc.CreateDocker()
 
   return nil
 }

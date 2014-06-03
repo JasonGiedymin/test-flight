@@ -8,6 +8,8 @@ import (
   "path/filepath"
   "strings"
   "text/template"
+  "bytes"
+  "bufio"
 )
 
 type TemplateVar struct {
@@ -50,10 +52,14 @@ func NewDockerApi(meta *types.ApplicationMeta, configFile *types.ConfigFile, bui
   return &api
 }
 
-func (api *DockerApi) createTestTemplates() error {
-  var templateDir = types.RequiredFile{
-    Name: "Test-Flight Template Dir", FileName: api.configFile.TemplateDir, FileType: "d",
+func getTemplateDir(configFile *types.ConfigFile) types.RequiredFile {
+  return types.RequiredFile{
+    Name: "Test-Flight Template Dir", FileName: configFile.TemplateDir, FileType: "d",
   }
+}
+
+func (api *DockerApi) createTestTemplates() error {
+  var templateDir = getTemplateDir(api.configFile)
 
   var inventory = types.RequiredFile{
     Name: "Test-Flight Test Inventory file", FileName: "inventory", FileType: "f",
@@ -135,37 +141,6 @@ func (api *DockerApi) getTemplateVar() *TemplateVar {
   }
 }
 
-func (api *DockerApi) CreateTemplate() {
-  var (
-    pattern         string
-    tmpl            *template.Template
-    pwd             string
-    err             error
-    baseTemplateDir string
-    testTemplateDir string
-  )
-
-  pwd, err = os.Getwd()
-  if err != nil {
-    // return nil, err
-  }
-
-  // baseTemplateDir = api.meta.ExecPath + "./templates/"
-  testTemplateDir = pwd + "/" + api.configFile.TemplateDir + "/"
-  baseTemplateDir = pwd + "/templates/"
-
-  Logger.Trace("Base Template Dir:", baseTemplateDir)
-  Logger.Trace("Test Template Dir:", testTemplateDir)
-
-  // Dockerfile
-  pattern = filepath.Join(baseTemplateDir, "Dockerfile*.tmpl")
-  tmpl = template.Must(template.ParseGlob(pattern))
-
-  if err = tmpl.ExecuteTemplate(os.Stdout, "Dockerfile", *api.getTemplateVar()); err != nil {
-    Logger.Error("template execution: %s", err)
-  }
-}
-
 func (api *DockerApi) ShowInfo() {
   Logger.Debug("---------- Test-Flight Docker Info ----------")
   Logger.Debug("Docker Endpoint:", api.configFile.DockerEndpoint)
@@ -201,5 +176,40 @@ func (api *DockerApi) createDockerFile() string {
   return dockerFile
 }
 
-func (api *DockerApi) CreateDocker() {
+func (api *DockerApi) CreateDocker() error {
+  // var dockerFileBytes = bufio.NewWriter()
+  inputbuf := bytes.NewBuffer(nil)
+  // outputbuf := bytes.NewBuffer(nil)
+
+  tempFile := bufio.NewWriter(inputbuf)
+  // defer tempFile.Flush()
+
+  var dockerFile = types.RequiredFile{
+    Name: "Test-Flight Dockerfile", FileName: "Dockerfile", FileType: "f",
+  }
+
+  // var templateDir = getTemplateDir(api.configFile) // might need later
+  // templateOutputDir := strings.Join([]string{api.meta.Pwd, api.meta.Dir, templateDir.FileName}, "/")
+  templateInputDir := api.meta.Pwd + "/templates/"
+
+  pattern := filepath.Join(templateInputDir, dockerFile.FileName+"*.tmpl")
+  tmpl := template.Must(template.ParseGlob(pattern))
+
+  if err := tmpl.ExecuteTemplate(tempFile, dockerFile.FileName, *api.getTemplateVar()); err != nil {
+    Logger.Error("template execution: %s", err)
+    return err
+  }
+
+  // --- test
+  Logger.Trace("-->", tempFile)
+  Logger.Trace("! Tempfile buffered:", tempFile.Buffered())
+  Logger.Trace("! Tempfile buffer available:", tempFile.Available())
+  tempFile.Flush()
+
+  Logger.Trace("! underlying buffer =>", inputbuf.Bytes())
+  Logger.Trace("! underlying buffer len =>", inputbuf.Len())
+  Logger.Trace("! underlying buffer string =>", inputbuf.String())
+  // --- test
+
+  return nil
 }
