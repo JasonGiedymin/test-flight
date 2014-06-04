@@ -24,6 +24,7 @@ type ConfigFile struct {
 type BuildFile struct {
   Owner             string
   ImageName         string
+  From              string
   Version           string
   RequiresDocker    string
   RequiresDockerUrl string

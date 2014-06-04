@@ -9,8 +9,6 @@
 
   "dockerAdd": {
     "simple": [
-      ".test-flight",
-      "artifacts",
       "tasks",
       "tests",
       "vars",

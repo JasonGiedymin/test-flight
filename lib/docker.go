@@ -3,13 +3,15 @@ package lib
 import (
   Logger "./logging"
   "./types"
+  "archive/tar"
+  "bufio"
+  "bytes"
   "github.com/fsouza/go-dockerclient"
   "os"
   "path/filepath"
   "strings"
   "text/template"
-  "bytes"
-  "bufio"
+  "time"
 )
 
 type TemplateVar struct {
@@ -17,8 +19,10 @@ type TemplateVar struct {
   ConfigFile *types.ConfigFile
   BuildFile  *types.BuildFile
 
+  TestDir           string
   Owner             string
   ImageName         string
+  From              string
   Version           string
   RequiresDocker    string
   RequiresDockerUrl string
@@ -125,8 +129,10 @@ func (api *DockerApi) getTemplateVar() *TemplateVar {
 
     // Helpers for common accessors
     // Keep names simple!
+    TestDir:           api.meta.Dir,
     Owner:             api.buildFile.Owner,
     ImageName:         api.buildFile.ImageName,
+    From:              api.buildFile.From,
     Version:           api.buildFile.Version,
     RequiresDocker:    api.buildFile.RequiresDocker,
     RequiresDockerUrl: api.buildFile.RequiresDockerUrl,
@@ -166,25 +172,33 @@ func (api *DockerApi) ShowImages() {
   }
 }
 
-func (api *DockerApi) createDockerFile() string {
-  dockerFile := `
-  # Dockerfile
-  # ----------
-  #
-  `
+func (api *DockerApi) CreateDocker2() error {
+  t := time.Now()
+  inputbuf, outputbuf := bytes.NewBuffer(nil), bytes.NewBuffer(nil)
+  tr := tar.NewWriter(inputbuf)
+  tr.WriteHeader(&tar.Header{Name: "Dockerfile", Size: 12, ModTime: t, AccessTime: t, ChangeTime: t})
+  tr.Write([]byte("FROM ubuntu\n"))
+  tr.Close()
+  opts := docker.BuildImageOptions{
+      Name:         "temptest",
+      InputStream:  inputbuf,
+      OutputStream: outputbuf,
+  }
+  if err := api.client.BuildImage(opts); err != nil {
+      Logger.Error(err)
+      return err
+  }
 
-  return dockerFile
+  return nil
 }
 
 func (api *DockerApi) CreateDocker() error {
-  // var dockerFileBytes = bufio.NewWriter()
-  inputbuf := bytes.NewBuffer(nil)
-  // outputbuf := bytes.NewBuffer(nil)
+  dockerfileBuffer := bytes.NewBuffer(nil)
+  tarbuf := bytes.NewBuffer(nil)
+  outputbuf := bytes.NewBuffer(nil)
+  dockerfile := bufio.NewWriter(dockerfileBuffer)
 
-  tempFile := bufio.NewWriter(inputbuf)
-  // defer tempFile.Flush()
-
-  var dockerFile = types.RequiredFile{
+  var requiredDockerFile = types.RequiredFile{
     Name: "Test-Flight Dockerfile", FileName: "Dockerfile", FileType: "f",
   }
 
@@ -192,23 +206,61 @@ func (api *DockerApi) CreateDocker() error {
   // templateOutputDir := strings.Join([]string{api.meta.Pwd, api.meta.Dir, templateDir.FileName}, "/")
   templateInputDir := api.meta.Pwd + "/templates/"
 
-  pattern := filepath.Join(templateInputDir, dockerFile.FileName+"*.tmpl")
+  pattern := filepath.Join(templateInputDir, requiredDockerFile.FileName+"*.tmpl")
   tmpl := template.Must(template.ParseGlob(pattern))
 
-  if err := tmpl.ExecuteTemplate(tempFile, dockerFile.FileName, *api.getTemplateVar()); err != nil {
+  if err := tmpl.ExecuteTemplate(dockerfile, requiredDockerFile.FileName, *api.getTemplateVar()); err != nil {
     Logger.Error("template execution: %s", err)
     return err
   }
 
   // --- test
-  Logger.Trace("-->", tempFile)
-  Logger.Trace("! Tempfile buffered:", tempFile.Buffered())
-  Logger.Trace("! Tempfile buffer available:", tempFile.Available())
-  tempFile.Flush()
+  Logger.Trace("-->", dockerfile)
+  Logger.Trace("! dockerfile buffered:", dockerfile.Buffered())
+  Logger.Trace("! dockerfile buffer available:", dockerfile.Available())
+  dockerfile.Flush()
 
-  Logger.Trace("! underlying buffer =>", inputbuf.Bytes())
-  Logger.Trace("! underlying buffer len =>", inputbuf.Len())
-  Logger.Trace("! underlying buffer string =>", inputbuf.String())
+  currTime := time.Now()
+
+  // Add Dockerfile to archive, break out
+  tr := tar.NewWriter(tarbuf)
+  tr.WriteHeader(&tar.Header{
+    Name:       "Dockerfile",
+    Size:       int64(dockerfileBuffer.Len()),
+    ModTime:    currTime,
+    AccessTime: currTime,
+    ChangeTime: currTime,
+  })
+  tr.Write(dockerfileBuffer.Bytes())
+
+  // Add Context to archive
+  // tar test directory
+  TarDirectory(tr, api.meta.Dir)
+
+  // tr.WriteHeader(&tar.Header{
+  //   Name:       api.meta.Dir,
+  //   Size:       int64(dockerfileBuffer.Len()),
+  //   ModTime:    currTime,
+  //   AccessTime: currTime,
+  //   ChangeTime: currTime,
+  // }) //new header
+  // tr.Write(dockerfileBuffer.Bytes())
+  tr.Close()
+
+  Logger.Trace("! underlying buffer =>", dockerfileBuffer.Bytes())
+  Logger.Trace("! underlying buffer len =>", dockerfileBuffer.Len())
+  Logger.Trace("! underlying buffer size =>", len(outputbuf.Bytes()))
+  Logger.Trace("! underlying buffer string =>", dockerfileBuffer.String())
+
+  opts := docker.BuildImageOptions{
+    Name:         api.buildFile.ImageName,
+    InputStream:  tarbuf,
+    OutputStream: outputbuf,
+  }
+  if err := api.client.BuildImage(opts); err != nil {
+    Logger.Error(err)
+    return err
+  }
   // --- test
 
   return nil

@@ -1,6 +1,7 @@
 {
-  "owner": "Amuxbit",
+  "owner": "testflight",
   "imageName": "test-docker-name1",
+  "from": "jasongiedymin/ansible-nodejs",
   "version": "0.1.0",
   "requiresDocker": "",
   "requiresDockerUrl": "",

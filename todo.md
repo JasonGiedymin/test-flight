@@ -95,7 +95,13 @@ Version todos:
   - [x] slim down parser pre-reqs for parser commands, lots of repetition
   - [x] refactor cli template command as a function so they can be composed
   - [x] test byte buffer when creating Dockerfile
-  - [ ] create Dockerfile and pass to docker api client
+  - [x] create Dockerfile
+  - [x] pass to docker api client
+  - [x] start work on tar archiving the context dir
+  - [ ] if context dir files are sub dirs, recursively call archive func
+  - [ ] pass to docker api client successfully
+  - [ ] break out docker portion where archiving Dockerfile
+  - [ ] add channel event watcher for docker client changes
   - [ ] run ansible lint/check within a docker, call this `runup` (an actual aircraft term)
   - [ ] add help flag
   - [ ] remove AppState completely

@@ -11,7 +11,7 @@ import (
 func setConfigFiles(dir string, appState *types.ApplicationState) error {
   buildFile, err := config.ReadBuildFile(dir)
   if err != nil {
-    Logger.Error(err)
+    Logger.Error("Error reading build file:", err)
     return err
   }
 
@@ -93,7 +93,6 @@ func (cmd *LaunchCommand) Execute(args []string) error {
   cmd.App.AppState.Meta.Dir = cmd.Dir
 
   if _, err := HasRequiredFiles(&cmd.Dir, RequiredFiles); err != nil {
-    Logger.Error(err)
     return err
   }
 
@@ -103,7 +102,7 @@ func (cmd *LaunchCommand) Execute(args []string) error {
 
   var dc = NewDockerApi(cmd.App.AppState.Meta, cmd.App.AppState.ConfigFile, cmd.App.AppState.BuildFile)
   dc.ShowInfo()
-  dc.ShowImages()
+  // dc.ShowImages()
 
   if err := testFlightTemplates(dc, cmd.App.AppState.ConfigFile); err != nil {
     return err

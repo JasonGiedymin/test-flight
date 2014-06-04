@@ -2,7 +2,7 @@
 {{if .AddSimple}}
 # -----> Add Simple Entries
 {{range $item := .AddSimple}}
-ADD {{$item}} $WORKDIR/{{$item}}
+ADD {{$.TestDir}}/{{$item}} $WORKDIR/{{$item}}
 {{end}}
 # <----- end Add System Entries
 {{end}}
@@ -16,6 +16,7 @@ ADD {{$item.Name}} {{$item.Location}}
 {{end}}
 
 # Required Test-Flight test-flight playbook and inventory
-ADD .test-flight/inventory /etc/ansible/hosts
-ADD .test-flight/playbook.yml $WORKDIR/playbook.yml
+ADD {{.TestDir}}/.test-flight $WORKDIR/.test-flight
+ADD {{.TestDir}}/.test-flight/inventory /etc/ansible/hosts
+ADD {{.TestDir}}/.test-flight/playbook.yml $WORKDIR/playbook.yml
 {{end}}

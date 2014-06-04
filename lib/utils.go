@@ -2,8 +2,11 @@ package lib
 
 import (
   "./types"
+  "archive/tar"
   "io/ioutil"
   "os"
+  Logger "./logging"
+  "strings"
 )
 
 // var Info = factorlog.New(os.Stdout, factorlog.NewStdFormatter(`%{Color "green"}%{Date} %{Time} %{File}:%{Line} %{Message}%{Color "reset"}`))
@@ -85,4 +88,46 @@ func HasRequiredFiles(dir *string, requiredFiles []types.RequiredFile) (bool, er
 
 func HasRequiredFile(dir *string, requiredFile types.RequiredFile) (bool, error) {
   return HasRequiredFiles(dir, []types.RequiredFile{requiredFile})
+}
+
+func TarDirectory(tw *tar.Writer, dir string) error {
+  // var filesFromDisk []os.FileInfo
+  // var err error
+  Logger.Trace("Taring: ", dir)
+
+  var archive = func(files []os.FileInfo) error {
+    Logger.Trace(files)
+
+    for _, file := range files {
+  		hdr := &tar.Header{
+  			Name: file.Name(),
+  			Size: file.Size(),
+  		}
+  		if err := tw.WriteHeader(hdr); err != nil {
+  			Logger.Error("Could not write context archive header", err)
+        return err
+  		}
+
+      fullFilePath := strings.Join([]string{dir, file.Name()}, "/")
+      if bytes, err := ioutil.ReadFile(fullFilePath); err != nil {
+        Logger.Error("Could not read context file: [" + fullFilePath + "]", err)
+        return err
+      } else {
+        if _, err := tw.Write(bytes); err != nil {
+          Logger.Error("Could not archive context file: [" + fullFilePath + "]", err)
+          return err
+        }
+      }
+	  }
+
+    Logger.Trace("Successfully archived context", dir)
+    return nil
+  }
+
+  if filesFromDisk, err := ioutil.ReadDir(dir); err != nil {
+    Logger.Error("Error while trying to tar [" + dir + "]", err)
+    return err
+  } else {
+    return archive(filesFromDisk)
+  }
 }
