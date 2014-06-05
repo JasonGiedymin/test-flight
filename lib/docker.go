@@ -42,17 +42,23 @@ type DockerApi struct {
   configFile *types.ConfigFile
   buildFile  *types.BuildFile
   client     *docker.Client
+  watch      chan *docker.APIEvents
 }
 
 func NewDockerApi(meta *types.ApplicationMeta, configFile *types.ConfigFile, buildFile *types.BuildFile) *DockerApi {
-  api := DockerApi{meta: meta, configFile: configFile, buildFile: buildFile}
+  api := DockerApi{
+    meta: meta,
+    configFile: configFile,
+    buildFile: buildFile,
+  }
+
   client, err := docker.NewClient(configFile.DockerEndpoint)
   if err != nil {
     Logger.Error("Docker API Client Error:", err)
     os.Exit(ExitCodes["docker_error"])
   }
-
   api.client = client
+
   return &api
 }
 
@@ -60,6 +66,24 @@ func getTemplateDir(configFile *types.ConfigFile) types.RequiredFile {
   return types.RequiredFile{
     Name: "Test-Flight Template Dir", FileName: configFile.TemplateDir, FileType: "d",
   }
+}
+
+func (api *DockerApi) WatchApiEvents() {
+  var listen = func() {
+    for {
+      event := <- api.watch
+      Logger.Info(event)
+    }
+  }
+
+  go listen()
+
+  if err:= api.client.AddEventListener(api.watch); err != nil {
+    Logger.Error(err)
+    // return nil
+  }
+
+  api.watch <- &docker.APIEvents{}
 }
 
 func (api *DockerApi) createTestTemplates() error {
@@ -172,26 +196,6 @@ func (api *DockerApi) ShowImages() {
   }
 }
 
-func (api *DockerApi) CreateDocker2() error {
-  t := time.Now()
-  inputbuf, outputbuf := bytes.NewBuffer(nil), bytes.NewBuffer(nil)
-  tr := tar.NewWriter(inputbuf)
-  tr.WriteHeader(&tar.Header{Name: "Dockerfile", Size: 12, ModTime: t, AccessTime: t, ChangeTime: t})
-  tr.Write([]byte("FROM ubuntu\n"))
-  tr.Close()
-  opts := docker.BuildImageOptions{
-      Name:         "temptest",
-      InputStream:  inputbuf,
-      OutputStream: outputbuf,
-  }
-  if err := api.client.BuildImage(opts); err != nil {
-      Logger.Error(err)
-      return err
-  }
-
-  return nil
-}
-
 func (api *DockerApi) CreateDocker() error {
   dockerfileBuffer := bytes.NewBuffer(nil)
   tarbuf := bytes.NewBuffer(nil)
@@ -215,9 +219,9 @@ func (api *DockerApi) CreateDocker() error {
   }
 
   // --- test
-  Logger.Trace("-->", dockerfile)
-  Logger.Trace("! dockerfile buffered:", dockerfile.Buffered())
-  Logger.Trace("! dockerfile buffer available:", dockerfile.Available())
+  // Logger.Trace("Dockerfile:", dockerfile)
+  // Logger.Trace("! dockerfile buffered:", dockerfile.Buffered())
+  // Logger.Trace("! dockerfile buffer available:", dockerfile.Available())
   dockerfile.Flush()
 
   currTime := time.Now()
@@ -247,10 +251,8 @@ func (api *DockerApi) CreateDocker() error {
   // tr.Write(dockerfileBuffer.Bytes())
   tr.Close()
 
-  Logger.Trace("! underlying buffer =>", dockerfileBuffer.Bytes())
-  Logger.Trace("! underlying buffer len =>", dockerfileBuffer.Len())
-  Logger.Trace("! underlying buffer size =>", len(outputbuf.Bytes()))
-  Logger.Trace("! underlying buffer string =>", dockerfileBuffer.String())
+  Logger.Trace("Dockerfile buffer len", dockerfileBuffer.Len())
+  Logger.Trace("Dockerfile:", dockerfileBuffer.String())
 
   opts := docker.BuildImageOptions{
     Name:         api.buildFile.ImageName,

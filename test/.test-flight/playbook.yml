@@ -11,6 +11,6 @@
     - role: ./
 
 
-- include: tests/integration-tests.yml
+- include: tests/main.yml
 
 
