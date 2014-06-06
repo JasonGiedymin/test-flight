@@ -14,6 +14,8 @@ import (
   "time"
 )
 
+type ApiChannel chan *docker.APIEvents
+
 type TemplateVar struct {
   Meta       *types.ApplicationMeta
   ConfigFile *types.ConfigFile
@@ -42,14 +44,13 @@ type DockerApi struct {
   configFile *types.ConfigFile
   buildFile  *types.BuildFile
   client     *docker.Client
-  watch      chan *docker.APIEvents
 }
 
 func NewDockerApi(meta *types.ApplicationMeta, configFile *types.ConfigFile, buildFile *types.BuildFile) *DockerApi {
   api := DockerApi{
-    meta: meta,
+    meta:       meta,
     configFile: configFile,
-    buildFile: buildFile,
+    buildFile:  buildFile,
   }
 
   client, err := docker.NewClient(configFile.DockerEndpoint)
@@ -68,22 +69,12 @@ func getTemplateDir(configFile *types.ConfigFile) types.RequiredFile {
   }
 }
 
-func (api *DockerApi) WatchApiEvents() {
-  var listen = func() {
-    for {
-      event := <- api.watch
-      Logger.Info(event)
-    }
-  }
-
-  go listen()
-
-  if err:= api.client.AddEventListener(api.watch); err != nil {
+func (api *DockerApi) RegisterChannel(eventsChannel chan *docker.APIEvents) {
+  if err := api.client.AddEventListener(eventsChannel); err != nil {
     Logger.Error(err)
-    // return nil
   }
 
-  api.watch <- &docker.APIEvents{}
+  eventsChannel <- &docker.APIEvents{}
 }
 
 func (api *DockerApi) createTestTemplates() error {

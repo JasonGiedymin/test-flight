@@ -108,16 +108,25 @@ func (cmd *LaunchCommand) Execute(args []string) error {
     return err
   }
 
-  // watch := make(chan *docker.APIEvents)
+  eventsChannel := make(ApiChannel)
+  var watchForEventsOn = func(channel ApiChannel) {
+    for msg := range channel {
+      Logger.Info(*msg)
+      // Logger.Info("event:", msg.ID[:12], msg.Status)
+    }
+  }
 
-  // var watchEvents = func() {
+  go watchForEventsOn(eventsChannel)
+  dc.RegisterChannel(eventsChannel)
+
+  // var listen = func() {
   //   for {
-  //     event := <- watch
+  //     event := <- api.watch
   //     Logger.Info(event)
   //   }
   // }
-  // go watchEvents()
-  go dc.WatchApiEvents()
+  //
+  // go listen()
   // watch <- &docker.APIEvents{}
 
   dc.CreateDocker()

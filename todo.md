@@ -101,7 +101,8 @@ Version todos:
   - [x] if context dir files are sub dirs, recursively call archive func
   - [x] pass to docker api client successfully
   - [x] break out docker portion where archiving Dockerfile
-  - [ ] add channel event watcher for docker client changes
+  - [x] add channel event watcher for basic docker client events (start/die/etc...) ~~changes~~
+  - [ ] capture stdout from building
   - [ ] run ansible lint/check within a docker, call this `runup` (an actual aircraft term)
   - [ ] allow docker diagnosis by preventing run and cmd commands, in buildfile
         give the flag: `debugContainer: {true|false}`
