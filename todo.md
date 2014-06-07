@@ -110,7 +110,12 @@ Version todos:
 #### v0.9.4 - Alpha
 
   - [x] tag version
-  - [ ] run the built docker image just created
+  - [x] create resource share type for buildfile
+  - [ ] Create container from docker image just created
+  - [ ] Run container from docker image just created
+
+#### v0.9.5 - Alpha
+
   - [ ] run ansible lint/check within a docker, call this `runup` (an actual aircraft term)
   - [ ] allow docker diagnosis by preventing run and cmd commands, in buildfile
         give the flag: `debugContainer: {true|false}`

@@ -11,5 +11,9 @@
   "add": [],
   "expose": [3000, 3001],
   "cmd": "pwd",
-  "runTests": true
+  "runTests": true,
+  "resourceShare": {
+    "mem": 1024,
+    "cpu": 2
+  }
 }

@@ -2,6 +2,11 @@ package types
 
 import Logger "../logging"
 
+type ResourceShare struct {
+  Mem int
+  Cpu int
+}
+
 type DockerAddComplexEntry struct {
   Name     string
   Location string
@@ -33,6 +38,7 @@ type BuildFile struct {
   Add               []DockerAddComplexEntry
   Cmd               string
   RunTests          bool
+  ResourceShare     ResourceShare
 }
 
 type ApplicationMeta struct {

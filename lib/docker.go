@@ -250,3 +250,7 @@ func (api *DockerApi) CreateDocker() error {
 
   return nil
 }
+
+func (api *DockerApi) CreateContainer() error {
+  return nil
+}
