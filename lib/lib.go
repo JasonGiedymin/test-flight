@@ -60,7 +60,7 @@ var (
 )
 
 var meta = types.ApplicationMeta{
-  Version: "0.9.3",
+  Version: "0.9.4",
 }
 
 var RequiredFiles = []types.RequiredFile{

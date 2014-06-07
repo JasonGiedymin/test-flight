@@ -109,6 +109,7 @@ Version todos:
 
 #### v0.9.4 - Alpha
 
+  - [x] tag version
   - [ ] run the built docker image just created
   - [ ] run ansible lint/check within a docker, call this `runup` (an actual aircraft term)
   - [ ] allow docker diagnosis by preventing run and cmd commands, in buildfile
