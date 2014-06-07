@@ -102,7 +102,14 @@ Version todos:
   - [x] pass to docker api client successfully
   - [x] break out docker portion where archiving Dockerfile
   - [x] add channel event watcher for basic docker client events (start/die/etc...) ~~changes~~
-  - [ ] capture stdout from building
+  - [-] capture stdout from building => building is just building and I know when it fails.
+        the next step should be running where there getting output is important (for now).
+        However some build info would be great but that will have to wait.
+  - [x] add logging messages describing build state
+
+#### v0.9.4 - Alpha
+
+  - [ ] run the built docker image just created
   - [ ] run ansible lint/check within a docker, call this `runup` (an actual aircraft term)
   - [ ] allow docker diagnosis by preventing run and cmd commands, in buildfile
         give the flag: `debugContainer: {true|false}`

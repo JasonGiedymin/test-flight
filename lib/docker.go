@@ -74,7 +74,7 @@ func (api *DockerApi) RegisterChannel(eventsChannel chan *docker.APIEvents) {
     Logger.Error(err)
   }
 
-  eventsChannel <- &docker.APIEvents{}
+  eventsChannel <- &docker.APIEvents{Status: "Listening in on Docker Events..."}
 }
 
 func (api *DockerApi) createTestTemplates() error {
@@ -188,6 +188,8 @@ func (api *DockerApi) ShowImages() {
 }
 
 func (api *DockerApi) CreateDocker() error {
+  Logger.Info("Attempting to build Dockerfile: " + api.buildFile.ImageName)
+
   dockerfileBuffer := bytes.NewBuffer(nil)
   tarbuf := bytes.NewBuffer(nil)
   outputbuf := bytes.NewBuffer(nil)
@@ -209,10 +211,6 @@ func (api *DockerApi) CreateDocker() error {
     return err
   }
 
-  // --- test
-  // Logger.Trace("Dockerfile:", dockerfile)
-  // Logger.Trace("! dockerfile buffered:", dockerfile.Buffered())
-  // Logger.Trace("! dockerfile buffer available:", dockerfile.Available())
   dockerfile.Flush()
 
   currTime := time.Now()
@@ -231,30 +229,24 @@ func (api *DockerApi) CreateDocker() error {
   // Add Context to archive
   // tar test directory
   TarDirectory(tr, api.meta.Dir)
-
-  // tr.WriteHeader(&tar.Header{
-  //   Name:       api.meta.Dir,
-  //   Size:       int64(dockerfileBuffer.Len()),
-  //   ModTime:    currTime,
-  //   AccessTime: currTime,
-  //   ChangeTime: currTime,
-  // }) //new header
-  // tr.Write(dockerfileBuffer.Bytes())
   tr.Close()
 
   Logger.Trace("Dockerfile buffer len", dockerfileBuffer.Len())
   Logger.Trace("Dockerfile:", dockerfileBuffer.String())
+  Logger.Info("Created Dockerfile: " + api.buildFile.ImageName)
 
   opts := docker.BuildImageOptions{
     Name:         api.buildFile.ImageName,
     InputStream:  tarbuf,
     OutputStream: outputbuf,
   }
+
   if err := api.client.BuildImage(opts); err != nil {
-    Logger.Error(err)
+    Logger.Error("Error while building Docker image: "+api.buildFile.ImageName, err)
     return err
   }
-  // --- test
+
+  Logger.Info("Successfully built Docker image: " + api.buildFile.ImageName)
 
   return nil
 }

@@ -85,6 +85,12 @@ type LaunchCommand struct {
   Dir string `short:"d" long:"dir" description:"directory to run in"`
 }
 
+func watchForEventsOn(channel ApiChannel) {
+  for msg := range channel {
+    Logger.Info("DOCKER EVENT:", *msg)
+  }
+}
+
 func (cmd *LaunchCommand) Execute(args []string) error {
   commandPreReq(cmd.App)
 
@@ -108,26 +114,10 @@ func (cmd *LaunchCommand) Execute(args []string) error {
     return err
   }
 
+  // Register channel so we can watch for events as they happen
   eventsChannel := make(ApiChannel)
-  var watchForEventsOn = func(channel ApiChannel) {
-    for msg := range channel {
-      Logger.Info(*msg)
-      // Logger.Info("event:", msg.ID[:12], msg.Status)
-    }
-  }
-
   go watchForEventsOn(eventsChannel)
   dc.RegisterChannel(eventsChannel)
-
-  // var listen = func() {
-  //   for {
-  //     event := <- api.watch
-  //     Logger.Info(event)
-  //   }
-  // }
-  //
-  // go listen()
-  // watch <- &docker.APIEvents{}
 
   dc.CreateDocker()
 
