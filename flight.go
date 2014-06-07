@@ -36,6 +36,7 @@ func init() {
   checkCommand := lib.CheckCommand{App: &app}
   launchCommand := lib.LaunchCommand{App: &app}
   versionCommand := lib.VersionCommand{App: &app}
+  templateCommand := lib.TemplateCommand{App: &app}
 
   parser = flags.NewParser(&options, flags.Default)
 
@@ -48,6 +49,11 @@ func init() {
     "flight launch",
     "Launch an ansible playbook test.",
     &launchCommand)
+
+  parser.AddCommand("template",
+    "flight template",
+    "Create templates required for test-flight.",
+    &templateCommand)
 
   parser.AddCommand("version",
     "shows version",

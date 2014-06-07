@@ -1,0 +1,20 @@
+---
+#
+# tests.yml
+#
+
+- hosts: all
+  sudo: True
+  vars:
+  tasks:
+    - debug: msg="Running Tests"
+
+    - debug: msg="System {{ inventory_hostname }} has uuid {{ ansible_product_uuid }}"
+
+    - debug: msg="System {{ inventory_hostname }} has gateway {{ ansible_default_ipv4.gateway }}"
+      when: ansible_default_ipv4.gateway is defined
+
+    - shell: /usr/bin/uptime
+      register: result
+
+    - debug: var=result

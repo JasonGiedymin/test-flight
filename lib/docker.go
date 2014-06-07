@@ -3,20 +3,28 @@ package lib
 import (
   Logger "./logging"
   "./types"
+  "archive/tar"
+  "bufio"
+  "bytes"
   "github.com/fsouza/go-dockerclient"
   "os"
   "path/filepath"
   "strings"
   "text/template"
+  "time"
 )
+
+type ApiChannel chan *docker.APIEvents
 
 type TemplateVar struct {
   Meta       *types.ApplicationMeta
   ConfigFile *types.ConfigFile
   BuildFile  *types.BuildFile
 
+  TestDir           string
   Owner             string
   ImageName         string
+  From              string
   Version           string
   RequiresDocker    string
   RequiresDockerUrl string
@@ -39,21 +47,38 @@ type DockerApi struct {
 }
 
 func NewDockerApi(meta *types.ApplicationMeta, configFile *types.ConfigFile, buildFile *types.BuildFile) *DockerApi {
-  api := DockerApi{meta: meta, configFile: configFile, buildFile: buildFile}
+  api := DockerApi{
+    meta:       meta,
+    configFile: configFile,
+    buildFile:  buildFile,
+  }
+
   client, err := docker.NewClient(configFile.DockerEndpoint)
   if err != nil {
     Logger.Error("Docker API Client Error:", err)
     os.Exit(ExitCodes["docker_error"])
   }
-
   api.client = client
+
   return &api
 }
 
-func (api *DockerApi) createTestTemplates() error {
-  var templateDir = types.RequiredFile{
-    Name: "Test-Flight Template Dir", FileName: api.configFile.TemplateDir, FileType: "d",
+func getTemplateDir(configFile *types.ConfigFile) types.RequiredFile {
+  return types.RequiredFile{
+    Name: "Test-Flight Template Dir", FileName: configFile.TemplateDir, FileType: "d",
   }
+}
+
+func (api *DockerApi) RegisterChannel(eventsChannel chan *docker.APIEvents) {
+  if err := api.client.AddEventListener(eventsChannel); err != nil {
+    Logger.Error(err)
+  }
+
+  eventsChannel <- &docker.APIEvents{Status: "Listening in on Docker Events..."}
+}
+
+func (api *DockerApi) createTestTemplates() error {
+  var templateDir = getTemplateDir(api.configFile)
 
   var inventory = types.RequiredFile{
     Name: "Test-Flight Test Inventory file", FileName: "inventory", FileType: "f",
@@ -119,8 +144,10 @@ func (api *DockerApi) getTemplateVar() *TemplateVar {
 
     // Helpers for common accessors
     // Keep names simple!
+    TestDir:           api.meta.Dir,
     Owner:             api.buildFile.Owner,
     ImageName:         api.buildFile.ImageName,
+    From:              api.buildFile.From,
     Version:           api.buildFile.Version,
     RequiresDocker:    api.buildFile.RequiresDocker,
     RequiresDockerUrl: api.buildFile.RequiresDockerUrl,
@@ -132,37 +159,6 @@ func (api *DockerApi) getTemplateVar() *TemplateVar {
     AddComplex:        api.configFile.DockerAdd.Complex,
     AddUser:           api.buildFile.Add,
     RunTests:          api.buildFile.RunTests,
-  }
-}
-
-func (api *DockerApi) CreateTemplate() {
-  var (
-    pattern         string
-    tmpl            *template.Template
-    pwd             string
-    err             error
-    baseTemplateDir string
-    testTemplateDir string
-  )
-
-  pwd, err = os.Getwd()
-  if err != nil {
-    // return nil, err
-  }
-
-  // baseTemplateDir = api.meta.ExecPath + "./templates/"
-  testTemplateDir = pwd + "/" + api.configFile.TemplateDir + "/"
-  baseTemplateDir = pwd + "/templates/"
-
-  Logger.Trace("Base Template Dir:", baseTemplateDir)
-  Logger.Trace("Test Template Dir:", testTemplateDir)
-
-  // Dockerfile
-  pattern = filepath.Join(baseTemplateDir, "Dockerfile*.tmpl")
-  tmpl = template.Must(template.ParseGlob(pattern))
-
-  if err = tmpl.ExecuteTemplate(os.Stdout, "Dockerfile", *api.getTemplateVar()); err != nil {
-    Logger.Error("template execution: %s", err)
   }
 }
 
@@ -191,15 +187,66 @@ func (api *DockerApi) ShowImages() {
   }
 }
 
-func (api *DockerApi) createDockerFile() string {
-  dockerFile := `
-  # Dockerfile
-  # ----------
-  #
-  `
+func (api *DockerApi) CreateDocker() error {
+  Logger.Info("Attempting to build Dockerfile: " + api.buildFile.ImageName)
 
-  return dockerFile
-}
+  dockerfileBuffer := bytes.NewBuffer(nil)
+  tarbuf := bytes.NewBuffer(nil)
+  outputbuf := bytes.NewBuffer(nil)
+  dockerfile := bufio.NewWriter(dockerfileBuffer)
 
-func (api *DockerApi) CreateDocker() {
+  var requiredDockerFile = types.RequiredFile{
+    Name: "Test-Flight Dockerfile", FileName: "Dockerfile", FileType: "f",
+  }
+
+  // var templateDir = getTemplateDir(api.configFile) // might need later
+  // templateOutputDir := strings.Join([]string{api.meta.Pwd, api.meta.Dir, templateDir.FileName}, "/")
+  templateInputDir := api.meta.Pwd + "/templates/"
+
+  pattern := filepath.Join(templateInputDir, requiredDockerFile.FileName+"*.tmpl")
+  tmpl := template.Must(template.ParseGlob(pattern))
+
+  if err := tmpl.ExecuteTemplate(dockerfile, requiredDockerFile.FileName, *api.getTemplateVar()); err != nil {
+    Logger.Error("template execution: %s", err)
+    return err
+  }
+
+  dockerfile.Flush()
+
+  currTime := time.Now()
+
+  // Add Dockerfile to archive, break out
+  tr := tar.NewWriter(tarbuf)
+  tr.WriteHeader(&tar.Header{
+    Name:       "Dockerfile",
+    Size:       int64(dockerfileBuffer.Len()),
+    ModTime:    currTime,
+    AccessTime: currTime,
+    ChangeTime: currTime,
+  })
+  tr.Write(dockerfileBuffer.Bytes())
+
+  // Add Context to archive
+  // tar test directory
+  TarDirectory(tr, api.meta.Dir)
+  tr.Close()
+
+  Logger.Trace("Dockerfile buffer len", dockerfileBuffer.Len())
+  Logger.Trace("Dockerfile:", dockerfileBuffer.String())
+  Logger.Info("Created Dockerfile: " + api.buildFile.ImageName)
+
+  opts := docker.BuildImageOptions{
+    Name:         api.buildFile.ImageName,
+    InputStream:  tarbuf,
+    OutputStream: outputbuf,
+  }
+
+  if err := api.client.BuildImage(opts); err != nil {
+    Logger.Error("Error while building Docker image: "+api.buildFile.ImageName, err)
+    return err
+  }
+
+  Logger.Info("Successfully built Docker image: " + api.buildFile.ImageName)
+
+  return nil
 }

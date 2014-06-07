@@ -24,6 +24,10 @@ func (app *TestFlight) SetState(state string) {
   app.AppState.SetState(state)
 }
 
+func (app *TestFlight) SetConfigFile(file *types.ConfigFile) {
+  app.AppState.ConfigFile = file
+}
+
 func (app *TestFlight) Init() error {
   app.AppState.Meta = &meta
   app.SetState("INIT")
@@ -56,7 +60,7 @@ var (
 )
 
 var meta = types.ApplicationMeta{
-  Version: "0.9.2",
+  Version: "0.9.3",
 }
 
 var RequiredFiles = []types.RequiredFile{

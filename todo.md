@@ -90,17 +90,38 @@ Version todos:
 
 #### v0.9.3 - Alpha
 
-  - [ ] create simple map for docker hasFiles (I need functional programming!)
-  - [ ] create flag to disable `./.test-flight` file generation
-  - [ ] create dockerfile and pass to docker api client
+  - [x] create flag to disable `./.test-flight` file generation
+  - [x] command to just create templates `templates`
+  - [x] slim down parser pre-reqs for parser commands, lots of repetition
+  - [x] refactor cli template command as a function so they can be composed
+  - [x] test byte buffer when creating Dockerfile
+  - [x] create Dockerfile
+  - [x] pass to docker api client
+  - [x] start work on tar archiving the context dir
+  - [x] if context dir files are sub dirs, recursively call archive func
+  - [x] pass to docker api client successfully
+  - [x] break out docker portion where archiving Dockerfile
+  - [x] add channel event watcher for basic docker client events (start/die/etc...) ~~changes~~
+  - [-] capture stdout from building => building is just building and I know when it fails.
+        the next step should be running where there getting output is important (for now).
+        However some build info would be great but that will have to wait.
+  - [x] add logging messages describing build state
+
+#### v0.9.4 - Alpha
+
+  - [ ] run the built docker image just created
   - [ ] run ansible lint/check within a docker, call this `runup` (an actual aircraft term)
+  - [ ] allow docker diagnosis by preventing run and cmd commands, in buildfile
+        give the flag: `debugContainer: {true|false}`
   - [ ] add help flag
+  - [ ] remove AppState completely
   - [ ] cleanup code (lib is a mess, need more {})
   - [ ] test-flight verbose/debug via config and/or cli
   - [ ] create TestFlight.New()
   - [ ] dist/builds for various platforms
   - [ ] CI for builds and packaging
   - [ ] create/show test-flight specific images?
+  - [ ] create simple map for docker hasFiles (I need functional programming!)
   - [ ] test-flight cleanup
 
 ### v0.9.5 - Beta release
@@ -169,4 +190,3 @@ Section 2:
   - [x] refactor-parser - invert parser and test-flight so parser is not part of test-flight
   - [ ] refactor-prime - refactor so not passing so much app state around
   - [ ] refactor-dockerapi - refactor dockerApi so that it at least conforms to above and is slimmer
-  - [ ]
