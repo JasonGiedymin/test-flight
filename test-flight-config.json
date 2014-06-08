@@ -3,7 +3,7 @@
 
   "overwriteTemplates": true,
 
-  "dockerEndPoint": "http://localhost:4243",
+  "dockerEndPoint": "http://192.168.59.103:2375",
 
   "workDir": "/tmp/build",
 

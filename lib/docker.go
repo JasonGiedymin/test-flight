@@ -187,7 +187,7 @@ func (api *DockerApi) ShowImages() {
   }
 }
 
-func (api *DockerApi) CreateDocker() error {
+func (api *DockerApi) CreateDockerImage() error {
   Logger.Info("Attempting to build Dockerfile: " + api.buildFile.ImageName)
 
   dockerfileBuffer := bytes.NewBuffer(nil)
@@ -252,5 +252,21 @@ func (api *DockerApi) CreateDocker() error {
 }
 
 func (api *DockerApi) CreateContainer() error {
+  opts := docker.CreateContainerOptions{
+    Name: api.buildFile.ImageName + "-container-options",
+    Config: &docker.Config{
+      Image:       "test-docker-name1",
+      OpenStdin:   true,
+      AttachStdin: true,
+      Cmd:         []string{"bash"},
+    },
+  }
+
+  if container, err := api.client.CreateContainer(opts); err != nil {
+    Logger.Error(err)
+    return err
+  } else {
+    Logger.Info("Container created: ", container.ID[:12])
+  }
   return nil
 }

@@ -119,7 +119,8 @@ func (cmd *LaunchCommand) Execute(args []string) error {
   go watchForEventsOn(eventsChannel)
   dc.RegisterChannel(eventsChannel)
 
-  dc.CreateDocker()
+  // dc.CreateDockerImage()
+  dc.CreateContainer()
 
   return nil
 }

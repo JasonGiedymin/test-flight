@@ -111,7 +111,13 @@ Version todos:
 
   - [x] tag version
   - [x] create resource share type for buildfile
-  - [ ] Create container from docker image just created
+  - [x] start on creating container options
+  - [x] Create container from docker image just created
+  - [x] Rename `createDocker()`` to `createDockerImage()`` which is more accurate
+  - [x] Log info about container created with slice of image hash
+  - [ ] when image creation successful, pass name to container creation
+  - [ ] pass container name to runner to run docker container
+  - [ ] wire in buildfile resource share specs to container options
   - [ ] Run container from docker image just created
 
 #### v0.9.5 - Alpha
@@ -149,6 +155,8 @@ Version todos:
 
 ### v1.1.0
 
+  - [ ] running list of containers created by test-flight for easy access to
+        modify/delete etc...
   - [ ] user defined template vars
   - [ ] test-flight config - keep track of dockerfiles on filesystem that it built
   - [ ] test-flight config - entries to enable/disable dependency building (all)
