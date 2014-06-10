@@ -12,6 +12,7 @@ import (
   "strings"
   "text/template"
   "time"
+  "github.com/jmcvetta/napping"
 )
 
 type ApiChannel chan *docker.APIEvents
@@ -24,6 +25,7 @@ type TemplateVar struct {
   TestDir           string
   Owner             string
   ImageName         string
+  Tag               string
   From              string
   Version           string
   RequiresDocker    string
@@ -147,6 +149,7 @@ func (api *DockerApi) getTemplateVar() *TemplateVar {
     TestDir:           api.meta.Dir,
     Owner:             api.buildFile.Owner,
     ImageName:         api.buildFile.ImageName,
+    Tag:               api.buildFile.Tag,
     From:              api.buildFile.From,
     Version:           api.buildFile.Version,
     RequiresDocker:    api.buildFile.RequiresDocker,
@@ -198,6 +201,37 @@ func (api *DockerApi) DeleteImage() {
         }
       }
     }
+  }
+}
+
+func (api *DockerApi) ShowImage() {
+  url := strings.Join(
+    []string{
+      api.configFile.DockerEndpoint,
+      "images",
+      api.buildFile.ImageName + ":" + api.buildFile.Tag,
+      "json",
+    },
+    "/",
+  )
+
+  // For testing, also need to `import "encoding/json"`
+  // result := map[string]json.RawMessage{}
+  result := types.ApiDockerImage{}
+
+  Logger.Trace("API Call for ", url)
+
+  if resp, err := napping.Get(url, nil, &result, nil); err != nil {
+    Logger.Error("Error while getting Image information from docker,", err)
+  } else {
+
+    switch resp.Status() {
+    case 200:
+  	  Logger.Trace("data:", result)
+    case 404:
+      Logger.Trace("Image not found")
+    }
+
   }
 }
 

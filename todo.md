@@ -115,6 +115,11 @@ Version todos:
   - [x] Create container from docker image just created
   - [x] Rename `createDocker()` to `createDockerImage()` which is more accurate
   - [x] Log info about container created with slice of image hash
+  - [x] Add tag info in dockerfile for when building images
+  - [x] Start mixing in rest api directly into client
+  - [x] Add tag name from buildfile to image name in url for rest call
+  - [x] Add GetImage() func to get specific image (uses 3rd party)
+  - [ ] try http package instead of 3rd party http client: http://golang.org/pkg/encoding/json/#example_Unmarshal
   - [ ] Check if container already exists, delete if so then create image
   - [ ] when image creation successful, pass name to container creation
   - [ ] pass container name to runner to run docker container
@@ -137,8 +142,9 @@ Version todos:
   - [ ] create simple map for docker hasFiles (I need functional programming!)
   - [ ] test-flight cleanup
 
-### v0.9.5 - Beta release
+### v0.9.6 - Beta release
 
+  - [ ] add check for minimal docker version allowed
   - [ ] build.json - add entries to specify list of tests to run and their order
   - [ ] test-flight config.json - add entry to specify run timeout
   - [ ] get rid of commandPreReq plz

@@ -2,6 +2,28 @@ package types
 
 import Logger "../logging"
 
+type ApiDockerConfig struct {
+  CpuShares int
+  ExposedPorts map[string]interface{} // empty interface, for future use
+  Hostname string
+  Image string
+  Memory int
+  MemorySwap int
+}
+
+type ApiDockerImage struct {
+  Architecture string
+  Author string
+  Comment string
+  Config ApiDockerConfig
+  Container string
+  ContainerConfig ApiDockerConfig
+  DockerVersion string
+  Id string
+  Os string
+  Parent string
+}
+
 type ResourceShare struct {
   Mem int
   Cpu int
@@ -29,6 +51,7 @@ type ConfigFile struct {
 type BuildFile struct {
   Owner             string
   ImageName         string
+  Tag               string
   From              string
   Version           string
   RequiresDocker    string
