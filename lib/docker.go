@@ -187,6 +187,20 @@ func (api *DockerApi) ShowImages() {
   }
 }
 
+func (api *DockerApi) DeleteImage() {
+  images, _ := api.client.ListImages(true)
+
+  if len(images) > 0 {
+    for _, img := range images {
+      for _, tag := range img.RepoTags {
+        if strings.Contains(tag, api.buildFile.ImageName) {
+          Logger.Info("Found " + api.buildFile.ImageName + " as ID:" + img.ID[:12])
+        }
+      }
+    }
+  }
+}
+
 func (api *DockerApi) CreateDockerImage() error {
   Logger.Info("Attempting to build Dockerfile: " + api.buildFile.ImageName)
 

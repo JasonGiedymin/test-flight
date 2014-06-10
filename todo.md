@@ -115,6 +115,7 @@ Version todos:
   - [x] Create container from docker image just created
   - [x] Rename `createDocker()` to `createDockerImage()` which is more accurate
   - [x] Log info about container created with slice of image hash
+  - [ ] Check if container already exists, delete if so then create image
   - [ ] when image creation successful, pass name to container creation
   - [ ] pass container name to runner to run docker container
   - [ ] wire in buildfile resource share specs to container options
