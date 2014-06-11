@@ -4,7 +4,7 @@ import Logger "../logging"
 
 type ApiContainer struct {
   Command string
-  Created int
+  Created int64
   Id string
   Image string
   Names []string

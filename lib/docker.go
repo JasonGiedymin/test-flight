@@ -16,6 +16,7 @@ import (
   "time"
   "encoding/json"
   "io/ioutil"
+  "errors"
 )
 
 type ApiChannel chan *docker.APIEvents
@@ -232,6 +233,8 @@ func (api *DockerApi) ListContainers(imageName string) ([]string, error){
             ids = append(ids, jsonResult[i].Id)
           }
         }
+
+        Logger.Trace("Containers found for", imageName, ids)
         return ids, nil
       }
     case 404:
@@ -244,10 +247,13 @@ func (api *DockerApi) ListContainers(imageName string) ([]string, error){
   return nil, nil
 }
 
-func (api *DockerApi) DeleteContainer(name string) {
+// Returns container name deleted, empty string if none, and an
+// error (if any)
+func (api *DockerApi) DeleteContainer(name string) ([]string, error) {
+  var deletedContainers []string
   endpoint := api.configFile.DockerEndpoint
 
-  delete := func(id string) {
+  delete := func(id string) (*string, error) {
     url := strings.Join(
       []string{
         endpoint,
@@ -256,37 +262,51 @@ func (api *DockerApi) DeleteContainer(name string) {
       },
       "/",
     )
+    Logger.Trace("DeleteContainer Api call:", url)
 
     req, _ := http.NewRequest("DELETE",url, nil)
     resp, _ := http.DefaultClient.Do(req)
     defer resp.Body.Close()
 
-    if body, err := ioutil.ReadAll(resp.Body); err != nil {
+    if _, err := ioutil.ReadAll(resp.Body); err != nil {
       Logger.Error("Could not contact docker endpoint:", endpoint)
-      // return nil, err
+      return nil, err
     } else {
       switch resp.StatusCode {
-      case 200:
-        var jsonResult []map[string]string
-        if err := json.Unmarshal(body, &jsonResult); err != nil {
-          Logger.Error(err)
-          // return nil, err
-        }
-        Logger.Trace(jsonResult)
-      case 409:
-        Logger.Error("Cannot delete image while in use by a container. Delete the container first.")
+      case 204:
+        Logger.Info("Container Deleted:", name)
+        return &name, nil
+      case 400:
+        msg := "Bad Api param supplied while trying to delete a container, notify developers."
+        Logger.Error(msg)
+        return nil, errors.New(msg)
       case 404:
-        Logger.Error("Image not found, cannot delete.")
+        Logger.Error("Container not found, nothing to delete.")
+        var emptyString string
+        return &emptyString, nil
       case 500:
-        Logger.Error("Error while trying to communicate to docker endpoint:", endpoint)
+        msg := "Error while trying to communicate to docker endpoint:" + endpoint
+        Logger.Error(msg)
+        return nil, errors.New(msg)
       }
+
+      return nil, errors.New("API out of sync, contact developers!")
     }
   }
 
-  if image, err := api.ListContainers(name); err != nil {
+  if images, err := api.ListContainers(name); err != nil {
     Logger.Error("Could not get image details:", err)
-  } else if image != nil {
-    delete(name)
+    return nil, err
+  } else if images != nil {
+    for _, container := range images {
+      if deleted, _ := delete(container); *deleted != "" {
+        deletedContainers = append(deletedContainers, *deleted)
+      }
+    }
+    return deletedContainers, nil
+  } else {
+    Logger.Trace("Nothing to delete, no containers found for", name)
+    return deletedContainers, nil
   }
 }
 
@@ -313,12 +333,17 @@ func (api *DockerApi) DeleteImage(name string) {
     } else {
       switch resp.StatusCode {
       case 200:
+        // var deleted []string
         var jsonResult []map[string]string
         if err := json.Unmarshal(body, &jsonResult); err != nil {
           Logger.Error(err)
           // return nil, err
+        } else {
+          for k, v := range jsonResult {
+            Logger.Trace(v)
+          }
+          Logger.Info(jsonResult)
         }
-        Logger.Trace(jsonResult)
       case 409:
         Logger.Error("Cannot delete image while in use by a container. Delete the container first.")
       case 404:
@@ -390,7 +415,7 @@ func (api *DockerApi) GetImageDetails(fqImageName string) (*types.ApiDockerImage
   // result := map[string]json.RawMessage{}
   result := types.ApiDockerImage{}
 
-  Logger.Trace("Making Api call to:", url)
+  Logger.Trace("GetImageDetails Api call to:", url)
   if resp, err := napping.Get(url, nil, &result, nil); err != nil {
     Logger.Error("Error while getting Image information from docker,", err)
     return nil, err
@@ -402,7 +427,7 @@ func (api *DockerApi) GetImageDetails(fqImageName string) (*types.ApiDockerImage
       Logger.Trace("Image not found")
     }
 
-    return nil, nil
+    return &types.ApiDockerImage{}, nil
   }
 }
 

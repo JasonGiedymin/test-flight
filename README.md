@@ -57,6 +57,13 @@ can be obtained by obtaining it like so:
     go get github.com/pwaller/goupx/
 
 
+## Testing
+
+Run the following:
+
+    go test ./...
+
+
 ## Notes
 
   - deps managed by [godev](https://github.com/tools/godep).

@@ -123,14 +123,17 @@ Version todos:
   - [x] Add ListContainers()
   - [x] Start on DeleteImage
   - [x] Add ApiContainer struct
-  - [ ] Add DeleteContainer()
-  - [ ] try http package instead of 3rd party http client: http://golang.org/pkg/encoding/json/#example_Unmarshal
-  - [ ] showImage use image:tag param
-  - [ ] Check if container already exists, delete if so then create image
+  - [x] Add DeleteContainer()
+  - [x] try http package instead of 3rd party http client: http://golang.org/pkg/encoding/json/#example_Unmarshal
+        => need to replace more, but good for now
+  - [x] showImage use image:tag param
+  - [x] Check if container already exists, delete if so then create image
+  - [ ] Finish on DeleteImage
   - [ ] when image creation successful, pass name to container creation
   - [ ] pass container name to runner to run docker container
   - [ ] wire in buildfile resource share specs to container options
   - [ ] Run container from docker image just created
+  - [ ] Tests and refactor
 
 #### v0.9.5 - Alpha
 

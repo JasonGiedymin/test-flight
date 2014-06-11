@@ -5,6 +5,7 @@ import (
   Logger "./logging"
   "./types"
   "os"
+  "time"
 )
 
 // TODO: Make as a member of Parser later...
@@ -87,7 +88,7 @@ type LaunchCommand struct {
 
 func watchForEventsOn(channel ApiChannel) {
   for msg := range channel {
-    Logger.Info("DOCKER EVENT:", *msg)
+    Logger.Trace("DOCKER EVENT:", *msg)
   }
 }
 
@@ -120,13 +121,18 @@ func (cmd *LaunchCommand) Execute(args []string) error {
   dc.RegisterChannel(eventsChannel)
 
   fqImageName := cmd.App.AppState.BuildFile.ImageName + ":" + cmd.App.AppState.BuildFile.Tag
-  // x,_ := dc.GetImageDetails(fqImageName)
-  // Logger.Trace( (*x).Id )
+  x,_ := dc.GetImageDetails(fqImageName)
+  Logger.Trace( (*x).Id )
 
-  // dc.CreateDockerImage()
-  // dc.CreateContainer()
-  // dc.DeleteImage(fqImageName)
-  Logger.Trace( dc.ListContainers(fqImageName) )
+  dc.CreateDockerImage()
+  time.Sleep(1 * time.Second)
+  dc.CreateContainer()
+  time.Sleep(1 * time.Second)
+  dc.DeleteContainer(fqImageName)
+  time.Sleep(1 * time.Second)
+  dc.DeleteImage(fqImageName)
+  // Logger.Trace( dc.ListContainers(fqImageName) )
+
   // DeleteImage = Delete container, then image
   //               delete each from ListContainers(fq)
   //               delete GetImageDetails(fq)
