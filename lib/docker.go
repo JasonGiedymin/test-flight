@@ -7,12 +7,15 @@ import (
   "bufio"
   "bytes"
   "github.com/fsouza/go-dockerclient"
+  "github.com/jmcvetta/napping"
+  "net/http"
   "os"
   "path/filepath"
   "strings"
   "text/template"
   "time"
-  "github.com/jmcvetta/napping"
+  "encoding/json"
+  "io/ioutil"
 )
 
 type ApiChannel chan *docker.APIEvents
@@ -190,26 +193,194 @@ func (api *DockerApi) ShowImages() {
   }
 }
 
-func (api *DockerApi) DeleteImage() {
-  images, _ := api.client.ListImages(true)
+func (api *DockerApi) ListContainers(imageName string) ([]string, error){
+  endpoint := api.configFile.DockerEndpoint
+  baseUrl := strings.Join(
+    []string{
+      endpoint,
+      "containers",
+      "json",
+    },
+    "/",
+  )
+  params := strings.Join(
+    []string{
+      "all=1",
+    },
+    "&",
+  )
+  url := baseUrl + "?" + params
+  Logger.Trace("ListContainers Api call:", url)
 
-  if len(images) > 0 {
-    for _, img := range images {
-      for _, tag := range img.RepoTags {
-        if strings.Contains(tag, api.buildFile.ImageName) {
-          Logger.Info("Found " + api.buildFile.ImageName + " as ID:" + img.ID[:12])
+  resp, _ := http.Get(url)
+  defer resp.Body.Close()
+
+  if body, err := ioutil.ReadAll(resp.Body); err != nil {
+    Logger.Error("Could not contact docker endpoint:", endpoint)
+    return nil, err
+  } else {
+    switch resp.StatusCode {
+    case 200:
+      var jsonResult []types.ApiContainer
+      if err := json.Unmarshal(body, &jsonResult); err != nil {
+        Logger.Error(err)
+        return nil, err
+      } else {
+        var ids []string
+        for i := range jsonResult {
+          if jsonResult[i].Image == imageName {
+            ids = append(ids, jsonResult[i].Id)
+          }
         }
+        return ids, nil
+      }
+    case 404:
+      Logger.Trace("Bad param supplied to API")
+    case 500:
+      Logger.Error("Error while trying to communicate to docker endpoint:", endpoint)
+    }
+  }
+
+  return nil, nil
+}
+
+func (api *DockerApi) DeleteContainer(name string) {
+  endpoint := api.configFile.DockerEndpoint
+
+  delete := func(id string) {
+    url := strings.Join(
+      []string{
+        endpoint,
+        "containers",
+        id,
+      },
+      "/",
+    )
+
+    req, _ := http.NewRequest("DELETE",url, nil)
+    resp, _ := http.DefaultClient.Do(req)
+    defer resp.Body.Close()
+
+    if body, err := ioutil.ReadAll(resp.Body); err != nil {
+      Logger.Error("Could not contact docker endpoint:", endpoint)
+      // return nil, err
+    } else {
+      switch resp.StatusCode {
+      case 200:
+        var jsonResult []map[string]string
+        if err := json.Unmarshal(body, &jsonResult); err != nil {
+          Logger.Error(err)
+          // return nil, err
+        }
+        Logger.Trace(jsonResult)
+      case 409:
+        Logger.Error("Cannot delete image while in use by a container. Delete the container first.")
+      case 404:
+        Logger.Error("Image not found, cannot delete.")
+      case 500:
+        Logger.Error("Error while trying to communicate to docker endpoint:", endpoint)
       }
     }
   }
+
+  if image, err := api.ListContainers(name); err != nil {
+    Logger.Error("Could not get image details:", err)
+  } else if image != nil {
+    delete(name)
+  }
 }
 
-func (api *DockerApi) ShowImage() {
+func (api *DockerApi) DeleteImage(name string) {
+  endpoint := api.configFile.DockerEndpoint
+
+  delete := func(imageId string) {
+    url := strings.Join(
+      []string{
+        endpoint,
+        "images",
+        name,
+      },
+      "/",
+    )
+
+    req, _ := http.NewRequest("DELETE",url, nil)
+    resp, _ := http.DefaultClient.Do(req)
+    defer resp.Body.Close()
+
+    if body, err := ioutil.ReadAll(resp.Body); err != nil {
+      Logger.Error("Could not contact docker endpoint:", endpoint)
+      // return nil, err
+    } else {
+      switch resp.StatusCode {
+      case 200:
+        var jsonResult []map[string]string
+        if err := json.Unmarshal(body, &jsonResult); err != nil {
+          Logger.Error(err)
+          // return nil, err
+        }
+        Logger.Trace(jsonResult)
+      case 409:
+        Logger.Error("Cannot delete image while in use by a container. Delete the container first.")
+      case 404:
+        Logger.Error("Image not found, cannot delete.")
+      case 500:
+        Logger.Error("Error while trying to communicate to docker endpoint:", endpoint)
+      }
+    }
+  }
+
+  if image, err := api.GetImageDetails(name); err != nil {
+    Logger.Error("Could not get image details:", err)
+  } else if image != nil {
+    delete(name)
+  }
+}
+
+// http get using golang packaged lib
+func (api *DockerApi) ShowImageGo() (*types.ApiDockerImage, error) {
+  endpoint := api.configFile.DockerEndpoint
+
+  url := strings.Join(
+    []string{
+      endpoint,
+      "images",
+      api.buildFile.ImageName + ":" + api.buildFile.Tag,
+      "json",
+    },
+    "/",
+  )
+
+  resp, _ := http.Get(url)
+  defer resp.Body.Close()
+
+  if body, err := ioutil.ReadAll(resp.Body); err != nil {
+    Logger.Error("Could not contact docker endpoint:", endpoint)
+    return nil, err
+  } else {
+    switch resp.StatusCode {
+    case 200:
+      var jsonResult types.ApiDockerImage
+      if err := json.Unmarshal(body, &jsonResult); err != nil {
+        Logger.Error(err)
+        return nil, err
+      }
+      return &jsonResult, nil
+    case 404:
+      Logger.Trace("Image not found")
+    case 500:
+      Logger.Error("Error while trying to communicate to docker endpoint:", endpoint)
+    }
+
+    return nil, nil
+  }
+}
+
+func (api *DockerApi) GetImageDetails(fqImageName string) (*types.ApiDockerImage, error) {
   url := strings.Join(
     []string{
       api.configFile.DockerEndpoint,
       "images",
-      api.buildFile.ImageName + ":" + api.buildFile.Tag,
+      fqImageName,
       "json",
     },
     "/",
@@ -219,19 +390,19 @@ func (api *DockerApi) ShowImage() {
   // result := map[string]json.RawMessage{}
   result := types.ApiDockerImage{}
 
-  Logger.Trace("API Call for ", url)
-
+  Logger.Trace("Making Api call to:", url)
   if resp, err := napping.Get(url, nil, &result, nil); err != nil {
     Logger.Error("Error while getting Image information from docker,", err)
+    return nil, err
   } else {
-
     switch resp.Status() {
     case 200:
-  	  Logger.Trace("data:", result)
+      return &result, nil
     case 404:
       Logger.Trace("Image not found")
     }
 
+    return nil, nil
   }
 }
 
@@ -301,7 +472,7 @@ func (api *DockerApi) CreateDockerImage() error {
 
 func (api *DockerApi) CreateContainer() error {
   opts := docker.CreateContainerOptions{
-    Name: api.buildFile.ImageName + "-container-options",
+    Name: api.buildFile.ImageName,
     Config: &docker.Config{
       Image:       "test-docker-name1",
       OpenStdin:   true,

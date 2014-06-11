@@ -119,7 +119,13 @@ Version todos:
   - [x] Start mixing in rest api directly into client
   - [x] Add tag name from buildfile to image name in url for rest call
   - [x] Add GetImage() func to get specific image (uses 3rd party)
+  - [x] Rename GetImage() to GetImageDetails()
+  - [x] Add ListContainers()
+  - [x] Start on DeleteImage
+  - [x] Add ApiContainer struct
+  - [ ] Add DeleteContainer()
   - [ ] try http package instead of 3rd party http client: http://golang.org/pkg/encoding/json/#example_Unmarshal
+  - [ ] showImage use image:tag param
   - [ ] Check if container already exists, delete if so then create image
   - [ ] when image creation successful, pass name to container creation
   - [ ] pass container name to runner to run docker container
@@ -210,4 +216,4 @@ Section 2:
 
   - [x] refactor-parser - invert parser and test-flight so parser is not part of test-flight
   - [ ] refactor-prime - refactor so not passing so much app state around
-  - [ ] refactor-dockerapi - refactor dockerApi so that it at least conforms to above and is slimmer
+  - [ ] refactor-dockerapi - refactor docker Api so that it no longer relies on go lib dockerclient

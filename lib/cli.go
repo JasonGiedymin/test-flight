@@ -119,11 +119,22 @@ func (cmd *LaunchCommand) Execute(args []string) error {
   go watchForEventsOn(eventsChannel)
   dc.RegisterChannel(eventsChannel)
 
+  fqImageName := cmd.App.AppState.BuildFile.ImageName + ":" + cmd.App.AppState.BuildFile.Tag
+  // x,_ := dc.GetImageDetails(fqImageName)
+  // Logger.Trace( (*x).Id )
+
   // dc.CreateDockerImage()
   // dc.CreateContainer()
+  // dc.DeleteImage(fqImageName)
+  Logger.Trace( dc.ListContainers(fqImageName) )
+  // DeleteImage = Delete container, then image
+  //               delete each from ListContainers(fq)
+  //               delete GetImageDetails(fq)
+
+
   // dc.ShowImages()
-  dc.ShowImage()
-  // dc.DeleteImage()
+  // dc.ShowImage2()
+  // dc.GetImageDetails(fqImageName)
 
   return nil
 }

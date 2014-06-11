@@ -2,6 +2,16 @@ package types
 
 import Logger "../logging"
 
+type ApiContainer struct {
+  Command string
+  Created int
+  Id string
+  Image string
+  Names []string
+  Ports []int
+  Status string
+}
+
 type ApiDockerConfig struct {
   CpuShares int
   ExposedPorts map[string]interface{} // empty interface, for future use
