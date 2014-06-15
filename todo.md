@@ -128,11 +128,11 @@ Version todos:
         => need to replace more, but good for now
   - [x] showImage use image:tag param
   - [x] Check if container already exists, delete if so then create image
-  - [ ] __Work/Design Api-builder to dry api out (moved up in priority)__
+  - [~] __Work/Design Api-builder to dry api out (moved up in priority)__
     - [x] Base Api
     - [x] Base Api using Url
-    - [ ] Mock Server
-    - [ ] Add methods
+    - [x] Mock Server
+    - [~] Add methods
     - [ ] Release
   - [ ] Rebuild DockerApi using Api-Builder
   - [ ] Finish on DeleteImage
