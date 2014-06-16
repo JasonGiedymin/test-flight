@@ -132,8 +132,9 @@ Version todos:
     - [x] Base Api
     - [x] Base Api using Url
     - [x] Mock Server
-    - [~] Add methods
-    - [ ] Release
+    - [x] Add methods
+    - [~] Actual Docker Test
+    - [ ] RC Release
   - [ ] Rebuild DockerApi using Api-Builder
   - [ ] Finish on DeleteImage
   - [ ] when image creation successful, pass name to container creation
