@@ -133,15 +133,18 @@ Version todos:
     - [x] Base Api using Url
     - [x] Mock Server
     - [x] Add methods
-    - [~] Actual Docker Test
-    - [ ] RC Release
-  - [ ] Rebuild DockerApi using Api-Builder
-  - [ ] Finish on DeleteImage
+    - [x] Mock Docker Test
+    - [x] RC Release: [see here](https://github.com/JasonGiedymin/go-apibuilder)
+  - [x] Makefile
+  - [x] Finish on DeleteImage
+  - [x] Redo CreateContainer with go lib (not apibuilder, yet)
   - [ ] when image creation successful, pass name to container creation
   - [ ] pass container name to runner to run docker container
   - [ ] wire in buildfile resource share specs to container options
   - [ ] Run container from docker image just created
   - [ ] Tests and refactor
+  - [ ] Rebuild DockerApi using Api-Builder
+  - [ ] Remove napping
 
 #### v0.9.5 - Alpha
 
