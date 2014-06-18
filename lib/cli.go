@@ -121,13 +121,16 @@ func (cmd *LaunchCommand) Execute(args []string) error {
   dc.RegisterChannel(eventsChannel)
 
   fqImageName := cmd.App.AppState.BuildFile.ImageName + ":" + cmd.App.AppState.BuildFile.Tag
-  x,_ := dc.GetImageDetails(fqImageName)
-  Logger.Trace( (*x).Id )
+  // x,_ := dc.GetImageDetails(fqImageName)
+  // Logger.Trace( (*x).Id )
+
+  // dc.DeleteContainer(fqImageName)
 
   dc.CreateDockerImage()
   time.Sleep(1 * time.Second)
-  dc.CreateContainer()
+  dc.CreateContainer(fqImageName)
   time.Sleep(1 * time.Second)
+
   dc.DeleteContainer(fqImageName)
   time.Sleep(1 * time.Second)
   dc.DeleteImage(fqImageName)
