@@ -5,7 +5,7 @@ import (
   Logger "./logging"
   "./types"
   "os"
-  "time"
+  // "time"
 )
 
 // TODO: Make as a member of Parser later...
@@ -121,32 +121,33 @@ func (cmd *LaunchCommand) Execute(args []string) error {
   dc.RegisterChannel(eventsChannel)
 
   fqImageName := cmd.App.AppState.BuildFile.ImageName + ":" + cmd.App.AppState.BuildFile.Tag
-  // x,_ := dc.GetImageDetails(fqImageName)
-  // Logger.Trace( (*x).Id )
 
-  // dc.DeleteContainer(fqImageName)
-
-  dc.CreateDockerImage()
-  time.Sleep(1 * time.Second)
-  dc.CreateContainer(fqImageName)
-  time.Sleep(1 * time.Second)
-
-  dc.DeleteContainer(fqImageName)
-  time.Sleep(1 * time.Second)
-  dc.DeleteImage(fqImageName)
-  // Logger.Trace( dc.ListContainers(fqImageName) )
-
-  // DeleteImage = Delete container, then image
-  //               delete each from ListContainers(fq)
-  //               delete GetImageDetails(fq)
-
-
-  // dc.ShowImages()
-  // dc.ShowImage2()
-  // dc.GetImageDetails(fqImageName)
+  if image, err := dc.CreateDockerImage(fqImageName); err != nil {
+    return err
+  } else {
+    dc.CreateContainer(image)
+  }
 
   return nil
 }
+
+// == Images Command
+type ImagesCommand struct {
+  App *TestFlight
+  Dir string `short:"d" long:"dir" description:"directory to run in"`
+}
+
+func (cmd *ImagesCommand) Execute(args []string) error {
+  commandPreReq(cmd.App)
+
+  cmd.App.SetState("IMAGES")
+  Logger.Info("Listing images... using config from dir:", cmd.Dir)
+  cmd.App.AppState.Meta.Dir = cmd.Dir
+
+  dc := NewDockerApi(cmd.App.AppState.Meta, cmd.App.AppState.ConfigFile, cmd.App.AppState.BuildFile)
+  return dc.ShowImages()
+}
+
 
 // == Template Command ==
 type TemplateCommand struct {

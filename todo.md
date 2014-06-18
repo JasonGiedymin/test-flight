@@ -137,14 +137,20 @@ Version todos:
     - [x] RC Release: [see here](https://github.com/JasonGiedymin/go-apibuilder)
   - [x] Makefile
   - [x] Finish on DeleteImage
-  - [x] Redo CreateContainer with go lib (not apibuilder, yet)
-  - [ ] when image creation successful, pass name to container creation
+  - [x] Redo CreateContainer with go lib (not go-apibuilder, yet)
+  - [x] when image creation successful, pass name to container creation
+  - [x] Add `make help`
+  - [x] Add `make run-images`
+  - [x] Add `make run-launch`
+  - [ ] Add RunDocker Tests and code using go-apibuilder
   - [ ] pass container name to runner to run docker container
   - [ ] wire in buildfile resource share specs to container options
   - [ ] Run container from docker image just created
   - [ ] Tests and refactor
-  - [ ] Rebuild DockerApi using Api-Builder
+  - [ ] Rebuild DockerApi calls that use golang http with go-apibuilder
+  - [ ] Refactor and check returns of APIs
   - [ ] Remove napping
+  - [ ] Replace waits with channels
 
 #### v0.9.5 - Alpha
 
