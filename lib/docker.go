@@ -1,3 +1,26 @@
+// Usage
+// x,_ := dc.GetImageDetails(fqImageName)
+// Logger.Trace( (*x).Id )
+
+// dc.ListContainers(fqImageName)
+// time.Sleep(1 * time.Second)
+
+// dc.DeleteContainer(fqImageName)
+// time.Sleep(1 * time.Second)
+
+// time.Sleep(1 * time.Second)
+// dc.CreateContainer(fqImageName)
+// time.Sleep(1 * time.Second)
+
+// dc.DeleteContainer(fqImageName)
+// time.Sleep(1 * time.Second)
+// dc.DeleteImage(fqImageName)
+
+// Logger.Trace( dc.ListContainers(fqImageName) )
+
+// dc.ShowImages()
+// dc.GetImageDetails(fqImageName)
+
 package lib
 
 import (
@@ -6,17 +29,17 @@ import (
   "archive/tar"
   "bufio"
   "bytes"
+  "encoding/json"
+  "errors"
   "github.com/fsouza/go-dockerclient"
   "github.com/jmcvetta/napping"
+  "io/ioutil"
   "net/http"
   "os"
   "path/filepath"
   "strings"
   "text/template"
   "time"
-  "encoding/json"
-  "io/ioutil"
-  "errors"
 )
 
 type ApiChannel chan *docker.APIEvents
@@ -64,6 +87,8 @@ func NewDockerApi(meta *types.ApplicationMeta, configFile *types.ConfigFile, bui
     Logger.Error("Docker API Client Error:", err)
     os.Exit(ExitCodes["docker_error"])
   }
+
+  Logger.Info("Docker endpoint:", configFile.DockerEndpoint)
   api.client = client
 
   return &api
@@ -175,12 +200,12 @@ func (api *DockerApi) ShowInfo() {
   Logger.Debug("---------------------------------------------")
 }
 
-func (api *DockerApi) ShowImages() {
+func (api *DockerApi) ShowImages() error {
   images, _ := api.client.ListImages(true)
 
   if len(images) <= 0 {
     Logger.Info("No docker images found.")
-    return
+    return nil
   }
 
   for _, img := range images {
@@ -192,9 +217,11 @@ func (api *DockerApi) ShowImages() {
     Logger.Info("ParentId: ", img.ParentId)
     Logger.Info("Repository: ", img.Repository)
   }
+
+  return nil
 }
 
-func (api *DockerApi) ListContainers(imageName string) ([]string, error){
+func (api *DockerApi) ListContainers(imageName string) ([]string, error) {
   endpoint := api.configFile.DockerEndpoint
   baseUrl := strings.Join(
     []string{
@@ -234,11 +261,11 @@ func (api *DockerApi) ListContainers(imageName string) ([]string, error){
           }
         }
 
-        Logger.Trace("Containers found for", imageName, ids)
+        Logger.Info("Containers found for", imageName, ids)
         return ids, nil
       }
     case 404:
-      Logger.Trace("Bad param supplied to API")
+      Logger.Warn("Bad param supplied to API")
     case 500:
       Logger.Error("Error while trying to communicate to docker endpoint:", endpoint)
     }
@@ -264,7 +291,7 @@ func (api *DockerApi) DeleteContainer(name string) ([]string, error) {
     )
     Logger.Trace("DeleteContainer Api call:", url)
 
-    req, _ := http.NewRequest("DELETE",url, nil)
+    req, _ := http.NewRequest("DELETE", url, nil)
     resp, _ := http.DefaultClient.Do(req)
     defer resp.Body.Close()
 
@@ -282,8 +309,7 @@ func (api *DockerApi) DeleteContainer(name string) ([]string, error) {
         return nil, errors.New(msg)
       case 404:
         Logger.Error("Container not found, nothing to delete.")
-        var emptyString string
-        return &emptyString, nil
+        return nil, nil
       case 500:
         msg := "Error while trying to communicate to docker endpoint:" + endpoint
         Logger.Error(msg)
@@ -311,6 +337,16 @@ func (api *DockerApi) DeleteContainer(name string) ([]string, error) {
 }
 
 func (api *DockerApi) DeleteImage(name string) {
+  type ContainerStatus map[string]string
+  logStatus := func(statusMap ContainerStatus) {
+    possibleStatus := []string{"Untagged", "Deleted"}
+    for _, v := range possibleStatus {
+      if item := statusMap[v]; item != "" {
+        Logger.Info("Deleting container Id:", item)
+      }
+    }
+  }
+
   endpoint := api.configFile.DockerEndpoint
 
   delete := func(imageId string) {
@@ -323,26 +359,24 @@ func (api *DockerApi) DeleteImage(name string) {
       "/",
     )
 
-    req, _ := http.NewRequest("DELETE",url, nil)
+    req, _ := http.NewRequest("DELETE", url, nil)
     resp, _ := http.DefaultClient.Do(req)
     defer resp.Body.Close()
 
     if body, err := ioutil.ReadAll(resp.Body); err != nil {
       Logger.Error("Could not contact docker endpoint:", endpoint)
-      // return nil, err
     } else {
       switch resp.StatusCode {
       case 200:
-        // var deleted []string
-        var jsonResult []map[string]string
+        var jsonResult []ContainerStatus
+
         if err := json.Unmarshal(body, &jsonResult); err != nil {
           Logger.Error(err)
           // return nil, err
         } else {
-          for k, v := range jsonResult {
-            Logger.Trace(v)
+          for _, v := range jsonResult {
+            logStatus(v)
           }
-          Logger.Info(jsonResult)
         }
       case 409:
         Logger.Error("Cannot delete image while in use by a container. Delete the container first.")
@@ -431,8 +465,11 @@ func (api *DockerApi) GetImageDetails(fqImageName string) (*types.ApiDockerImage
   }
 }
 
-func (api *DockerApi) CreateDockerImage() error {
-  Logger.Info("Attempting to build Dockerfile: " + api.buildFile.ImageName)
+// CreateDockerImage creates a docker image by first creating the Dockerfile
+// in memory and then tars it, prior to sending it along to the docker
+// endpoint.
+func (api *DockerApi) CreateDockerImage(fqImageName string) (string, error) {
+  Logger.Info("Creating Docker image by attempting to build Dockerfile: " + fqImageName)
 
   dockerfileBuffer := bytes.NewBuffer(nil)
   tarbuf := bytes.NewBuffer(nil)
@@ -452,7 +489,7 @@ func (api *DockerApi) CreateDockerImage() error {
 
   if err := tmpl.ExecuteTemplate(dockerfile, requiredDockerFile.FileName, *api.getTemplateVar()); err != nil {
     Logger.Error("template execution: %s", err)
-    return err
+    return "", err
   }
 
   dockerfile.Flush()
@@ -477,32 +514,88 @@ func (api *DockerApi) CreateDockerImage() error {
 
   Logger.Trace("Dockerfile buffer len", dockerfileBuffer.Len())
   Logger.Trace("Dockerfile:", dockerfileBuffer.String())
-  Logger.Info("Created Dockerfile: " + api.buildFile.ImageName)
+  Logger.Info("Created Dockerfile: " + fqImageName)
 
   opts := docker.BuildImageOptions{
-    Name:         api.buildFile.ImageName,
+    Name:         fqImageName,
     InputStream:  tarbuf,
     OutputStream: outputbuf,
   }
 
   if err := api.client.BuildImage(opts); err != nil {
-    Logger.Error("Error while building Docker image: "+api.buildFile.ImageName, err)
-    return err
+    Logger.Error("Error while building Docker image: " + fqImageName, err)
+    return "", err
   }
 
-  Logger.Info("Successfully built Docker image: " + api.buildFile.ImageName)
-
-  return nil
+  Logger.Info("Successfully built Docker image: " + fqImageName)
+  return fqImageName, nil
 }
 
-func (api *DockerApi) CreateContainer() error {
+func (api *DockerApi) CreateContainer(fqImageName string) (*types.ApiPostResponse, error) {
+  if _, err := api.DeleteContainer(fqImageName); err != nil {
+    msg := "Cannot create container, it already exists and an attempt was " +
+      "made to delete it. This attempt failed for the following reason:"
+
+    Logger.Error(msg, err)
+    return nil, err
+  }
+
+  endpoint := api.configFile.DockerEndpoint
+
+  postBody := types.ApiPostRequest{
+    Image:       fqImageName,
+    OpenStdin:   true,
+    AttachStdin: true,
+  }
+
+  url := strings.Join(
+    []string{
+      endpoint,
+      "containers",
+      "create",
+    },
+    "/",
+  )
+  Logger.Trace("CreateContainer() - Api call to:", url)
+
+  jsonResult := types.ApiPostResponse{}
+  bytesReader, _ := postBody.Bytes()
+  resp, _ := http.Post(url, "text/json", bytes.NewReader(bytesReader))
+  defer resp.Body.Close()
+
+  if body, err := ioutil.ReadAll(resp.Body); err != nil {
+    Logger.Error("Could not contact docker endpoint:", endpoint)
+    return nil, err
+  } else {
+    switch resp.StatusCode {
+    case 201:
+      if err := json.Unmarshal(body, &jsonResult); err != nil {
+        Logger.Error(err)
+        return nil, err
+      }
+      Logger.Info("Created container:", fqImageName)
+      return &jsonResult, nil
+    case 404:
+      Logger.Warn("No such container")
+    case 406:
+      Logger.Warn("Impossible to attach (container not running)")
+    case 500:
+      Logger.Error("Error while trying to communicate to docker endpoint:", endpoint)
+    }
+
+    msg := "Unexpected response code: " + string(resp.StatusCode)
+    Logger.Error(msg)
+    return nil, errors.New(msg)
+  }
+}
+
+func (api *DockerApi) CreateContainer2() error {
   opts := docker.CreateContainerOptions{
     Name: api.buildFile.ImageName,
     Config: &docker.Config{
       Image:       "test-docker-name1",
       OpenStdin:   true,
       AttachStdin: true,
-      Cmd:         []string{"bash"},
     },
   }
 

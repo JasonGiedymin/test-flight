@@ -34,6 +34,7 @@ func init() {
   }
 
   checkCommand := lib.CheckCommand{App: &app}
+  imagesCommand := lib.ImagesCommand{App: &app}
   launchCommand := lib.LaunchCommand{App: &app}
   versionCommand := lib.VersionCommand{App: &app}
   templateCommand := lib.TemplateCommand{App: &app}
@@ -44,6 +45,11 @@ func init() {
     "pre-flight check",
     "Used for pre-flight check of the ansible playbook.",
     &checkCommand)
+
+  parser.AddCommand("images",
+    "shows all docker images",
+    "Used for to show all docker images",
+    &imagesCommand)
 
   parser.AddCommand("launch",
     "flight launch",

@@ -1,6 +1,28 @@
 package types
 
-import Logger "../logging"
+import (
+  Logger "../logging"
+  "encoding/json"
+)
+
+type ApiPostRequest struct {
+  Image string
+  OpenStdin bool
+  AttachStdin bool
+}
+
+func (post *ApiPostRequest) Bytes() ([]byte, error) {
+  bytes, err := json.Marshal(post)
+  if err != nil {
+    return nil, err
+  }
+  return bytes, nil
+}
+
+type ApiPostResponse struct {
+  Id string
+  Warnings []string
+}
 
 type ApiContainer struct {
   Command string
