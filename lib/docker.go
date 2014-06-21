@@ -523,7 +523,7 @@ func (api *DockerApi) CreateDockerImage(fqImageName string) (string, error) {
   }
 
   if err := api.client.BuildImage(opts); err != nil {
-    Logger.Error("Error while building Docker image: " + fqImageName, err)
+    Logger.Error("Error while building Docker image: "+fqImageName, err)
     return "", err
   }
 
@@ -579,6 +579,52 @@ func (api *DockerApi) CreateContainer(fqImageName string) (*types.ApiPostRespons
       Logger.Warn("No such container")
     case 406:
       Logger.Warn("Impossible to attach (container not running)")
+    case 500:
+      Logger.Error("Error while trying to communicate to docker endpoint:", endpoint)
+    }
+
+    msg := "Unexpected response code: " + string(resp.StatusCode)
+    Logger.Error(msg)
+    return nil, errors.New(msg)
+  }
+}
+
+func (api *DockerApi) StartContainer(id string) (*string, error) {
+  endpoint := api.configFile.DockerEndpoint
+
+  postBody := types.DockerHostConfig{}
+
+  url := strings.Join(
+    []string{
+      endpoint,
+      "containers",
+      id,
+      "start",
+    },
+    "/",
+  )
+  Logger.Trace("StartContainer() - Api call to:", url)
+
+  // jsonResult := types.ApiPostResponse{}
+  var jsonResult string
+  bytesReader, _ := postBody.Bytes()
+  resp, _ := http.Post(url, "text/json", bytes.NewReader(bytesReader))
+  defer resp.Body.Close()
+
+  if _, err := ioutil.ReadAll(resp.Body); err != nil {
+    Logger.Error("Could not contact docker endpoint:", endpoint)
+    return nil, err
+  } else {
+    switch resp.StatusCode {
+    case 204:
+      // if err := json.Unmarshal(body, &jsonResult); err != nil {
+      //   Logger.Error(err)
+      //   return nil, err
+      // }
+      Logger.Info("Started container:", id)
+      return &jsonResult, nil
+    case 404:
+      Logger.Warn("No such container")
     case 500:
       Logger.Error("Error while trying to communicate to docker endpoint:", endpoint)
     }

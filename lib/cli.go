@@ -6,6 +6,7 @@ import (
   "./types"
   "os"
   // "time"
+  // "fmt"
 )
 
 // TODO: Make as a member of Parser later...
@@ -80,6 +81,57 @@ func (cmd *CheckCommand) Execute(args []string) error {
   return nil
 }
 
+// == Ground Command ==
+// Should stop running containers
+type GroundCommand struct {
+  App *TestFlight
+  Dir string `short:"d" long:"dir" description:"directory to run in"`
+}
+
+func (cmd *GroundCommand) Execute(args []string) error {
+  commandPreReq(cmd.App)
+
+  cmd.App.SetState("LAUNCH")
+  Logger.Info("Launching Tests... in dir:", cmd.Dir)
+  cmd.App.AppState.Meta.Dir = cmd.Dir
+
+  if _, err := HasRequiredFiles(&cmd.Dir, RequiredFiles); err != nil {
+    return err
+  }
+
+  if err := setConfigFiles(cmd.Dir, &cmd.App.AppState); err != nil {
+    return err
+  }
+
+  var dc = NewDockerApi(cmd.App.AppState.Meta, cmd.App.AppState.ConfigFile, cmd.App.AppState.BuildFile)
+  dc.ShowInfo()
+  // dc.ShowImages()
+
+  if err := testFlightTemplates(dc, cmd.App.AppState.ConfigFile); err != nil {
+    return err
+  }
+
+  // Register channel so we can watch for events as they happen
+  eventsChannel := make(ApiChannel)
+  go watchForEventsOn(eventsChannel)
+  dc.RegisterChannel(eventsChannel)
+
+  fqImageName := cmd.App.AppState.BuildFile.ImageName + ":" + cmd.App.AppState.BuildFile.Tag
+
+  if image, err := dc.CreateDockerImage(fqImageName); err != nil {
+    return err
+  } else {
+    if resp, err := dc.CreateContainer(image); err != nil {
+      return err
+    } else {
+      Logger.Trace("Docker Container to start:", resp.Id)
+      // dc.StopContainer(resp.Id)
+    }
+  }
+
+  return nil
+}
+
 // == Launch Command ==
 type LaunchCommand struct {
   App *TestFlight
@@ -125,7 +177,12 @@ func (cmd *LaunchCommand) Execute(args []string) error {
   if image, err := dc.CreateDockerImage(fqImageName); err != nil {
     return err
   } else {
-    dc.CreateContainer(image)
+    if resp, err := dc.CreateContainer(image); err != nil {
+      return err
+    } else {
+      Logger.Trace("Docker Container to start:", resp.Id)
+      dc.StartContainer(resp.Id)
+    }
   }
 
   return nil
@@ -147,7 +204,6 @@ func (cmd *ImagesCommand) Execute(args []string) error {
   dc := NewDockerApi(cmd.App.AppState.Meta, cmd.App.AppState.ConfigFile, cmd.App.AppState.BuildFile)
   return dc.ShowImages()
 }
-
 
 // == Template Command ==
 type TemplateCommand struct {

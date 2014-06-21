@@ -142,6 +142,11 @@ Version todos:
   - [x] Add `make help`
   - [x] Add `make run-images`
   - [x] Add `make run-launch`
+  - [x] Add startContainer
+  - [ ] Add `flight delete container`
+  - [ ] Add `flight delete image`
+  - [ ] Add `flight delete` which will do both container and image
+  - [ ] Modify config for stdin
   - [ ] Add RunDocker Tests and code using go-apibuilder
   - [ ] pass container name to runner to run docker container
   - [ ] wire in buildfile resource share specs to container options
@@ -151,6 +156,7 @@ Version todos:
   - [ ] Refactor and check returns of APIs
   - [ ] Remove napping
   - [ ] Replace waits with channels
+  - [ ] Refactor CLI, dry it up
 
 #### v0.9.5 - Alpha
 

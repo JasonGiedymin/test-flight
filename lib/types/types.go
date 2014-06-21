@@ -5,9 +5,17 @@ import (
   "encoding/json"
 )
 
+func bytes(data interface{}) ([]byte, error) {
+  bytes, err := json.Marshal(data)
+  if err != nil {
+    return nil, err
+  }
+  return bytes, nil
+}
+
 type ApiPostRequest struct {
-  Image string
-  OpenStdin bool
+  Image       string
+  OpenStdin   bool
   AttachStdin bool
 }
 
@@ -20,40 +28,55 @@ func (post *ApiPostRequest) Bytes() ([]byte, error) {
 }
 
 type ApiPostResponse struct {
-  Id string
+  Id       string
   Warnings []string
+}
+
+type DockerHostConfig struct {
+  Binds           []string
+  Links           []string
+  LxcConf         []string
+  PortBindings    map[string][]map[string]string
+  PublishAllPorts bool
+  Privileged      bool
+  Dns             []string
+  VolumesFrom     []string
+}
+
+func (post *DockerHostConfig) Bytes() ([]byte, error) {
+  return bytes(post)
 }
 
 type ApiContainer struct {
   Command string
   Created int64
-  Id string
-  Image string
-  Names []string
-  Ports []int
-  Status string
+  Id      string
+  Image   string
+  Names   []string
+  Ports   []int
+  Status  string
 }
 
 type ApiDockerConfig struct {
-  CpuShares int
+  CpuShares    int
   ExposedPorts map[string]interface{} // empty interface, for future use
-  Hostname string
-  Image string
-  Memory int
-  MemorySwap int
+  Hostname     string
+  Image        string
+  Memory       int
+  MemorySwap   int
 }
 
 type ApiDockerImage struct {
-  Architecture string
-  Author string
-  Comment string
-  Config ApiDockerConfig
-  Container string
+  Architecture    string
+  Author          string
+  Comment         string
+  Config          ApiDockerConfig
+  Container       string
   ContainerConfig ApiDockerConfig
-  DockerVersion string
-  Id string
-  Os string
-  Parent string
+  DockerVersion   string
+  Id              string
+  Os              string
+  Parent          string
 }
 
 type ResourceShare struct {
@@ -73,10 +96,10 @@ type ConfigFileDockerAdd struct {
 }
 
 type ConfigFile struct {
-  TemplateDir    string
-  DockerEndpoint string
-  WorkDir        string
-  DockerAdd      ConfigFileDockerAdd
+  TemplateDir        string
+  DockerEndpoint     string
+  WorkDir            string
+  DockerAdd          ConfigFileDockerAdd
   OverwriteTemplates bool
 }
 
