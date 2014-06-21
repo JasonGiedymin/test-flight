@@ -18,37 +18,42 @@ help:
 	@echo "$(TEXT_COLOR) Commands requiring docker endpoint: $(NO_COLOR)"
 	@echo ""
 	@echo "$(TEXT_COLOR) run-launch: executes launch command using test dir $(NO_COLOR)"
+	@echo "$(TEXT_COLOR) run-ground: executes ground command using test dir $(NO_COLOR)"
 	@echo "$(TEXT_COLOR) run-images: executes images command using test dir $(NO_COLOR)"
 	@echo "$(OK_COLOR)------------------------------------------------------$(NO_COLOR)"
 
 deps:
-	@echo "$(OK_COLOR)==> Installing dependencies$(NO_COLOR)"
+	@echo "$(OK_COLOR)==> Installing dependencies $(NO_COLOR)"
 	@go get -d -v ./...
 	@echo $(DEPS) | xargs -n1 go get -d
 
 updatedeps:
-	@echo "$(OK_COLOR)==> Updating all dependencies$(NO_COLOR)"
+	@echo "$(OK_COLOR)==> Updating all dependencies $(NO_COLOR)"
 	@go get -d -v -u ./...
 	@echo $(DEPS) | xargs -n1 go get -d -v -u
 
 format:
-	@echo "$(OK_COLOR)==> Formatting$(NO_COLOR)"
+	@echo "$(OK_COLOR)==> Formatting $(NO_COLOR)"
 	go fmt ./...
 
 test: deps
-	@echo "$(OK_COLOR)==> Testing$(NO_COLOR)"
+	@echo "$(OK_COLOR)==> Testing $(NO_COLOR)"
 	go test ./...
 
 lint:
-	@echo "$(OK_COLOR)==> Linting$(NO_COLOR)"
+	@echo "$(OK_COLOR)==> Linting $(NO_COLOR)"
 	golint .
 
 run-launch:
-	@echo "$(OK_COLOR)==> Testing$(NO_COLOR)"
+	@echo "$(OK_COLOR)==> Testing Launch $(NO_COLOR)"
 	go run flight.go launch -d $(TEST_DIR)
 
+run-ground:
+	@echo "$(OK_COLOR)==> Testing Ground $(NO_COLOR)"
+	go run flight.go ground -d $(TEST_DIR)
+
 run-images:
-	@echo "$(OK_COLOR)==> Testing$(NO_COLOR)"
+	@echo "$(OK_COLOR)==> Testing $(NO_COLOR)"
 	go run flight.go images -d $(TEST_DIR)
 
 all: format lint test

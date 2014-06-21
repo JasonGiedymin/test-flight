@@ -9,31 +9,46 @@ import (
   // "fmt"
 )
 
+type FlightControls struct {}
+
+func (fc *FlightControls) Init(app *TestFlight) {}
+
+func (fc *FlightControls) CheckConfig() (*types.ConfigFile, error) {
+  // Prereqs
+  configFile, err := config.ReadConfigFile()
+  if config.ReadFileError.Contains(err) {
+    os.Exit(ExitCodes["config_missing"])
+  }
+
+  return configFile, nil
+}
+
+func (fc *FlightControls) CheckBuild(dir string, requiredFiles []types.RequiredFile) (*types.BuildFile, error) {
+  if _, err := HasRequiredFiles(dir, requiredFiles); err != nil {
+    return nil, err
+  }
+
+  if buildFile, err := getBuildFile(dir); err != nil {
+    return nil, err
+  } else {
+    return buildFile, nil
+  }
+}
+
 // TODO: Make as a member of Parser later...
-func setConfigFiles(dir string, appState *types.ApplicationState) error {
+func getBuildFile(dir string) (*types.BuildFile, error) {
   buildFile, err := config.ReadBuildFile(dir)
   if err != nil {
     Logger.Error("Error reading build file:", err)
-    return err
+    return nil, err
   }
 
-  appState.BuildFile = buildFile
   Logger.Debug("Buildfile found, contents:", *buildFile)
-  return nil
+  return buildFile, nil
 }
-
-// func commandPreReq() *types.ConfigFile {
-//   configFile, err := config.ReadConfigFile()
-//   if config.ReadFileError.Contains(err) {
-//     os.Exit(ExitCodes["config_missing"])
-//   }
-//
-//   return configFile
-// }
 
 func commandPreReq(app *TestFlight) {
   // Prereqs
-  app.SetState("CHECK_PREREQS")
   configFile, err := config.ReadConfigFile()
   if config.ReadFileError.Contains(err) {
     os.Exit(ExitCodes["config_missing"])
@@ -43,6 +58,7 @@ func commandPreReq(app *TestFlight) {
 
 // == Version Command ==
 type VersionCommand struct {
+  Controls *FlightControls
   App *TestFlight
 }
 
@@ -54,6 +70,7 @@ func (cmd *VersionCommand) Execute(args []string) error {
 
 // == Check Command ==
 type CheckCommand struct {
+  Controls *FlightControls
   App *TestFlight
   Dir string `short:"d" long:"dir" description:"directory to run in"`
 }
@@ -61,11 +78,10 @@ type CheckCommand struct {
 func (cmd *CheckCommand) Execute(args []string) error {
   commandPreReq(cmd.App)
 
-  cmd.App.SetState("CHECK_FILES")
   Logger.Info("Running Pre-Flight Check... in dir:", cmd.Dir)
   cmd.App.AppState.Meta.Dir = cmd.Dir
 
-  _, err := HasRequiredFiles(&cmd.Dir, RequiredFiles)
+  _, err := HasRequiredFiles(cmd.Dir, RequiredFiles)
   if err != nil {
     return err
   }
@@ -84,30 +100,26 @@ func (cmd *CheckCommand) Execute(args []string) error {
 // == Ground Command ==
 // Should stop running containers
 type GroundCommand struct {
+  Controls *FlightControls
   App *TestFlight
   Dir string `short:"d" long:"dir" description:"directory to run in"`
 }
 
 func (cmd *GroundCommand) Execute(args []string) error {
-  commandPreReq(cmd.App)
+  configFile, _ := cmd.Controls.CheckConfig()
+  cmd.App.SetConfigFile(configFile)
 
-  cmd.App.SetState("LAUNCH")
   Logger.Info("Launching Tests... in dir:", cmd.Dir)
-  cmd.App.AppState.Meta.Dir = cmd.Dir
+  cmd.App.SetDir(cmd.Dir)
 
-  if _, err := HasRequiredFiles(&cmd.Dir, RequiredFiles); err != nil {
-    return err
-  }
+  buildFile, _ := cmd.Controls.CheckBuild(cmd.Dir, RequiredFiles)
+  cmd.App.SetBuildFile(buildFile)
 
-  if err := setConfigFiles(cmd.Dir, &cmd.App.AppState); err != nil {
-    return err
-  }
-
-  var dc = NewDockerApi(cmd.App.AppState.Meta, cmd.App.AppState.ConfigFile, cmd.App.AppState.BuildFile)
+  var dc = NewDockerApi(cmd.App.AppState.Meta, configFile, buildFile)
   dc.ShowInfo()
   // dc.ShowImages()
 
-  if err := testFlightTemplates(dc, cmd.App.AppState.ConfigFile); err != nil {
+  if err := testFlightTemplates(dc, configFile); err != nil {
     return err
   }
 
@@ -116,24 +128,29 @@ func (cmd *GroundCommand) Execute(args []string) error {
   go watchForEventsOn(eventsChannel)
   dc.RegisterChannel(eventsChannel)
 
-  fqImageName := cmd.App.AppState.BuildFile.ImageName + ":" + cmd.App.AppState.BuildFile.Tag
+  // fqImageName := cmd.App.AppState.BuildFile.ImageName + ":" + cmd.App.AppState.BuildFile.Tag
 
-  if image, err := dc.CreateDockerImage(fqImageName); err != nil {
-    return err
-  } else {
-    if resp, err := dc.CreateContainer(image); err != nil {
-      return err
-    } else {
-      Logger.Trace("Docker Container to start:", resp.Id)
-      // dc.StopContainer(resp.Id)
-    }
-  }
+  // Stop
+  // Delete container
+  // Delete Image
+
+  // if image, err := dc.CreateDockerImage(fqImageName); err != nil {
+  //   return err
+  // } else {
+  //   if resp, err := dc.CreateContainer(image); err != nil {
+  //     return err
+  //   } else {
+  //     Logger.Trace("Docker Container to start:", resp.Id)
+  //     // dc.StopContainer(resp.Id)
+  //   }
+  // }
 
   return nil
 }
 
 // == Launch Command ==
 type LaunchCommand struct {
+  Controls *FlightControls
   App *TestFlight
   Dir string `short:"d" long:"dir" description:"directory to run in"`
 }
@@ -145,25 +162,20 @@ func watchForEventsOn(channel ApiChannel) {
 }
 
 func (cmd *LaunchCommand) Execute(args []string) error {
-  commandPreReq(cmd.App)
+  configFile, _ := cmd.Controls.CheckConfig()
+  cmd.App.SetConfigFile(configFile)
 
-  cmd.App.SetState("LAUNCH")
   Logger.Info("Launching Tests... in dir:", cmd.Dir)
-  cmd.App.AppState.Meta.Dir = cmd.Dir
+  cmd.App.SetDir(cmd.Dir)
 
-  if _, err := HasRequiredFiles(&cmd.Dir, RequiredFiles); err != nil {
-    return err
-  }
+  buildFile, _ := cmd.Controls.CheckBuild(cmd.Dir, RequiredFiles)
+  cmd.App.SetBuildFile(buildFile)
 
-  if err := setConfigFiles(cmd.Dir, &cmd.App.AppState); err != nil {
-    return err
-  }
-
-  var dc = NewDockerApi(cmd.App.AppState.Meta, cmd.App.AppState.ConfigFile, cmd.App.AppState.BuildFile)
+  var dc = NewDockerApi(cmd.App.AppState.Meta, configFile, buildFile)
   dc.ShowInfo()
   // dc.ShowImages()
 
-  if err := testFlightTemplates(dc, cmd.App.AppState.ConfigFile); err != nil {
+  if err := testFlightTemplates(dc, configFile); err != nil {
     return err
   }
 
@@ -172,7 +184,7 @@ func (cmd *LaunchCommand) Execute(args []string) error {
   go watchForEventsOn(eventsChannel)
   dc.RegisterChannel(eventsChannel)
 
-  fqImageName := cmd.App.AppState.BuildFile.ImageName + ":" + cmd.App.AppState.BuildFile.Tag
+  fqImageName := cmd.App.AppState.BuildFile.ImageName + ":" + buildFile.Tag
 
   if image, err := dc.CreateDockerImage(fqImageName); err != nil {
     return err
@@ -190,6 +202,7 @@ func (cmd *LaunchCommand) Execute(args []string) error {
 
 // == Images Command
 type ImagesCommand struct {
+  Controls *FlightControls
   App *TestFlight
   Dir string `short:"d" long:"dir" description:"directory to run in"`
 }
@@ -207,6 +220,7 @@ func (cmd *ImagesCommand) Execute(args []string) error {
 
 // == Template Command ==
 type TemplateCommand struct {
+  Controls *FlightControls
   App *TestFlight
   Dir string `short:"d" long:"dir" description:"directory to run in"`
 }

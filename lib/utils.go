@@ -27,7 +27,7 @@ func findFile(filesFound []string, requiredFile types.RequiredFile, currDir stri
     if file == requiredFile.FileName {
       if len(requiredFile.RequiredFiles) > 0 && requiredFile.FileType == "d" {
         nextDir := currDir + "/" + requiredFile.FileName
-        _, err := HasRequiredFiles(&nextDir, requiredFile.RequiredFiles)
+        _, err := HasRequiredFiles(nextDir, requiredFile.RequiredFiles)
         if err != nil {
           return false, err
         }
@@ -62,21 +62,19 @@ func CreateFile(dir *string, requiredFile types.RequiredFile) (*os.File, error) 
  * Reads the current directory and returns
  *   - bool: if all the required files were found
  */
-func HasRequiredFiles(dir *string, requiredFiles []types.RequiredFile) (bool, error) {
-  var currDir = *dir
-
-  if currDir == "" {
-    currDir = defaultDir
+func HasRequiredFiles(dir string, requiredFiles []types.RequiredFile) (bool, error) {
+  if dir == "" {
+    dir = defaultDir
   }
 
-  filesFromDisk, err := ioutil.ReadDir(currDir)
+  filesFromDisk, err := ioutil.ReadDir(dir)
 
   if err != nil {
     return false, err
   }
 
   for _, requiredFile := range requiredFiles {
-    found, err := findFile(ConvertFiles(filesFromDisk), requiredFile, currDir)
+    found, err := findFile(ConvertFiles(filesFromDisk), requiredFile, dir)
 
     if !found {
       return false, err
@@ -86,7 +84,7 @@ func HasRequiredFiles(dir *string, requiredFiles []types.RequiredFile) (bool, er
   return true, nil
 }
 
-func HasRequiredFile(dir *string, requiredFile types.RequiredFile) (bool, error) {
+func HasRequiredFile(dir string, requiredFile types.RequiredFile) (bool, error) {
   return HasRequiredFiles(dir, []types.RequiredFile{requiredFile})
 }
 

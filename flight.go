@@ -33,11 +33,13 @@ func init() {
     os.Exit(lib.ExitCodes["init_fail"])
   }
 
-  checkCommand := lib.CheckCommand{App: &app}
-  imagesCommand := lib.ImagesCommand{App: &app}
-  launchCommand := lib.LaunchCommand{App: &app}
-  versionCommand := lib.VersionCommand{App: &app}
-  templateCommand := lib.TemplateCommand{App: &app}
+  flightControls := lib.FlightControls{}
+  checkCommand := lib.CheckCommand{Controls: &flightControls, App: &app}
+  imagesCommand := lib.ImagesCommand{Controls: &flightControls, App: &app}
+  launchCommand := lib.LaunchCommand{Controls: &flightControls, App: &app}
+  groundCommand := lib.GroundCommand{Controls: &flightControls, App: &app}
+  versionCommand := lib.VersionCommand{Controls: &flightControls, App: &app}
+  templateCommand := lib.TemplateCommand{Controls: &flightControls, App: &app}
 
   parser = flags.NewParser(&options, flags.Default)
 
@@ -55,6 +57,11 @@ func init() {
     "flight launch",
     "Launch an ansible playbook test.",
     &launchCommand)
+
+  parser.AddCommand("ground",
+    "flight ground",
+    "Grounds an ansible playbook test.",
+    &groundCommand)
 
   parser.AddCommand("template",
     "flight template",
