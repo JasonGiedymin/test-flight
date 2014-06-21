@@ -127,7 +127,7 @@ func (api *DockerApi) createTestTemplates() error {
     templateOutputDir string,
     requiredFile types.RequiredFile) error {
     // check that inventory files exist
-    if hasFiles, err := HasRequiredFile(&templateOutputDir, requiredFile); err != nil {
+    if hasFiles, err := HasRequiredFile(templateOutputDir, requiredFile); err != nil {
       Logger.Error("Error: ", err)
       return err
     } else if hasFiles {
@@ -148,7 +148,7 @@ func (api *DockerApi) createTestTemplates() error {
 
     // check that dir exists
     // TODO: major cleanup here, need another pass
-    if hasFiles, err := HasRequiredFile(&api.meta.Dir, templateDir); err != nil {
+    if hasFiles, err := HasRequiredFile(api.meta.Dir, templateDir); err != nil {
       return err
     } else if !hasFiles { // create it doesn't
       if _, err = CreateFile(&api.meta.Dir, templateDir); err != nil {
@@ -586,6 +586,47 @@ func (api *DockerApi) CreateContainer(fqImageName string) (*types.ApiPostRespons
     msg := "Unexpected response code: " + string(resp.StatusCode)
     Logger.Error(msg)
     return nil, errors.New(msg)
+  }
+}
+
+func (api *DockerApi) StopContainer(containerId string) (string, error) {
+  endpoint := api.configFile.DockerEndpoint
+
+  url := strings.Join(
+    []string{
+      endpoint,
+      "containers",
+      containerId,
+      "stop",
+    },
+    "/",
+  )
+  Logger.Trace("StopContainer() - Api call to:", url)
+
+  resp, _ := http.Post(url, "text/json", nil)
+  defer resp.Body.Close()
+
+  if _, err := ioutil.ReadAll(resp.Body); err != nil {
+    Logger.Error("Could not contact docker endpoint:", endpoint)
+    return "", err
+  } else {
+    switch resp.StatusCode {
+    case 204:
+      Logger.Info("Stopped container:", containerId)
+      return containerId, nil
+    case 404:
+      msg := "No such container"
+      Logger.Warn(msg)
+      return "", nil
+    case 500:
+      msg := "Error while trying to communicate to docker endpoint: " + endpoint
+      Logger.Error(msg)
+      return "", nil
+    }
+
+    msg := "Unexpected response code: " + string(resp.StatusCode)
+    Logger.Error(msg)
+    return "", errors.New(msg)
   }
 }
 

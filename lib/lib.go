@@ -28,6 +28,14 @@ func (app *TestFlight) SetConfigFile(file *types.ConfigFile) {
   app.AppState.ConfigFile = file
 }
 
+func (app *TestFlight) SetBuildFile(file *types.BuildFile) {
+  app.AppState.BuildFile = file
+}
+
+func (app *TestFlight) SetDir(dir string) {
+  app.AppState.Meta.Dir = dir
+}
+
 func (app *TestFlight) Init() error {
   app.AppState.Meta = &meta
   app.SetState("INIT")

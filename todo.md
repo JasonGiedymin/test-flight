@@ -143,23 +143,30 @@ Version todos:
   - [x] Add `make run-images`
   - [x] Add `make run-launch`
   - [x] Add startContainer
-  - [ ] Add `flight delete container`
-  - [ ] Add `flight delete image`
-  - [ ] Add `flight delete` which will do both container and image
+  - [x] remove some state commands [refactor-prime]
+  - [-] ~~Add `flight delete image`~~ This is effectively a `destroy`.
+  - [x] Start Refactor CLI, dry it up
+  - [~] Add getContainers(ImageName) - get containers running "imageName"
+  - [~] Add `flight ground` which will stop container` (stop container)
+  - [ ] Add `flight destroy ~~delete~~` which will do both container and image (del all)
+  - [ ] Add `flight build` which will build the image (new image)
+  - [ ] Modify `flight launch` to only launch a new container (start new container)
   - [ ] Modify config for stdin
   - [ ] Add RunDocker Tests and code using go-apibuilder
   - [ ] pass container name to runner to run docker container
   - [ ] wire in buildfile resource share specs to container options
   - [ ] Run container from docker image just created
+  - [ ] Finish refactor of CLI, dry it up
   - [ ] Tests and refactor
   - [ ] Rebuild DockerApi calls that use golang http with go-apibuilder
   - [ ] Refactor and check returns of APIs
   - [ ] Remove napping
   - [ ] Replace waits with channels
-  - [ ] Refactor CLI, dry it up
+  - [ ] Update README with make commands
 
 #### v0.9.5 - Alpha
 
+  - [ ] revisit all error codes, refactor
   - [ ] run ansible lint/check within a docker, call this `runup` (an actual aircraft term)
   - [ ] allow docker diagnosis by preventing run and cmd commands, in buildfile
         give the flag: `debugContainer: {true|false}`
