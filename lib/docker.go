@@ -21,6 +21,8 @@
 // dc.ShowImages()
 // dc.GetImageDetails(fqImageName)
 
+// dc.StopContainer(id)
+
 package lib
 
 import (
@@ -37,6 +39,7 @@ import (
   "net/http"
   "os"
   "path/filepath"
+  "strconv"
   "strings"
   "text/template"
   "time"
@@ -221,6 +224,7 @@ func (api *DockerApi) ShowImages() error {
   return nil
 }
 
+// ListContainers that are running
 func (api *DockerApi) ListContainers(imageName string) ([]string, error) {
   endpoint := api.configFile.DockerEndpoint
   baseUrl := strings.Join(
@@ -233,7 +237,7 @@ func (api *DockerApi) ListContainers(imageName string) ([]string, error) {
   )
   params := strings.Join(
     []string{
-      "all=1",
+      "all=0",
     },
     "&",
   )
@@ -251,7 +255,7 @@ func (api *DockerApi) ListContainers(imageName string) ([]string, error) {
     case 200:
       var jsonResult []types.ApiContainer
       if err := json.Unmarshal(body, &jsonResult); err != nil {
-        Logger.Error(err)
+        Logger.Error("Error while trying to marshall result, body:", jsonResult, " - Error:", err)
         return nil, err
       } else {
         var ids []string
@@ -261,7 +265,7 @@ func (api *DockerApi) ListContainers(imageName string) ([]string, error) {
           }
         }
 
-        Logger.Info("Containers found for", imageName, ids)
+        Logger.Debug("Containers found for", imageName, ids)
         return ids, nil
       }
     case 404:
@@ -276,8 +280,10 @@ func (api *DockerApi) ListContainers(imageName string) ([]string, error) {
 
 // Returns container name deleted, empty string if none, and an
 // error (if any)
-func (api *DockerApi) DeleteContainer(name string) ([]string, error) {
-  var deletedContainers []string
+func (api *DockerApi) DeleteContainer(name string) ([]types.DeletedContainer, error) {
+  var deletedContainers []types.DeletedContainer
+  var returnError error
+
   endpoint := api.configFile.DockerEndpoint
 
   delete := func(id string) (*string, error) {
@@ -301,22 +307,28 @@ func (api *DockerApi) DeleteContainer(name string) ([]string, error) {
     } else {
       switch resp.StatusCode {
       case 204:
-        Logger.Info("Container Deleted:", name)
+        Logger.Info("Container Deleted:", name, ", with ID:", id)
         return &name, nil
       case 400:
         msg := "Bad Api param supplied while trying to delete a container, notify developers."
         Logger.Error(msg)
         return nil, errors.New(msg)
       case 404:
-        Logger.Error("Container not found, nothing to delete.")
+        Logger.Warn("Container not found, nothing to delete.")
         return nil, nil
+      case 406:
+        msg := "Container:" + name + " - (" + id + "), is running, cannot delete."
+        // Logger.Warn(msg)
+        return nil, errors.New(msg)
       case 500:
         msg := "Error while trying to communicate to docker endpoint:" + endpoint
-        Logger.Error(msg)
+        // Logger.Error(msg)
         return nil, errors.New(msg)
       }
 
-      return nil, errors.New("API out of sync, contact developers!")
+      statusCode := strconv.Itoa(resp.StatusCode)
+      msg := "API out of sync, contact developers! Status Code:" + statusCode
+      return nil, errors.New(msg)
     }
   }
 
@@ -324,15 +336,21 @@ func (api *DockerApi) DeleteContainer(name string) ([]string, error) {
     Logger.Error("Could not get image details:", err)
     return nil, err
   } else if images != nil {
+    Logger.Info("Found", len(images), "to delete...")
     for _, container := range images {
-      if deleted, _ := delete(container); *deleted != "" {
-        deletedContainers = append(deletedContainers, *deleted)
+      Logger.Debug("Trying to delete", container)
+      if deleted, err := delete(container); err != nil {
+        returnError = err
+        msg := "Could not delete container: " + err.Error()
+        Logger.Error(msg)
+      } else if *deleted != "" {
+        deletedContainers = append(deletedContainers, types.DeletedContainer{*deleted, container})
       }
     }
-    return deletedContainers, nil
+    return deletedContainers, returnError
   } else {
-    Logger.Trace("Nothing to delete, no containers found for", name)
-    return deletedContainers, nil
+    Logger.Debug("Nothing to delete, no containers found for", name)
+    return deletedContainers, returnError
   }
 }
 
@@ -342,7 +360,7 @@ func (api *DockerApi) DeleteImage(name string) {
     possibleStatus := []string{"Untagged", "Deleted"}
     for _, v := range possibleStatus {
       if item := statusMap[v]; item != "" {
-        Logger.Info("Deleting container Id:", item)
+        Logger.Debug("Deleting container Id:", item)
       }
     }
   }
@@ -425,7 +443,7 @@ func (api *DockerApi) ShowImageGo() (*types.ApiDockerImage, error) {
       }
       return &jsonResult, nil
     case 404:
-      Logger.Trace("Image not found")
+      Logger.Debug("Image not found")
     case 500:
       Logger.Error("Error while trying to communicate to docker endpoint:", endpoint)
     }
@@ -458,7 +476,7 @@ func (api *DockerApi) GetImageDetails(fqImageName string) (*types.ApiDockerImage
     case 200:
       return &result, nil
     case 404:
-      Logger.Trace("Image not found")
+      Logger.Debug("Image not found")
     }
 
     return &types.ApiDockerImage{}, nil
@@ -469,7 +487,7 @@ func (api *DockerApi) GetImageDetails(fqImageName string) (*types.ApiDockerImage
 // in memory and then tars it, prior to sending it along to the docker
 // endpoint.
 func (api *DockerApi) CreateDockerImage(fqImageName string) (string, error) {
-  Logger.Info("Creating Docker image by attempting to build Dockerfile: " + fqImageName)
+  Logger.Debug("Creating Docker image by attempting to build Dockerfile: " + fqImageName)
 
   dockerfileBuffer := bytes.NewBuffer(nil)
   tarbuf := bytes.NewBuffer(nil)
@@ -533,7 +551,7 @@ func (api *DockerApi) CreateDockerImage(fqImageName string) (string, error) {
 
 func (api *DockerApi) CreateContainer(fqImageName string) (*types.ApiPostResponse, error) {
   if _, err := api.DeleteContainer(fqImageName); err != nil {
-    msg := "Cannot create container, it already exists and an attempt was " +
+    msg := "Cannot create container with the same name, it already exists and an attempt was " +
       "made to delete it. This attempt failed for the following reason:"
 
     Logger.Error(msg, err)

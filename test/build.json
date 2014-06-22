@@ -10,7 +10,7 @@
   },
   "add": [],
   "expose": [3000, 3001],
-  "cmd": "pwd",
+  "cmd": "sleep 5m",
   "runTests": true,
   "resourceShare": {
     "mem": 1024,

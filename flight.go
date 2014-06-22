@@ -44,28 +44,28 @@ func init() {
   parser = flags.NewParser(&options, flags.Default)
 
   parser.AddCommand("check",
-    "pre-flight check",
-    "Used for pre-flight check of the ansible playbook.",
+    "flight check",
+    "Checks if pre-reqs are satisfied to launch this ansible playbook.",
     &checkCommand)
 
   parser.AddCommand("images",
-    "shows all docker images",
-    "Used for to show all docker images",
+    "flight images",
+    "Shows all images",
     &imagesCommand)
 
   parser.AddCommand("launch",
     "flight launch",
-    "Launch an ansible playbook test.",
+    "Launch builds, runs, and tests an ansible playbook.",
     &launchCommand)
 
   parser.AddCommand("ground",
     "flight ground",
-    "Grounds an ansible playbook test.",
+    "Ground stops all containers found running this ansible playbook.",
     &groundCommand)
 
   parser.AddCommand("template",
     "flight template",
-    "Create templates required for test-flight.",
+    "Creates templates required for test-flight.",
     &templateCommand)
 
   parser.AddCommand("version",

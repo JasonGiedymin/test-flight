@@ -146,8 +146,10 @@ Version todos:
   - [x] remove some state commands [refactor-prime]
   - [-] ~~Add `flight delete image`~~ This is effectively a `destroy`.
   - [x] Start Refactor CLI, dry it up
-  - [~] Add getContainers(ImageName) - get containers running "imageName"
-  - [~] Add `flight ground` which will stop container` (stop container)
+  - [x] Modify ListContainers(ImageName) - to only get containers running "imageName"
+  - [x] Add `flight ground` which will stop container` (stop container)
+  - [x] Add slightly better messages during deletion
+  - [x] Prevent creation if cannot delete
   - [ ] Add `flight destroy ~~delete~~` which will do both container and image (del all)
   - [ ] Add `flight build` which will build the image (new image)
   - [ ] Modify `flight launch` to only launch a new container (start new container)

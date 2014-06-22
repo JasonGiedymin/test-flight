@@ -13,6 +13,14 @@ func bytes(data interface{}) ([]byte, error) {
   return bytes, nil
 }
 
+// Internal -------------------------------------------------------------------
+type DeletedContainer struct {
+  Name string
+  Id   string
+}
+
+// end Internal ---------------------------------------------------------------
+
 type ApiPostRequest struct {
   Image       string
   OpenStdin   bool
@@ -47,14 +55,21 @@ func (post *DockerHostConfig) Bytes() ([]byte, error) {
   return bytes(post)
 }
 
+type ApiContainerPortDetails struct {
+  PrivatePort int
+  PublicPort  int
+  Type        string
+}
+
 type ApiContainer struct {
-  Command string
-  Created int64
-  Id      string
-  Image   string
-  Names   []string
-  Ports   []int
-  Status  string
+  Id         string
+  Image      string
+  Command    string
+  Created    int64
+  Status     string
+  Ports      []ApiContainerPortDetails
+  SizeRw     int
+  SizeRootFs int
 }
 
 type ApiDockerConfig struct {
