@@ -9,7 +9,7 @@ import (
   // "fmt"
 )
 
-type FlightControls struct {}
+type FlightControls struct{}
 
 func (fc *FlightControls) Init(app *TestFlight) {}
 
@@ -59,7 +59,7 @@ func commandPreReq(app *TestFlight) {
 // == Version Command ==
 type VersionCommand struct {
   Controls *FlightControls
-  App *TestFlight
+  App      *TestFlight
 }
 
 func (cmd *VersionCommand) Execute(args []string) error {
@@ -71,8 +71,8 @@ func (cmd *VersionCommand) Execute(args []string) error {
 // == Check Command ==
 type CheckCommand struct {
   Controls *FlightControls
-  App *TestFlight
-  Dir string `short:"d" long:"dir" description:"directory to run in"`
+  App      *TestFlight
+  Dir      string `short:"d" long:"dir" description:"directory to run in"`
 }
 
 func (cmd *CheckCommand) Execute(args []string) error {
@@ -101,8 +101,8 @@ func (cmd *CheckCommand) Execute(args []string) error {
 // Should stop running containers
 type GroundCommand struct {
   Controls *FlightControls
-  App *TestFlight
-  Dir string `short:"d" long:"dir" description:"directory to run in"`
+  App      *TestFlight
+  Dir      string `short:"d" long:"dir" description:"directory to run in"`
 }
 
 func (cmd *GroundCommand) Execute(args []string) error {
@@ -138,20 +138,55 @@ func (cmd *GroundCommand) Execute(args []string) error {
     }
   }
 
-  // Stop
-  // Delete container
-  // Delete Image
+  return nil
+}
 
-  // if image, err := dc.CreateDockerImage(fqImageName); err != nil {
-  //   return err
-  // } else {
-  //   if resp, err := dc.CreateContainer(image); err != nil {
-  //     return err
-  //   } else {
-  //     Logger.Trace("Docker Container to start:", resp.Id)
-  //     // dc.StopContainer(resp.Id)
-  //   }
-  // }
+// == Destroy Command ==
+// Should destroy running containers
+type DestroyCommand struct {
+  Controls *FlightControls
+  App      *TestFlight
+  Dir      string `short:"d" long:"dir" description:"directory to run in"`
+}
+
+func (cmd *DestroyCommand) Execute(args []string) error {
+  configFile, _ := cmd.Controls.CheckConfig()
+  cmd.App.SetConfigFile(configFile)
+
+  Logger.Info("Destroying... using information from dir:", cmd.Dir)
+  cmd.App.SetDir(cmd.Dir)
+
+  buildFile, _ := cmd.Controls.CheckBuild(cmd.Dir, RequiredFiles)
+  cmd.App.SetBuildFile(buildFile)
+
+  var dc = NewDockerApi(cmd.App.AppState.Meta, configFile, buildFile)
+  dc.ShowInfo()
+  // dc.ShowImages()
+
+  if err := testFlightTemplates(dc, configFile); err != nil {
+    return err
+  }
+
+  // Register channel so we can watch for events as they happen
+  eventsChannel := make(ApiChannel)
+  go watchForEventsOn(eventsChannel)
+  dc.RegisterChannel(eventsChannel)
+
+  fqImageName := cmd.App.AppState.BuildFile.ImageName + ":" + cmd.App.AppState.BuildFile.Tag
+  if running, err := dc.ListContainers(fqImageName); err != nil {
+    Logger.Trace("Error while trying to get a list of containers for ", fqImageName)
+    return err
+  } else {
+    for _, container := range running {
+      if id, err := dc.StopContainer(container); err != nil {
+        Logger.Error("Could not stop container", id, " associated with", fqImageName)
+        return err
+      }
+    }
+
+    // Once all stopped, delete all
+
+  }
 
   return nil
 }
@@ -159,8 +194,8 @@ func (cmd *GroundCommand) Execute(args []string) error {
 // == Launch Command ==
 type LaunchCommand struct {
   Controls *FlightControls
-  App *TestFlight
-  Dir string `short:"d" long:"dir" description:"directory to run in"`
+  App      *TestFlight
+  Dir      string `short:"d" long:"dir" description:"directory to run in"`
 }
 
 func watchForEventsOn(channel ApiChannel) {
@@ -211,8 +246,8 @@ func (cmd *LaunchCommand) Execute(args []string) error {
 // == Images Command
 type ImagesCommand struct {
   Controls *FlightControls
-  App *TestFlight
-  Dir string `short:"d" long:"dir" description:"directory to run in"`
+  App      *TestFlight
+  Dir      string `short:"d" long:"dir" description:"directory to run in"`
 }
 
 func (cmd *ImagesCommand) Execute(args []string) error {
@@ -229,8 +264,8 @@ func (cmd *ImagesCommand) Execute(args []string) error {
 // == Template Command ==
 type TemplateCommand struct {
   Controls *FlightControls
-  App *TestFlight
-  Dir string `short:"d" long:"dir" description:"directory to run in"`
+  App      *TestFlight
+  Dir      string `short:"d" long:"dir" description:"directory to run in"`
 }
 
 func testFlightTemplates(dc *DockerApi, configFile *types.ConfigFile) error {

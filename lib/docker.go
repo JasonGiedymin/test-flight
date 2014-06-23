@@ -354,20 +354,58 @@ func (api *DockerApi) DeleteContainer(name string) ([]types.DeletedContainer, er
   }
 }
 
-func (api *DockerApi) DeleteImage(name string) {
-  type ContainerStatus map[string]string
-  logStatus := func(statusMap ContainerStatus) {
-    possibleStatus := []string{"Untagged", "Deleted"}
-    for _, v := range possibleStatus {
-      if item := statusMap[v]; item != "" {
-        Logger.Debug("Deleting container Id:", item)
+func (api *DockerApi) Destroy(fqImageName string) error {
+  if running, err := api.ListContainers(fqImageName); err != nil {
+    Logger.Trace("Error while trying to get a list of containers for ", fqImageName)
+    return err
+  } else {
+    for _, container := range running {
+      if id, err := api.StopContainer(container); err != nil {
+        Logger.Error("Could not stop container", id, " associated with", fqImageName)
+        return err
       }
     }
+
+    // Once all stopped, delete all
+    if _, err := api.DeleteContainer(fqImageName); err != nil {
+      msg := "Error occured while trying to delete a container. " +
+        " This attempt failed for the following reason:" + err.Error()
+
+      Logger.Error(msg, err)
+      return err
+    }
+
+    api.DeleteContainer(fqImageName)
+  }
+
+  return nil
+}
+
+func (api *DockerApi) DeleteImage(name string) (string, error) {
+  type ContainerStatus map[string]string
+
+  logStatus := func(statusMap ContainerStatus) string {
+    possibleStatus := []string{"Untagged", "Deleted"}
+    for _, v := range possibleStatus {
+      containerId := statusMap[v]
+      if containerId != "" {
+        Logger.Debug("Deleted container Id:", containerId)
+        return containerId
+      } else {
+        Logger.Warn("Unknown status found:", statusMap)
+      }
+
+      return containerId
+    }
+
+    return "UNKNOWN"
   }
 
   endpoint := api.configFile.DockerEndpoint
 
-  delete := func(imageId string) {
+  delete := func(imageId string) ([]string, error) {
+    var deletedContainers []string
+
     url := strings.Join(
       []string{
         endpoint,
@@ -393,24 +431,48 @@ func (api *DockerApi) DeleteImage(name string) {
           // return nil, err
         } else {
           for _, v := range jsonResult {
-            logStatus(v)
+            deletedContainers = append(deletedContainers, logStatus(v))
           }
+
         }
       case 409:
-        Logger.Error("Cannot delete image while in use by a container. Delete the container first.")
+        msg := "Cannot delete image while in use by a container. Delete the container first."
+        Logger.Warn(msg)
+        return deletedContainers, nil
       case 404:
-        Logger.Error("Image not found, cannot delete.")
+        msg := "Image not found, cannot delete."
+        Logger.Warn(msg)
+        return deletedContainers, nil
       case 500:
-        Logger.Error("Error while trying to communicate to docker endpoint:", endpoint)
+        msg := "Error while trying to communicate to docker endpoint:"
+        Logger.Error(msg)
+        return nil, errors.New(msg)
       }
+
+      msg := "API Out of sync, contact developers"
+      Logger.Error(msg)
+      return nil, errors.New(msg)
     }
+
+    return deletedContainers, nil
   }
 
-  if image, err := api.GetImageDetails(name); err != nil {
+  // Need funcs.map(_.apply) where funcs is type [](func, errorString)
+  image, err := api.GetImageDetails(name)
+  if err != nil {
     Logger.Error("Could not get image details:", err)
-  } else if image != nil {
-    delete(name)
   }
+
+  if image != nil && err == nil {
+    if _, err := delete(name); err != nil {
+      Logger.Error("Could not delete image: ", name, ", Error was:", err)
+      return "", err
+    }
+
+    return name, nil
+  }
+
+  return "", nil
 }
 
 // http get using golang packaged lib
@@ -551,8 +613,8 @@ func (api *DockerApi) CreateDockerImage(fqImageName string) (string, error) {
 
 func (api *DockerApi) CreateContainer(fqImageName string) (*types.ApiPostResponse, error) {
   if _, err := api.DeleteContainer(fqImageName); err != nil {
-    msg := "Cannot create container with the same name, it already exists and an attempt was " +
-      "made to delete it. This attempt failed for the following reason:"
+    msg := "Error occured while trying to delete a container. " +
+      " This attempt failed for the following reason:" + err.Error()
 
     Logger.Error(msg, err)
     return nil, err
