@@ -19,6 +19,7 @@ help:
 	@echo ""
 	@echo "$(TEXT_COLOR) run-launch: executes launch command using test dir $(NO_COLOR)"
 	@echo "$(TEXT_COLOR) run-ground: executes ground command using test dir $(NO_COLOR)"
+	@echo "$(TEXT_COLOR) run-destroy: executes destroy command using test dir $(NO_COLOR)"
 	@echo "$(TEXT_COLOR) run-images: executes images command using test dir $(NO_COLOR)"
 	@echo "$(OK_COLOR)------------------------------------------------------$(NO_COLOR)"
 
@@ -51,6 +52,10 @@ run-launch:
 run-ground:
 	@echo "$(OK_COLOR)==> Testing Ground $(NO_COLOR)"
 	go run flight.go ground -d $(TEST_DIR)
+
+run-destroy:
+	@echo "$(OK_COLOR)==> Testing Destroy $(NO_COLOR)"
+	go run flight.go destroy -d $(TEST_DIR)
 
 run-images:
 	@echo "$(OK_COLOR)==> Testing $(NO_COLOR)"

@@ -5,7 +5,7 @@ import (
   Logger "./logging"
   "./types"
   "os"
-  // "time"
+  "time"
   // "fmt"
 )
 
@@ -109,7 +109,7 @@ func (cmd *GroundCommand) Execute(args []string) error {
   configFile, _ := cmd.Controls.CheckConfig()
   cmd.App.SetConfigFile(configFile)
 
-  Logger.Info("Launching Tests... in dir:", cmd.Dir)
+  Logger.Info("Grounding Tests... in dir:", cmd.Dir)
   cmd.App.SetDir(cmd.Dir)
 
   buildFile, _ := cmd.Controls.CheckBuild(cmd.Dir, RequiredFiles)
@@ -133,6 +133,7 @@ func (cmd *GroundCommand) Execute(args []string) error {
     Logger.Trace("Error while trying to get a list of containers for ", fqImageName)
     return err
   } else {
+    time.Sleep(2 * time.Second)
     for _, container := range running {
       dc.StopContainer(container)
     }
@@ -173,21 +174,46 @@ func (cmd *DestroyCommand) Execute(args []string) error {
   dc.RegisterChannel(eventsChannel)
 
   fqImageName := cmd.App.AppState.BuildFile.ImageName + ":" + cmd.App.AppState.BuildFile.Tag
-  if running, err := dc.ListContainers(fqImageName); err != nil {
-    Logger.Trace("Error while trying to get a list of containers for ", fqImageName)
+
+  if _, err := dc.DeleteContainer(fqImageName); err != nil {
+    Logger.Error("Could not delete container,", err)
     return err
-  } else {
-    for _, container := range running {
-      if id, err := dc.StopContainer(container); err != nil {
-        Logger.Error("Could not stop container", id, " associated with", fqImageName)
-        return err
-      }
-    }
-
-    // Once all stopped, delete all
-
   }
 
+  if _, err := dc.DeleteImage(fqImageName); err != nil {
+    Logger.Error("Could not delete image,", err)
+    return err
+  }
+
+
+  // if running, err := dc.ListContainers(fqImageName); err != nil {
+  //   Logger.Trace("Error while trying to get a list of containers for ", fqImageName)
+  //   return err
+  // } else {
+  //   time.Sleep(2 * time.Second)
+  //   for _, container := range running { // loop through all containers and stop
+  //     if id, err := dc.StopContainer(container); err != nil {
+  //       Logger.Error("Could not stop container", id, " associated with", fqImageName)
+  //       return err
+  //     }
+  //   } // end loop
+  //
+  //   // dc.Destroy(fqImageName)
+  //
+  //   // time.Sleep(2 * time.Second)
+  //   // if _, err := dc.DeleteContainer(fqImageName); err != nil {
+  //   //   Logger.Error("Could not delete container,", err)
+  //   //   return err
+  //   // }
+  //   //
+  //   // time.Sleep(2 * time.Second)
+  //   // if _, err := dc.DeleteImage(fqImageName); err != nil {
+  //   //   Logger.Error("Could not delete image,", err)
+  //   //   return err
+  //   // }
+  // }
+
+  // Nothing to do
   return nil
 }
 
@@ -257,8 +283,13 @@ func (cmd *ImagesCommand) Execute(args []string) error {
   Logger.Info("Listing images... using config from dir:", cmd.Dir)
   cmd.App.AppState.Meta.Dir = cmd.Dir
 
+  buildFile, _ := cmd.Controls.CheckBuild(cmd.Dir, RequiredFiles)
+  fqImageName := cmd.App.AppState.BuildFile.ImageName + ":" + buildFile.Tag
+
   dc := NewDockerApi(cmd.App.AppState.Meta, cmd.App.AppState.ConfigFile, cmd.App.AppState.BuildFile)
-  return dc.ShowImages()
+
+  dc.GetImageDetails(fqImageName)
+  return nil
 }
 
 // == Template Command ==

@@ -287,7 +287,7 @@ func (api *DockerApi) DeleteContainer(name string) ([]types.DeletedContainer, er
   endpoint := api.configFile.DockerEndpoint
 
   delete := func(id string) (*string, error) {
-    url := strings.Join(
+    baseUrl := strings.Join(
       []string{
         endpoint,
         "containers",
@@ -295,7 +295,17 @@ func (api *DockerApi) DeleteContainer(name string) ([]types.DeletedContainer, er
       },
       "/",
     )
-    Logger.Trace("DeleteContainer Api call:", url)
+
+    params := strings.Join(
+      []string{
+        "v=true",
+        "force=true",
+      },
+      "&",
+    )
+    url := baseUrl + "?" + params
+
+    Logger.Trace("DeleteContainer() Api call:", url)
 
     req, _ := http.NewRequest("DELETE", url, nil)
     resp, _ := http.DefaultClient.Do(req)
@@ -318,7 +328,7 @@ func (api *DockerApi) DeleteContainer(name string) ([]types.DeletedContainer, er
         return nil, nil
       case 406:
         msg := "Container:" + name + " - (" + id + "), is running, cannot delete."
-        // Logger.Warn(msg)
+        Logger.Warn(msg)
         return nil, errors.New(msg)
       case 500:
         msg := "Error while trying to communicate to docker endpoint:" + endpoint
@@ -375,7 +385,10 @@ func (api *DockerApi) Destroy(fqImageName string) error {
       return err
     }
 
-    api.DeleteContainer(fqImageName)
+    if _, err := api.DeleteImage(fqImageName); err != nil {
+      Logger.Error("Could not delete image,", err)
+      return err
+    }
   }
 
   return nil
@@ -389,7 +402,7 @@ func (api *DockerApi) DeleteImage(name string) (string, error) {
     for _, v := range possibleStatus {
       containerId := statusMap[v]
       if containerId != "" {
-        Logger.Debug("Deleted container Id:", containerId)
+        Logger.Debug(v, "container Id:", containerId)
         return containerId
       } else {
         Logger.Warn("Unknown status found:", statusMap)
@@ -401,19 +414,30 @@ func (api *DockerApi) DeleteImage(name string) (string, error) {
     return "UNKNOWN"
   }
 
+
   endpoint := api.configFile.DockerEndpoint
 
   delete := func(imageId string) ([]string, error) {
     var deletedContainers []string
 
-    url := strings.Join(
+    baseUrl := strings.Join(
       []string{
         endpoint,
         "images",
-        name,
+        imageId,
       },
       "/",
     )
+
+    params := strings.Join(
+      []string{
+        "force=true",
+        "noprune=false",
+      },
+      "&",
+    )
+    url := baseUrl + "?" + params
+    Logger.Trace("DeleteImage() Api call:", url)
 
     req, _ := http.NewRequest("DELETE", url, nil)
     resp, _ := http.DefaultClient.Do(req)
@@ -458,14 +482,13 @@ func (api *DockerApi) DeleteImage(name string) (string, error) {
   }
 
   // Need funcs.map(_.apply) where funcs is type [](func, errorString)
-  image, err := api.GetImageDetails(name)
-  if err != nil {
+  if image, err := api.GetImageDetails(name); err != nil {
     Logger.Error("Could not get image details:", err)
-  }
-
-  if image != nil && err == nil {
-    if _, err := delete(name); err != nil {
-      Logger.Error("Could not delete image: ", name, ", Error was:", err)
+    return "", nil
+  } else if image != nil && err == nil {
+    Logger.Warn("-->", image.Id)
+    if _, err := delete(image.Id); err != nil {
+      Logger.Error("Could not delete image: ", name, ", Id:", image.Id, ", Error was:", err)
       return "", err
     }
 

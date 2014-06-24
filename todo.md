@@ -150,9 +150,13 @@ Version todos:
   - [x] Add `flight ground` which will stop container` (stop container)
   - [x] Add slightly better messages during deletion
   - [x] Prevent creation if cannot delete
-  - [~] Add `flight destroy ~~delete~~` which will do both container and image (del all)
-    - [~] Add `destroy` command
-    - [ ] Wire in deletion
+  - [x] Add `flight destroy ~~delete~~` which will do both container and image (del all)
+    - [x] Add `destroy` command
+    - [x] Wire in deletion
+  - [x] Bug where Delete Container untags but doesn't delete =>
+        call delete on container and image
+  - [ ] Api out of sync with run-destroy
+  - [ ] Rename make file commands from `run-command` to `test-command`
   - [ ] Add `flight build` which will build the image (new image)
   - [ ] Modify `flight launch` to only launch a new container (start new container)
   - [ ] Modify config for stdin
@@ -167,6 +171,8 @@ Version todos:
   - [ ] Remove napping
   - [ ] Replace waits with channels
   - [ ] Update README with make commands
+  - [ ] Add cleanup command (Removes images/tags with None)
+  - [ ] Remove sleep
 
 #### v0.9.5 - Alpha
 
