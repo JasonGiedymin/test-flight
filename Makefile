@@ -17,10 +17,10 @@ help:
 	@echo ""
 	@echo "$(TEXT_COLOR) Commands requiring docker endpoint: $(NO_COLOR)"
 	@echo ""
-	@echo "$(TEXT_COLOR) run-launch: executes launch command using test dir $(NO_COLOR)"
-	@echo "$(TEXT_COLOR) run-ground: executes ground command using test dir $(NO_COLOR)"
-	@echo "$(TEXT_COLOR) run-destroy: executes destroy command using test dir $(NO_COLOR)"
-	@echo "$(TEXT_COLOR) run-images: executes images command using test dir $(NO_COLOR)"
+	@echo "$(TEXT_COLOR) test-launch: executes launch command using test dir $(NO_COLOR)"
+	@echo "$(TEXT_COLOR) test-ground: executes ground command using test dir $(NO_COLOR)"
+	@echo "$(TEXT_COLOR) test-destroy: executes destroy command using test dir $(NO_COLOR)"
+	@echo "$(TEXT_COLOR) test-images: executes images command using test dir $(NO_COLOR)"
 	@echo "$(OK_COLOR)------------------------------------------------------$(NO_COLOR)"
 
 deps:
@@ -45,19 +45,19 @@ lint:
 	@echo "$(OK_COLOR)==> Linting $(NO_COLOR)"
 	golint .
 
-run-launch:
+test-launch:
 	@echo "$(OK_COLOR)==> Testing Launch $(NO_COLOR)"
 	go run flight.go launch -d $(TEST_DIR)
 
-run-ground:
+test-ground:
 	@echo "$(OK_COLOR)==> Testing Ground $(NO_COLOR)"
 	go run flight.go ground -d $(TEST_DIR)
 
-run-destroy:
+test-destroy:
 	@echo "$(OK_COLOR)==> Testing Destroy $(NO_COLOR)"
 	go run flight.go destroy -d $(TEST_DIR)
 
-run-images:
+test-images:
 	@echo "$(OK_COLOR)==> Testing $(NO_COLOR)"
 	go run flight.go images -d $(TEST_DIR)
 

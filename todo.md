@@ -156,8 +156,10 @@ Version todos:
   - [x] Bug where Delete Container untags but doesn't delete =>
         call delete on container and image
   - [x] Remove sleeps
-  - [ ] Api out of sync with run-destroy
-  - [ ] Rename make file commands from `run-command` to `test-command`
+  - [x] Api out of sync with run-destroy => no return (tdd)
+  - [x] Rename make file commands from `run-command` to `test-command`
+  - [x] Bug when 'launch, ground, then destroy', cannot find to destroy => found
+        that always returned running containers when calling ListContainers()
   - [ ] Add `flight build` which will build the image (new image)
   - [ ] Modify `flight launch` to only launch a new container (start new container)
   - [ ] Modify config for stdin
@@ -176,6 +178,9 @@ Version todos:
 
 #### v0.9.5 - Alpha
 
+  - [ ] tests
+  - [ ] api docs
+  - [ ] refactor params for consistency
   - [ ] revisit all error codes, refactor
   - [ ] run ansible lint/check within a docker, call this `runup` (an actual aircraft term)
   - [ ] allow docker diagnosis by preventing run and cmd commands, in buildfile

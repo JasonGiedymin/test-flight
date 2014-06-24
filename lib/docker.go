@@ -237,7 +237,7 @@ func (api *DockerApi) ListContainers(imageName string) ([]string, error) {
   )
   params := strings.Join(
     []string{
-      "all=0",
+      "all=true",
     },
     "&",
   )
@@ -359,7 +359,7 @@ func (api *DockerApi) DeleteContainer(name string) ([]types.DeletedContainer, er
     }
     return deletedContainers, returnError
   } else {
-    Logger.Debug("Nothing to delete, no containers found for", name)
+    Logger.Debug("No containers found for", name)
     return deletedContainers, returnError
   }
 }
@@ -397,23 +397,18 @@ func (api *DockerApi) Destroy(fqImageName string) error {
 func (api *DockerApi) DeleteImage(name string) (string, error) {
   type ContainerStatus map[string]string
 
-  logStatus := func(statusMap ContainerStatus) string {
+  status := func(statusMap ContainerStatus) string {
     possibleStatus := []string{"Untagged", "Deleted"}
     for _, v := range possibleStatus {
       containerId := statusMap[v]
       if containerId != "" {
-        Logger.Debug(v, "container Id:", containerId)
         return containerId
-      } else {
-        Logger.Warn("Unknown status found:", statusMap)
       }
-
-      return containerId
     }
 
+    Logger.Error("Api out of sync, could not map status, using UNKNOWN")
     return "UNKNOWN"
   }
-
 
   endpoint := api.configFile.DockerEndpoint
 
@@ -452,12 +447,12 @@ func (api *DockerApi) DeleteImage(name string) (string, error) {
 
         if err := json.Unmarshal(body, &jsonResult); err != nil {
           Logger.Error(err)
-          // return nil, err
         } else {
           for _, v := range jsonResult {
-            deletedContainers = append(deletedContainers, logStatus(v))
+            deletedContainers = append(deletedContainers, status(v))
           }
 
+          return deletedContainers, nil
         }
       case 409:
         msg := "Cannot delete image while in use by a container. Delete the container first."
@@ -473,7 +468,7 @@ func (api *DockerApi) DeleteImage(name string) (string, error) {
         return nil, errors.New(msg)
       }
 
-      msg := "API Out of sync, contact developers"
+      msg := "API Out of sync, contact developers. Response code: " + strconv.Itoa(resp.StatusCode)
       Logger.Error(msg)
       return nil, errors.New(msg)
     }
@@ -486,7 +481,6 @@ func (api *DockerApi) DeleteImage(name string) (string, error) {
     Logger.Error("Could not get image details:", err)
     return "", nil
   } else if image != nil && err == nil {
-    Logger.Warn("-->", image.Id)
     if _, err := delete(image.Id); err != nil {
       Logger.Error("Could not delete image: ", name, ", Id:", image.Id, ", Error was:", err)
       return "", err

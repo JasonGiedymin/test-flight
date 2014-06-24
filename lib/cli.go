@@ -117,7 +117,6 @@ func (cmd *GroundCommand) Execute(args []string) error {
 
   var dc = NewDockerApi(cmd.App.AppState.Meta, configFile, buildFile)
   dc.ShowInfo()
-  // dc.ShowImages()
 
   if err := testFlightTemplates(dc, configFile); err != nil {
     return err
@@ -161,7 +160,6 @@ func (cmd *DestroyCommand) Execute(args []string) error {
 
   var dc = NewDockerApi(cmd.App.AppState.Meta, configFile, buildFile)
   dc.ShowInfo()
-  // dc.ShowImages()
 
   if err := testFlightTemplates(dc, configFile); err != nil {
     return err
