@@ -5,7 +5,7 @@ import (
   Logger "./logging"
   "./types"
   "os"
-  "time"
+  // "time"
   // "fmt"
 )
 
@@ -133,7 +133,6 @@ func (cmd *GroundCommand) Execute(args []string) error {
     Logger.Trace("Error while trying to get a list of containers for ", fqImageName)
     return err
   } else {
-    time.Sleep(2 * time.Second)
     for _, container := range running {
       dc.StopContainer(container)
     }
@@ -184,34 +183,6 @@ func (cmd *DestroyCommand) Execute(args []string) error {
     Logger.Error("Could not delete image,", err)
     return err
   }
-
-
-  // if running, err := dc.ListContainers(fqImageName); err != nil {
-  //   Logger.Trace("Error while trying to get a list of containers for ", fqImageName)
-  //   return err
-  // } else {
-  //   time.Sleep(2 * time.Second)
-  //   for _, container := range running { // loop through all containers and stop
-  //     if id, err := dc.StopContainer(container); err != nil {
-  //       Logger.Error("Could not stop container", id, " associated with", fqImageName)
-  //       return err
-  //     }
-  //   } // end loop
-  //
-  //   // dc.Destroy(fqImageName)
-  //
-  //   // time.Sleep(2 * time.Second)
-  //   // if _, err := dc.DeleteContainer(fqImageName); err != nil {
-  //   //   Logger.Error("Could not delete container,", err)
-  //   //   return err
-  //   // }
-  //   //
-  //   // time.Sleep(2 * time.Second)
-  //   // if _, err := dc.DeleteImage(fqImageName); err != nil {
-  //   //   Logger.Error("Could not delete image,", err)
-  //   //   return err
-  //   // }
-  // }
 
   // Nothing to do
   return nil

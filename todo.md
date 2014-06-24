@@ -155,6 +155,7 @@ Version todos:
     - [x] Wire in deletion
   - [x] Bug where Delete Container untags but doesn't delete =>
         call delete on container and image
+  - [x] Remove sleeps
   - [ ] Api out of sync with run-destroy
   - [ ] Rename make file commands from `run-command` to `test-command`
   - [ ] Add `flight build` which will build the image (new image)
@@ -172,7 +173,6 @@ Version todos:
   - [ ] Replace waits with channels
   - [ ] Update README with make commands
   - [ ] Add cleanup command (Removes images/tags with None)
-  - [ ] Remove sleep
 
 #### v0.9.5 - Alpha
 
