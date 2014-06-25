@@ -160,11 +160,16 @@ Version todos:
   - [x] Rename make file commands from `run-command` to `test-command`
   - [x] Bug when 'launch, ground, then destroy', cannot find to destroy => found
         that always returned running containers when calling ListContainers()
-  - [ ] Add `flight build` which will build the image (new image)
-  - [ ] Modify `flight launch` to only launch a new container (start new container)
-  - [ ] Modify config for stdin
+  - [x] Add `flight build` which will build the image (new image)
+  - [x] Modify makefile
+  - [x] Modify `flight launch` to only launch a new container when supplying the
+        `-f` parameter.
+  - [-] ~~pass container name to runner to run docker container~~ Seems to work
+        fine as-is with Id. Would rather use monads.
+  - [~] Modify config for stdin by adding attach api call
+    - [x] Add `Attach` method
+    - [~] Complete `Attach` so that it reads from the stream
   - [ ] Add RunDocker Tests and code using go-apibuilder
-  - [ ] pass container name to runner to run docker container
   - [ ] wire in buildfile resource share specs to container options
   - [ ] Run container from docker image just created
   - [ ] Finish refactor of CLI, dry it up

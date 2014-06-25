@@ -17,10 +17,11 @@ help:
 	@echo ""
 	@echo "$(TEXT_COLOR) Commands requiring docker endpoint: $(NO_COLOR)"
 	@echo ""
-	@echo "$(TEXT_COLOR) test-launch: executes launch command using test dir $(NO_COLOR)"
-	@echo "$(TEXT_COLOR) test-ground: executes ground command using test dir $(NO_COLOR)"
-	@echo "$(TEXT_COLOR) test-destroy: executes destroy command using test dir $(NO_COLOR)"
-	@echo "$(TEXT_COLOR) test-images: executes images command using test dir $(NO_COLOR)"
+	@echo "$(TEXT_COLOR) test-launch: tests the launch command using force in test dir $(NO_COLOR)"
+	@echo "$(TEXT_COLOR) test-build: tests the build command using test dir $(NO_COLOR)"
+	@echo "$(TEXT_COLOR) test-ground: tests the ground command using test dir $(NO_COLOR)"
+	@echo "$(TEXT_COLOR) test-destroy: tests the destroy command using test dir $(NO_COLOR)"
+	@echo "$(TEXT_COLOR) test-images: tests the images command using test dir $(NO_COLOR)"
 	@echo "$(OK_COLOR)------------------------------------------------------$(NO_COLOR)"
 
 deps:
@@ -44,6 +45,10 @@ test: deps
 lint:
 	@echo "$(OK_COLOR)==> Linting $(NO_COLOR)"
 	golint .
+
+test-build:
+	@echo "$(OK_COLOR)==> Testing Build $(NO_COLOR)"
+	go run flight.go build -d $(TEST_DIR)
 
 test-launch:
 	@echo "$(OK_COLOR)==> Testing Launch $(NO_COLOR)"

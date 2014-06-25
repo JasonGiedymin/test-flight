@@ -22,9 +22,10 @@ type DeletedContainer struct {
 // end Internal ---------------------------------------------------------------
 
 type ApiPostRequest struct {
-  Image       string
-  OpenStdin   bool
-  AttachStdin bool
+  Image        string
+  OpenStdin    bool
+  AttachStdin  bool
+  AttachStdout bool
 }
 
 func (post *ApiPostRequest) Bytes() ([]byte, error) {

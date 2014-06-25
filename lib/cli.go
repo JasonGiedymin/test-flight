@@ -186,11 +186,53 @@ func (cmd *DestroyCommand) Execute(args []string) error {
   return nil
 }
 
+// == Destroy Command ==
+// Should build a docker image
+type BuildCommand struct {
+  Controls *FlightControls
+  App      *TestFlight
+  Dir      string `short:"d" long:"dir" description:"directory to run in"`
+}
+
+func (cmd *BuildCommand) Execute(args []string) error {
+  configFile, _ := cmd.Controls.CheckConfig()
+  cmd.App.SetConfigFile(configFile)
+
+  Logger.Info("Building... using information from dir:", cmd.Dir)
+  cmd.App.SetDir(cmd.Dir)
+
+  buildFile, _ := cmd.Controls.CheckBuild(cmd.Dir, RequiredFiles)
+  cmd.App.SetBuildFile(buildFile)
+
+  var dc = NewDockerApi(cmd.App.AppState.Meta, configFile, buildFile)
+  dc.ShowInfo()
+
+  if err := testFlightTemplates(dc, configFile); err != nil {
+    return err
+  }
+
+  // Register channel so we can watch for events as they happen
+  eventsChannel := make(ApiChannel)
+  go watchForEventsOn(eventsChannel)
+  dc.RegisterChannel(eventsChannel)
+
+  fqImageName := cmd.App.AppState.BuildFile.ImageName + ":" + cmd.App.AppState.BuildFile.Tag
+
+  image, err := dc.CreateDockerImage(fqImageName)
+  if err != nil {
+    return err
+  }
+
+  Logger.Trace("Created Docker Image:", image)
+  return nil
+}
+
 // == Launch Command ==
 type LaunchCommand struct {
   Controls *FlightControls
   App      *TestFlight
   Dir      string `short:"d" long:"dir" description:"directory to run in"`
+  Force    bool `short:"f" long:"force" description:"force new image"`
 }
 
 func watchForEventsOn(channel ApiChannel) {
@@ -204,6 +246,7 @@ func (cmd *LaunchCommand) Execute(args []string) error {
   cmd.App.SetConfigFile(configFile)
 
   Logger.Info("Launching Tests... in dir:", cmd.Dir)
+  Logger.Debug("Force:", cmd.Force)
   cmd.App.SetDir(cmd.Dir)
 
   buildFile, _ := cmd.Controls.CheckBuild(cmd.Dir, RequiredFiles)
@@ -223,6 +266,16 @@ func (cmd *LaunchCommand) Execute(args []string) error {
   dc.RegisterChannel(eventsChannel)
 
   fqImageName := cmd.App.AppState.BuildFile.ImageName + ":" + buildFile.Tag
+
+  if !cmd.Force { // if not forcing, check to see if image exists.
+    if image, err := dc.GetImageDetails(fqImageName); err != nil {
+      return err
+    } else if image != nil {
+      Logger.Warn("Cannot launch new image, one with the same name already exists. User did not specify 'force' option.")
+      return nil
+    }
+  }
+
 
   if image, err := dc.CreateDockerImage(fqImageName); err != nil {
     return err

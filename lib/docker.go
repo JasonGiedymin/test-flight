@@ -364,6 +364,63 @@ func (api *DockerApi) DeleteContainer(name string) ([]types.DeletedContainer, er
   }
 }
 
+// We only want to attach to containers associated with a particular
+// Image name
+func (api *DockerApi) Attach(containerId string) error {
+  endpoint := api.configFile.DockerEndpoint
+
+  baseUrl := strings.Join(
+    []string{
+      endpoint,
+      "containers",
+      containerId,
+      "attach",
+    },
+    "/",
+  )
+
+  params := strings.Join(
+    []string{
+      "stdout=true",
+      "stderr=true",
+      "stream=true",
+    },
+    "&",
+  )
+  url := baseUrl + "?" + params
+  Logger.Trace("CreateContainer() - Api call to:", url)
+
+  var jsonResult string
+  resp, _ := http.Post(url, "text/json", nil)
+  defer resp.Body.Close()
+
+  if body, err := ioutil.ReadAll(resp.Body); err != nil {
+    Logger.Error("Could not contact docker endpoint:", endpoint)
+    return err
+  } else {
+    switch resp.StatusCode {
+    case 200:
+      if err := json.Unmarshal(body, &jsonResult); err != nil {
+        Logger.Error(err)
+        return err
+      }
+      Logger.Info("Streaming container:", containerId)
+      return nil
+    case 400:
+      Logger.Warn("Bad parameter")
+    case 404:
+      Logger.Warn("No such container")
+    case 500:
+      Logger.Error("Error while trying to communicate to docker endpoint:", endpoint)
+      return err
+    }
+
+    msg := "Unexpected response code: " + string(resp.StatusCode)
+    Logger.Error(msg)
+    return errors.New(msg)
+  }
+}
+
 func (api *DockerApi) Destroy(fqImageName string) error {
   if running, err := api.ListContainers(fqImageName); err != nil {
     Logger.Trace("Error while trying to get a list of containers for ", fqImageName)
@@ -556,9 +613,10 @@ func (api *DockerApi) GetImageDetails(fqImageName string) (*types.ApiDockerImage
       return &result, nil
     case 404:
       Logger.Debug("Image not found")
+      return nil, nil
     }
 
-    return &types.ApiDockerImage{}, nil
+    return nil, nil
   }
 }
 
@@ -609,10 +667,6 @@ func (api *DockerApi) CreateDockerImage(fqImageName string) (string, error) {
   TarDirectory(tr, api.meta.Dir)
   tr.Close()
 
-  Logger.Trace("Dockerfile buffer len", dockerfileBuffer.Len())
-  Logger.Trace("Dockerfile:", dockerfileBuffer.String())
-  Logger.Info("Created Dockerfile: " + fqImageName)
-
   opts := docker.BuildImageOptions{
     Name:         fqImageName,
     InputStream:  tarbuf,
@@ -624,6 +678,9 @@ func (api *DockerApi) CreateDockerImage(fqImageName string) (string, error) {
     return "", err
   }
 
+  // Logger.Trace("Dockerfile buffer len", dockerfileBuffer.Len())
+  // Logger.Trace("Dockerfile:", dockerfileBuffer.String())
+  // Logger.Info("Created Dockerfile: " + fqImageName)
   Logger.Info("Successfully built Docker image: " + fqImageName)
   return fqImageName, nil
 }
@@ -642,7 +699,8 @@ func (api *DockerApi) CreateContainer(fqImageName string) (*types.ApiPostRespons
   postBody := types.ApiPostRequest{
     Image:       fqImageName,
     OpenStdin:   true,
-    AttachStdin: true,
+    AttachStdin: false,
+    AttachStdout: true,
   }
 
   url := strings.Join(
@@ -755,10 +813,6 @@ func (api *DockerApi) StartContainer(id string) (*string, error) {
   } else {
     switch resp.StatusCode {
     case 204:
-      // if err := json.Unmarshal(body, &jsonResult); err != nil {
-      //   Logger.Error(err)
-      //   return nil, err
-      // }
       Logger.Info("Started container:", id)
       return &jsonResult, nil
     case 404:
@@ -771,23 +825,4 @@ func (api *DockerApi) StartContainer(id string) (*string, error) {
     Logger.Error(msg)
     return nil, errors.New(msg)
   }
-}
-
-func (api *DockerApi) CreateContainer2() error {
-  opts := docker.CreateContainerOptions{
-    Name: api.buildFile.ImageName,
-    Config: &docker.Config{
-      Image:       "test-docker-name1",
-      OpenStdin:   true,
-      AttachStdin: true,
-    },
-  }
-
-  if container, err := api.client.CreateContainer(opts); err != nil {
-    Logger.Error(err)
-    return err
-  } else {
-    Logger.Info("Container created: ", container.ID[:12])
-  }
-  return nil
 }

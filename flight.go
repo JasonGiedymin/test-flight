@@ -36,6 +36,7 @@ func init() {
   flightControls := lib.FlightControls{}
   checkCommand := lib.CheckCommand{Controls: &flightControls, App: &app}
   imagesCommand := lib.ImagesCommand{Controls: &flightControls, App: &app}
+  buildCommand := lib.BuildCommand{Controls: &flightControls, App: &app}
   launchCommand := lib.LaunchCommand{Controls: &flightControls, App: &app}
   groundCommand := lib.GroundCommand{Controls: &flightControls, App: &app}
   destroyCommand := lib.DestroyCommand{Controls: &flightControls, App: &app}
@@ -53,6 +54,11 @@ func init() {
     "flight images",
     "Shows all images",
     &imagesCommand)
+
+  parser.AddCommand("build",
+    "flight build",
+    "Build will build an ansible playbook docker image.",
+    &buildCommand)
 
   parser.AddCommand("launch",
     "flight launch",
