@@ -10,6 +10,10 @@
   },
   "add": [],
   "expose": [3000, 3001],
-  "cmd": "pwd",
-  "runTests": true
+  "cmd": "sleep 15 && apt-cache search apache2",
+  "runTests": true,
+  "resourceShare": {
+    "mem": 1024,
+    "cpu": 2
+  }
 }

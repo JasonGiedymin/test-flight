@@ -3,10 +3,31 @@ Ansible Shipyard Test-Flight
 
 Test + Build your Ansible Playbooks with Docker.
 
+## Index
+- [Usage](#usage)
+  - [Commands](#commands)
+- [Development](#dev)
+  - [Production Build](#prodbuild)
+  - [Develeopment Build](#devbuild)
+  - [Testing](#testing)
+  - [Notes](#notes)
+  - [Building](#building)
 
-## Usage
+## Usage <a name="usage"></a>
 
-### Production Build
+### Commands <a name="commands"></a>
+
+Some commands have aliases to make the app easier to use.
+
+  - `flight launch|up` - starts a container and runs tests, if no image exists
+    then one will be built prior to launching.
+  - `flight build` - builds an image ready to be launched.
+  - `flight ground|down|halt` - stops the container running the tests.
+  - `flight destroy` - destroys all images and containers.
+
+## Development <a name="dev"></a>
+
+### Production Build <a name="prodbuild"></a>
 
 Once built, test-flight can be used like so:
 
@@ -20,7 +41,7 @@ Once built, test-flight can be used like so:
     flight launch -d ./test
 
 
-### Development Build
+### Development Build <a name="devbuild"></a>
 
 During development these commands can be used:
 
@@ -57,7 +78,14 @@ can be obtained by obtaining it like so:
     go get github.com/pwaller/goupx/
 
 
-## Notes
+## Testing<a name="testing"></a>
+
+Run the following:
+
+    go test ./...
+
+
+## Notes<a name="notes"></a>
 
   - deps managed by [godev](https://github.com/tools/godep).
     Installed via `go get github.com/tools/godep`
@@ -78,6 +106,6 @@ can be obtained by obtaining it like so:
   - update libs:
     - go get -u all
 
-## Building
+## Building<a name="building"></a>
 
 - gofmt settings: `-w -s -tabs=false -tabwidth=2`

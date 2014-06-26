@@ -12,6 +12,7 @@ func NewBuildFile() *types.BuildFile {
   return &types.BuildFile{
     Owner:             "Test-Flight-User",
     ImageName:         "Test-Flight-Test-Image",
+    Tag:               "latest",
     From:              "",
     Version:           "0.0.1",
     RequiresDocker:    "",

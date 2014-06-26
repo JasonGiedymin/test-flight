@@ -33,26 +33,51 @@ func init() {
     os.Exit(lib.ExitCodes["init_fail"])
   }
 
-  checkCommand := lib.CheckCommand{App: &app}
-  launchCommand := lib.LaunchCommand{App: &app}
-  versionCommand := lib.VersionCommand{App: &app}
-  templateCommand := lib.TemplateCommand{App: &app}
+  flightControls := lib.FlightControls{}
+  checkCommand := lib.CheckCommand{Controls: &flightControls, App: &app}
+  imagesCommand := lib.ImagesCommand{Controls: &flightControls, App: &app}
+  buildCommand := lib.BuildCommand{Controls: &flightControls, App: &app}
+  launchCommand := lib.LaunchCommand{Controls: &flightControls, App: &app}
+  groundCommand := lib.GroundCommand{Controls: &flightControls, App: &app}
+  destroyCommand := lib.DestroyCommand{Controls: &flightControls, App: &app}
+  versionCommand := lib.VersionCommand{Controls: &flightControls, App: &app}
+  templateCommand := lib.TemplateCommand{Controls: &flightControls, App: &app}
 
   parser = flags.NewParser(&options, flags.Default)
 
   parser.AddCommand("check",
-    "pre-flight check",
-    "Used for pre-flight check of the ansible playbook.",
+    "flight check",
+    "Checks if pre-reqs are satisfied to launch this ansible playbook.",
     &checkCommand)
+
+  parser.AddCommand("images",
+    "flight images",
+    "Shows all images",
+    &imagesCommand)
+
+  parser.AddCommand("build",
+    "flight build",
+    "Build will build an ansible playbook docker image.",
+    &buildCommand)
 
   parser.AddCommand("launch",
     "flight launch",
-    "Launch an ansible playbook test.",
+    "Launch builds, runs, and tests an ansible playbook.",
     &launchCommand)
+
+  parser.AddCommand("ground",
+    "flight ground",
+    "Ground stops all containers found running this ansible playbook.",
+    &groundCommand)
+
+  parser.AddCommand("destroy",
+    "flight destroy",
+    "Destroy destroys all containers and images found running this ansible playbook.",
+    &destroyCommand)
 
   parser.AddCommand("template",
     "flight template",
-    "Create templates required for test-flight.",
+    "Creates templates required for test-flight.",
     &templateCommand)
 
   parser.AddCommand("version",

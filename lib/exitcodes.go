@@ -15,4 +15,5 @@ var ExitCodes = map[string]int{
   "config_missing": 3,
   "command_fail":   4,
   "docker_error":   5,
+  "user_exit":      6,
 }
