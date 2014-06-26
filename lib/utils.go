@@ -6,6 +6,8 @@ import (
   "archive/tar"
   "io/ioutil"
   "os"
+  "os/signal"
+  "syscall"
   "strings"
 )
 
@@ -134,4 +136,15 @@ func TarDirectory(tw *tar.Writer, dir string) error {
   } else {
     return archive(filesFromDisk)
   }
+}
+
+func CaptureUserCancel(containerChannel *ContainerChannel) {
+  syschan := make(chan os.Signal, 1)
+  signal.Notify(syschan, os.Interrupt)
+  signal.Notify(syschan, syscall.SIGTERM)
+  go func() {
+      <- syschan
+      Logger.Info("User canceling, closing stream...")
+      close(*containerChannel)
+  }()
 }

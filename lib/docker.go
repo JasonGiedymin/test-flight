@@ -36,16 +36,22 @@ import (
   "github.com/fsouza/go-dockerclient"
   "github.com/jmcvetta/napping"
   "io/ioutil"
+  // "net"
   "net/http"
+  // "net/http/httputil"
+  "io"
   "os"
   "path/filepath"
   "strconv"
   "strings"
   "text/template"
   "time"
+  // "os/signal"
+  // "syscall"
 )
 
 type ApiChannel chan *docker.APIEvents
+type ContainerChannel chan string
 
 type TemplateVar struct {
   Meta       *types.ApplicationMeta
@@ -366,59 +372,62 @@ func (api *DockerApi) DeleteContainer(name string) ([]types.DeletedContainer, er
 
 // We only want to attach to containers associated with a particular
 // Image name
-func (api *DockerApi) Attach(containerId string) error {
-  endpoint := api.configFile.DockerEndpoint
+func (api *DockerApi) Attach(containerId string) ContainerChannel {
+  out := make(ContainerChannel) // channel to send back
+  go CaptureUserCancel(&out)
 
-  baseUrl := strings.Join(
-    []string{
-      endpoint,
-      "containers",
-      containerId,
-      "attach",
-    },
-    "/",
-  )
+  go func() {
+    endpoint := api.configFile.DockerEndpoint
 
-  params := strings.Join(
-    []string{
-      "stdout=true",
-      "stderr=true",
-      "stream=true",
-    },
-    "&",
-  )
-  url := baseUrl + "?" + params
-  Logger.Trace("CreateContainer() - Api call to:", url)
+    baseUrl := strings.Join(
+      []string{
+        endpoint,
+        "containers",
+        containerId,
+        "attach",
+      },
+      "/",
+    )
 
-  var jsonResult string
-  resp, _ := http.Post(url, "text/json", nil)
-  defer resp.Body.Close()
+    params := strings.Join(
+      []string{
+        "stdout=true",
+        "stderr=true",
+        "stream=true",
+      },
+      "&",
+    )
+    url := baseUrl + "?" + params
+    Logger.Trace("Attach() - Api call to:", url)
 
-  if body, err := ioutil.ReadAll(resp.Body); err != nil {
-    Logger.Error("Could not contact docker endpoint:", endpoint)
-    return err
-  } else {
-    switch resp.StatusCode {
-    case 200:
-      if err := json.Unmarshal(body, &jsonResult); err != nil {
-        Logger.Error(err)
-        return err
+    // jsonResult := ""
+    byteData := []byte{}
+    bytesReader := bytes.NewReader(byteData)
+    resp, err := http.Post(url, "text/json", bytesReader)
+    if err != nil {
+      Logger.Error("Could not submit request, err:", err)
+    }
+    defer resp.Body.Close()
+
+    reader := bufio.NewReader(resp.Body)
+
+    for {
+      if line, err := reader.ReadBytes('\n'); err != nil {
+        if err == io.EOF {
+          break
+        } else {
+          msg := "Error reading from stream on attached container, error:" + err.Error()
+          Logger.Error(msg)
+        }
+      } else {
+        Logger.Console(string(bytes.TrimSpace(line)[:]))
       }
-      Logger.Info("Streaming container:", containerId)
-      return nil
-    case 400:
-      Logger.Warn("Bad parameter")
-    case 404:
-      Logger.Warn("No such container")
-    case 500:
-      Logger.Error("Error while trying to communicate to docker endpoint:", endpoint)
-      return err
     }
 
-    msg := "Unexpected response code: " + string(resp.StatusCode)
-    Logger.Error(msg)
-    return errors.New(msg)
-  }
+    close(out)
+  }()
+
+  return out
 }
 
 func (api *DockerApi) Destroy(fqImageName string) error {
@@ -697,9 +706,9 @@ func (api *DockerApi) CreateContainer(fqImageName string) (*types.ApiPostRespons
   endpoint := api.configFile.DockerEndpoint
 
   postBody := types.ApiPostRequest{
-    Image:       fqImageName,
-    OpenStdin:   true,
-    AttachStdin: false,
+    Image:        fqImageName,
+    OpenStdin:    true,
+    AttachStdin:  false,
     AttachStdout: true,
   }
 

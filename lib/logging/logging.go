@@ -9,11 +9,13 @@ import (
 var (
   Log       *factorlog.FactorLog
   LogDebug  *factorlog.FactorLog
+  LogConsole  *factorlog.FactorLog // channel??
   File      *factorlog.FactorLog
   debugFile *os.File = getDebugFile()
 )
 
 var debugLogFormat = `%{Color "red" "ERROR"}%{Color "yellow" "WARN"}%{Color "green" "INFO"}%{Color "cyan" "DEBUG"}%{Color "white+b" "TRACE"}[%{Date} %{Time}] [%{SEVERITY}] - %{Message}%{Color "reset"}`
+var consoleLogFormat = `%{Color "red" "ERROR"}%{Color "yellow" "WARN"}%{Color "green" "INFO"}%{Color "cyan" "DEBUG"}%{Color "white+b" "TRACE"}%{Message}%{Color "reset"}`
 var stdLogFormat = `%{Color "red" "ERROR"}%{Color "yellow" "WARN"}%{Color "green" "INFO"}%{Color "cyan" "DEBUG"}%{Color "white+b" "TRACE"}[%{Date} %{Time}] [%{SEVERITY}] - %{Message}%{Color "reset"}`
 var fileLogFormat = `[%{Date} %{Time}] [%{SEVERITY}] - %{Message}%{Color "reset"}`
 
@@ -31,6 +33,10 @@ func setup() {
   LogDebug = factorlog.New(
     os.Stdout,
     factorlog.NewStdFormatter(debugLogFormat))
+
+  LogConsole = factorlog.New(
+    os.Stdout,
+    factorlog.NewStdFormatter(consoleLogFormat))
 
   File = factorlog.New(
     debugFile,
@@ -88,4 +94,12 @@ func Trace(v ...interface{}) {
   }
 
   Log.Trace(v)
+}
+
+func Console(v ...interface{}) {
+ if Log == nil {
+    setup()
+  }
+
+  LogConsole.Info(v[0])
 }

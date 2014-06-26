@@ -10,7 +10,7 @@
   },
   "add": [],
   "expose": [3000, 3001],
-  "cmd": "sleep 20 && apt-cache search apache2",
+  "cmd": "sleep 15 && apt-cache search apache2",
   "runTests": true,
   "resourceShare": {
     "mem": 1024,

@@ -7,6 +7,8 @@ import (
   "os"
   // "time"
   // "fmt"
+  "sync"
+  "runtime"
 )
 
 type FlightControls struct{}
@@ -192,6 +194,7 @@ type BuildCommand struct {
   Controls *FlightControls
   App      *TestFlight
   Dir      string `short:"d" long:"dir" description:"directory to run in"`
+  FileMode string `short:"f" long:"filemode" description:"single ansible file to use"`
 }
 
 func (cmd *BuildCommand) Execute(args []string) error {
@@ -232,7 +235,7 @@ type LaunchCommand struct {
   Controls *FlightControls
   App      *TestFlight
   Dir      string `short:"d" long:"dir" description:"directory to run in"`
-  Force    bool `short:"f" long:"force" description:"force new image"`
+  Force    bool   `short:"f" long:"force" description:"force new image"`
 }
 
 func watchForEventsOn(channel ApiChannel) {
@@ -241,7 +244,18 @@ func watchForEventsOn(channel ApiChannel) {
   }
 }
 
+func watchContainerOn(channel ContainerChannel, wg *sync.WaitGroup) {
+  for msg := range channel {
+    runtime.Gosched()
+    Logger.Console(msg)
+  }
+  
+  wg.Done()
+}
+
 func (cmd *LaunchCommand) Execute(args []string) error {
+  var wg sync.WaitGroup // used for channels
+
   configFile, _ := cmd.Controls.CheckConfig()
   cmd.App.SetConfigFile(configFile)
 
@@ -254,7 +268,6 @@ func (cmd *LaunchCommand) Execute(args []string) error {
 
   var dc = NewDockerApi(cmd.App.AppState.Meta, configFile, buildFile)
   dc.ShowInfo()
-  // dc.ShowImages()
 
   if err := testFlightTemplates(dc, configFile); err != nil {
     return err
@@ -276,7 +289,6 @@ func (cmd *LaunchCommand) Execute(args []string) error {
     }
   }
 
-
   if image, err := dc.CreateDockerImage(fqImageName); err != nil {
     return err
   } else {
@@ -284,7 +296,14 @@ func (cmd *LaunchCommand) Execute(args []string) error {
       return err
     } else {
       Logger.Trace("Docker Container to start:", resp.Id)
-      dc.StartContainer(resp.Id)
+      if _, err := dc.StartContainer(resp.Id); err != nil {
+        return err
+      } else {
+        wg.Add(1)
+        containerChannel := dc.Attach(resp.Id)
+        go watchContainerOn(containerChannel, &wg)
+        wg.Wait()
+      }
     }
   }
 

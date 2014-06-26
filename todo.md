@@ -168,7 +168,17 @@ Version todos:
         fine as-is with Id. Would rather use monads.
   - [~] Modify config for stdin by adding attach api call
     - [x] Add `Attach` method
-    - [~] Complete `Attach` so that it reads from the stream
+    - [x] Complete `Attach` so that it reads from the stream
+    - [x] channel the console output => still waits on exit, for now
+    - [x] wait on container channel => WaitGroup
+  - [x] Fix interfact wrapping in logging messages => temporary fix with 
+        v[0] (index 0), and only for console logging
+  - [x] control-c watch => use channel and signal notify
+  - [x] Add file mode command line option for building/launching `-f`, however
+        don't code for it, only the flag
+
+#### v0.9.6 - Alpha
+
   - [ ] Add RunDocker Tests and code using go-apibuilder
   - [ ] wire in buildfile resource share specs to container options
   - [ ] Run container from docker image just created
@@ -180,8 +190,9 @@ Version todos:
   - [ ] Replace waits with channels
   - [ ] Update README with make commands
   - [ ] Add cleanup command (Removes images/tags with None)
+  - [ ] endpoint timeout
 
-#### v0.9.5 - Alpha
+#### v0.9.6 - Alpha
 
   - [ ] tests
   - [ ] api docs
@@ -201,7 +212,7 @@ Version todos:
   - [ ] create simple map for docker hasFiles (I need functional programming!)
   - [ ] test-flight cleanup
 
-### v0.9.6 - Beta release
+### v0.9.7 - Beta release
 
   - [ ] add check for minimal docker version allowed
   - [ ] build.json - add entries to specify list of tests to run and their order
