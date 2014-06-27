@@ -7,15 +7,20 @@ import (
   "io/ioutil"
   "os"
   "os/user"
-  "../types"
 )
 
 var (
   ReadFileError = errors.NewClass("Could not read file.")
 )
 
-func NewConfigFile() *types.ConfigFile {
-  return &types.ConfigFile{
+type ConfigFileDockerAdd struct {
+  Simple []string
+  // User   []map[string]string
+  Complex []DockerAddComplexEntry
+}
+
+func NewConfigFile() *ConfigFile {
+  return &ConfigFile{
     DockerEndpoint: "http://localhost:4243",
   }
 }
@@ -37,7 +42,7 @@ func NewConfigFile() *types.ConfigFile {
 //   return nil, err
 // }
 
-func ReadConfigFile() (*types.ConfigFile, error) {
+func ReadConfigFile() (*ConfigFile, error) {
   configFileName := "test-flight-config.json"
   configFile := NewConfigFile()
 

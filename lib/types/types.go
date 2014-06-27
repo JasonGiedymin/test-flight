@@ -105,12 +105,6 @@ type DockerAddComplexEntry struct {
   Location string
 }
 
-type ConfigFileDockerAdd struct {
-  Simple []string
-  // User   []map[string]string
-  Complex []DockerAddComplexEntry
-}
-
 type ConfigFile struct {
   TemplateDir        string
   DockerEndpoint     string
@@ -144,7 +138,16 @@ type ApplicationMeta struct {
   Dir         string
 }
 
+type BuildCommand struct {
+  Controls *FlightControls
+  App      *TestFlight
+  Dir      string `short:"d" long:"dir" description:"directory to run in"`
+  SingleFileMode bool `short:"s" long:"singlefile" description:"single ansible file to use"`
+}
+
 type CommandOptions struct {
+  Configfile      string `short:"c" long:"config" description:"test-flight config file to use"`
+  Build           BuildCommand
 }
 
 type ApplicationState struct {

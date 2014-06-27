@@ -185,6 +185,10 @@ Version todos:
   - [x] change 'filemode' to 'single file mode' and `-s` , and leave force `-f`
   - [x] bug, destroy command is creating templates
   - [x] bug, `.test-flight` dir not being created
+  - [~] Refactor test-flight struct into separate file [refactor-types]
+  - [~] Sub commands should be within Test-Flight Options?
+  - [~] Remove exit code in Test-Flight
+  - [~] Add config file command param `-c`
   - [~] but, filemode does not skip dir mode required files => the template
         is calling for a directory. Require a new Dockerfile template when
         in single file mode. Test command: `clear && make test-build-s`

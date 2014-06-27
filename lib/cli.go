@@ -11,11 +11,9 @@ import (
   "runtime"
 )
 
-type FlightControls struct{}
+func (fc *types.FlightControls) Init(app *types.TestFlight) {}
 
-func (fc *FlightControls) Init(app *TestFlight) {}
-
-func (fc *FlightControls) CheckConfigs(app *TestFlight, singleFileMode bool, dir string) (*types.ConfigFile, *types.BuildFile, error) {
+func (fc *types.FlightControls) CheckConfigs(app *types.TestFlight, singleFileMode bool, dir string) (*types.ConfigFile, *types.BuildFile, error) {
   // Prereqs
   app.SetDir(dir)
 
@@ -39,7 +37,7 @@ func (fc *FlightControls) CheckConfigs(app *TestFlight, singleFileMode bool, dir
   return configFile, buildFile, nil
 }
 
-func (fc *FlightControls) CheckBuild(dir string, requiredFiles []types.RequiredFile) (*types.BuildFile, error) {
+func (fc *types.FlightControls) CheckBuild(dir string, requiredFiles []types.RequiredFile) (*types.BuildFile, error) {
   // Check for test-flight specific files first
   // These are common files
   if _, err := HasRequiredFiles(dir, AnsibleFiles); err != nil {
@@ -58,7 +56,7 @@ func (fc *FlightControls) CheckBuild(dir string, requiredFiles []types.RequiredF
   }
 }
 
-func (fc *FlightControls) testFlightTemplates(dc *DockerApi, 
+func (fc *types.FlightControls) testFlightTemplates(dc *DockerApi, 
   configFile *types.ConfigFile,
   singleFileMode bool) error {
 
@@ -99,7 +97,7 @@ func commandPreReq(app *TestFlight) {
 
 // == Version Command ==
 type VersionCommand struct {
-  Controls *FlightControls
+  Controls *types.FlightControls
   App      *TestFlight
 }
 
@@ -111,7 +109,7 @@ func (cmd *VersionCommand) Execute(args []string) error {
 
 // == Check Command ==
 type CheckCommand struct {
-  Controls *FlightControls
+  Controls *types.FlightControls
   App      *TestFlight
   Dir      string `short:"d" long:"dir" description:"directory to run in"`
   SingleFileMode bool `short:"s" long:"singlefile" description:"single ansible file to use"`
@@ -142,7 +140,7 @@ func (cmd *CheckCommand) Execute(args []string) error {
 // == Ground Command ==
 // Should stop running containers
 type GroundCommand struct {
-  Controls *FlightControls
+  Controls *types.FlightControls
   App      *TestFlight
   Dir      string `short:"d" long:"dir" description:"directory to run in"`
   SingleFileMode bool `short:"s" long:"singlefile" description:"single ansible file to use"`
@@ -185,7 +183,7 @@ func (cmd *GroundCommand) Execute(args []string) error {
 // == Destroy Command ==
 // Should destroy running containers
 type DestroyCommand struct {
-  Controls *FlightControls
+  Controls *types.FlightControls
   App      *TestFlight
   Dir      string `short:"d" long:"dir" description:"directory to run in"`
   SingleFileMode bool `short:"s" long:"singlefile" description:"single ansible file to use"`
@@ -226,14 +224,7 @@ func (cmd *DestroyCommand) Execute(args []string) error {
 
 // == Build Command ==
 // Should build a docker image
-type BuildCommand struct {
-  Controls *FlightControls
-  App      *TestFlight
-  Dir      string `short:"d" long:"dir" description:"directory to run in"`
-  SingleFileMode bool `short:"s" long:"singlefile" description:"single ansible file to use"`
-}
-
-func (cmd *BuildCommand) Execute(args []string) error {
+func (cmd *types.BuildCommand) Execute(args []string) error {
   // Set vars
   Logger.Info("Building... using information from dir:", cmd.Dir)
 
@@ -271,7 +262,7 @@ func (cmd *BuildCommand) Execute(args []string) error {
 
 // == Launch Command ==
 type LaunchCommand struct {
-  Controls *FlightControls
+  Controls *types.FlightControls
   App      *TestFlight
   Dir      string `short:"d" long:"dir" description:"directory to run in"`
   Force    bool   `short:"f" long:"force" description:"force new image"`
@@ -351,7 +342,7 @@ func (cmd *LaunchCommand) Execute(args []string) error {
 
 // == Images Command
 type ImagesCommand struct {
-  Controls *FlightControls
+  Controls *types.FlightControls
   App      *TestFlight
   Dir      string `short:"d" long:"dir" description:"directory to run in"`
 }
@@ -374,7 +365,7 @@ func (cmd *ImagesCommand) Execute(args []string) error {
 
 // == Template Command ==
 type TemplateCommand struct {
-  Controls *FlightControls
+  Controls *types.FlightControls
   App      *TestFlight
   Dir      string `short:"d" long:"dir" description:"directory to run in"`
   SingleFileMode bool `short:"s" long:"singlefile" description:"single ansible file to use"`

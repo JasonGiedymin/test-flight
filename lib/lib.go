@@ -13,51 +13,6 @@ import (
   "os"
 )
 
-// == App Related ==
-
-type TestFlight struct {
-  AppState      types.ApplicationState
-  requiredFiles []types.RequiredFile
-}
-
-func (app *TestFlight) SetState(state string) {
-  app.AppState.SetState(state)
-}
-
-func (app *TestFlight) SetConfigFile(file *types.ConfigFile) {
-  app.AppState.ConfigFile = file
-}
-
-func (app *TestFlight) SetBuildFile(file *types.BuildFile) {
-  app.AppState.BuildFile = file
-}
-
-func (app *TestFlight) SetDir(dir string) {
-  app.AppState.Meta.Dir = dir
-}
-
-func (app *TestFlight) Init() error {
-  app.AppState.Meta = &meta
-  app.SetState("INIT")
-
-  execPath, error := osext.Executable()
-  if error != nil {
-    Logger.Error("Could not find executable path.")
-    os.Exit(ExitCodes["init_fail"])
-  }
-  // app.AppState.Meta.ExecPath = execPath
-  meta.ExecPath = execPath
-
-  pwd, error := os.Getwd()
-  if error != nil {
-    Logger.Error("Could not find working directory.")
-    os.Exit(ExitCodes["init_fail"])
-  }
-  meta.Pwd = pwd
-
-  return nil
-}
-
 // == Default vars ==
 var (
   defaultDir    = "./"
@@ -66,10 +21,6 @@ var (
   FileCheckFail = errors.NewClass("File Check Failed")
   AnsibleFiles  = []types.RequiredFile{mainYaml}
 )
-
-var meta = types.ApplicationMeta{
-  Version: "0.9.5",
-}
 
 // Creates a list of required files needed by TestFlight using
 // templateDir via config file as a basis.

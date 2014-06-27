@@ -2,7 +2,7 @@ package main
 
 import (
   "./lib"
-  // Logger "./lib/logging"
+  Logger "./lib/logging"
   "./lib/types"
   "github.com/jessevdk/go-flags"
   "os"
@@ -10,7 +10,7 @@ import (
 
 /* Limited to the app, parser, and commands */
 var (
-  app            lib.TestFlight
+  app            types.TestFlight
   parser         *flags.Parser
   checkCommand   lib.CheckCommand
   launchCommand  lib.LaunchCommand
@@ -18,17 +18,22 @@ var (
   options        types.CommandOptions
 )
 
+var meta = types.ApplicationMeta{
+  Version: "0.9.5",
+}
+
 // Func to parse the app commands
 func ProcessCommands() {
   app.SetState("PARSE_COMMAND_LINE")
   if _, err := parser.Parse(); err != nil {
+    Logger.Info("--> Config file to use:", options)
     os.Exit(lib.ExitCodes["command_fail"])
   }
 }
 
 // == App ==
 func init() {
-  err := app.Init()
+  err := app.Init(&meta)
   if err != nil {
     os.Exit(lib.ExitCodes["init_fail"])
   }
