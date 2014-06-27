@@ -64,26 +64,33 @@ var (
   mainYaml      = types.RequiredFile{Name: "main yaml", FileName: "main.yml", FileType: "f"}
   BadDir        = errors.NewClass("Can't read the current directory")
   FileCheckFail = errors.NewClass("File Check Failed")
-  ansibleFiles  = []types.RequiredFile{mainYaml}
+  AnsibleFiles  = []types.RequiredFile{mainYaml}
 )
 
 var meta = types.ApplicationMeta{
-  Version: "0.9.4",
+  Version: "0.9.5",
+}
+
+// Creates a list of required files needed by TestFlight using
+// templateDir via config file as a basis.
+func TestFlightFiles(templateDir string) []types.RequiredFile {
+  return []types.RequiredFile {
+    {Name: "Test-Flight dir", FileName: templateDir, FileType: "d",//, These will actually be generated
+      // RequiredFiles: []types.RequiredFile{
+      //   {Name: "Ansible inventory file used for Test-Flight", FileName: "inventory", FileType: "f"},
+      //   {Name: "Ansible playbook file used for Test-Flight", FileName: "playbook.yml", FileType: "f"},
+      // },
+    },
+  }
 }
 
 var RequiredFiles = []types.RequiredFile{
   {Name: "Test-Flight json build file", FileName: "build.json", FileType: "f"},
-  {Name: "Test-Flight dir", FileName: ".test-flight", FileType: "d",
-    RequiredFiles: []types.RequiredFile{
-      {Name: "Ansible inventory file used for Test-Flight", FileName: "inventory", FileType: "f"},
-      {Name: "Ansible playbook file used for Test-Flight", FileName: "playbook.yml", FileType: "f"},
-    },
-  },
-  {Name: "Ansible handlers dir", FileName: "handlers", FileType: "d", RequiredFiles: ansibleFiles},
-  {Name: "Ansible meta dir", FileName: "meta", FileType: "d", RequiredFiles: ansibleFiles},
-  {Name: "Ansible tasks dir", FileName: "tasks", FileType: "d", RequiredFiles: ansibleFiles},
+  {Name: "Ansible handlers dir", FileName: "handlers", FileType: "d", RequiredFiles: AnsibleFiles},
+  {Name: "Ansible meta dir", FileName: "meta", FileType: "d", RequiredFiles: AnsibleFiles},
+  {Name: "Ansible tasks dir", FileName: "tasks", FileType: "d", RequiredFiles: AnsibleFiles},
   {Name: "Ansible templates dir", FileName: "templates", FileType: "d"},
-  {Name: "Ansible test dir", FileName: "tests", FileType: "d", RequiredFiles: ansibleFiles},
-  {Name: "Ansible var dir for variables", FileName: "vars", FileType: "d", RequiredFiles: ansibleFiles},
+  {Name: "Ansible test dir", FileName: "tests", FileType: "d", RequiredFiles: AnsibleFiles},
+  {Name: "Ansible var dir for variables", FileName: "vars", FileType: "d", RequiredFiles: AnsibleFiles},
   {Name: "Ansible vault dir for encrypted files", FileName: "vault", FileType: "d"},
 }

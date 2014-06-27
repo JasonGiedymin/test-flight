@@ -15,17 +15,38 @@ type FlightControls struct{}
 
 func (fc *FlightControls) Init(app *TestFlight) {}
 
-func (fc *FlightControls) CheckConfig() (*types.ConfigFile, error) {
+func (fc *FlightControls) CheckConfigs(app *TestFlight, singleFileMode bool, dir string) (*types.ConfigFile, *types.BuildFile, error) {
   // Prereqs
+  app.SetDir(dir)
+
   configFile, err := config.ReadConfigFile()
   if config.ReadFileError.Contains(err) {
     os.Exit(ExitCodes["config_missing"])
   }
+  app.SetConfigFile(configFile)
 
-  return configFile, nil
+  requiredFiles := getRequiredFiles(singleFileMode)
+
+  // Get the buildfile
+  // TODO: as more Control funcs get created refactor this below
+  buildFile, err := fc.CheckBuild(dir, requiredFiles)
+  if err != nil {
+    Logger.Error(err)
+    return nil, nil, err
+  }
+  app.SetBuildFile(buildFile)
+
+  return configFile, buildFile, nil
 }
 
 func (fc *FlightControls) CheckBuild(dir string, requiredFiles []types.RequiredFile) (*types.BuildFile, error) {
+  // Check for test-flight specific files first
+  // These are common files
+  if _, err := HasRequiredFiles(dir, AnsibleFiles); err != nil {
+    return nil, err
+  }
+
+  // Check for required files as specified by the user
   if _, err := HasRequiredFiles(dir, requiredFiles); err != nil {
     return nil, err
   }
@@ -34,6 +55,24 @@ func (fc *FlightControls) CheckBuild(dir string, requiredFiles []types.RequiredF
     return nil, err
   } else {
     return buildFile, nil
+  }
+}
+
+func (fc *FlightControls) testFlightTemplates(dc *DockerApi, 
+  configFile *types.ConfigFile,
+  singleFileMode bool) error {
+
+  if configFile.OverwriteTemplates {
+    return dc.createTestTemplates()
+  }
+  return nil
+}
+
+func getRequiredFiles(filemode bool) []types.RequiredFile {
+  if filemode {
+    return AnsibleFiles
+  } else {
+    return RequiredFiles
   }
 }
 
@@ -75,6 +114,7 @@ type CheckCommand struct {
   Controls *FlightControls
   App      *TestFlight
   Dir      string `short:"d" long:"dir" description:"directory to run in"`
+  SingleFileMode bool `short:"s" long:"singlefile" description:"single ansible file to use"`
 }
 
 func (cmd *CheckCommand) Execute(args []string) error {
@@ -105,22 +145,22 @@ type GroundCommand struct {
   Controls *FlightControls
   App      *TestFlight
   Dir      string `short:"d" long:"dir" description:"directory to run in"`
+  SingleFileMode bool `short:"s" long:"singlefile" description:"single ansible file to use"`
 }
 
 func (cmd *GroundCommand) Execute(args []string) error {
-  configFile, _ := cmd.Controls.CheckConfig()
-  cmd.App.SetConfigFile(configFile)
-
+  // Check Config and Buildfiles
+  configFile, buildFile, err := cmd.Controls.CheckConfigs(cmd.App, cmd.SingleFileMode, cmd.Dir)
+  if err != nil {
+    return err
+  }
+  
   Logger.Info("Grounding Tests... in dir:", cmd.Dir)
-  cmd.App.SetDir(cmd.Dir)
-
-  buildFile, _ := cmd.Controls.CheckBuild(cmd.Dir, RequiredFiles)
-  cmd.App.SetBuildFile(buildFile)
 
   var dc = NewDockerApi(cmd.App.AppState.Meta, configFile, buildFile)
   dc.ShowInfo()
 
-  if err := testFlightTemplates(dc, configFile); err != nil {
+  if err := cmd.Controls.testFlightTemplates(dc, configFile, cmd.SingleFileMode); err != nil {
     return err
   }
 
@@ -148,24 +188,20 @@ type DestroyCommand struct {
   Controls *FlightControls
   App      *TestFlight
   Dir      string `short:"d" long:"dir" description:"directory to run in"`
+  SingleFileMode bool `short:"s" long:"singlefile" description:"single ansible file to use"`
 }
 
 func (cmd *DestroyCommand) Execute(args []string) error {
-  configFile, _ := cmd.Controls.CheckConfig()
-  cmd.App.SetConfigFile(configFile)
-
   Logger.Info("Destroying... using information from dir:", cmd.Dir)
-  cmd.App.SetDir(cmd.Dir)
 
-  buildFile, _ := cmd.Controls.CheckBuild(cmd.Dir, RequiredFiles)
-  cmd.App.SetBuildFile(buildFile)
+  // Check Config and Buildfiles
+  configFile, buildFile, err := cmd.Controls.CheckConfigs(cmd.App, cmd.SingleFileMode, cmd.Dir)
+  if err != nil {
+    return err
+  }
 
   var dc = NewDockerApi(cmd.App.AppState.Meta, configFile, buildFile)
   dc.ShowInfo()
-
-  if err := testFlightTemplates(dc, configFile); err != nil {
-    return err
-  }
 
   // Register channel so we can watch for events as they happen
   eventsChannel := make(ApiChannel)
@@ -188,29 +224,32 @@ func (cmd *DestroyCommand) Execute(args []string) error {
   return nil
 }
 
-// == Destroy Command ==
+// == Build Command ==
 // Should build a docker image
 type BuildCommand struct {
   Controls *FlightControls
   App      *TestFlight
   Dir      string `short:"d" long:"dir" description:"directory to run in"`
-  FileMode string `short:"f" long:"filemode" description:"single ansible file to use"`
+  SingleFileMode bool `short:"s" long:"singlefile" description:"single ansible file to use"`
 }
 
 func (cmd *BuildCommand) Execute(args []string) error {
-  configFile, _ := cmd.Controls.CheckConfig()
-  cmd.App.SetConfigFile(configFile)
-
+  // Set vars
   Logger.Info("Building... using information from dir:", cmd.Dir)
-  cmd.App.SetDir(cmd.Dir)
 
-  buildFile, _ := cmd.Controls.CheckBuild(cmd.Dir, RequiredFiles)
-  cmd.App.SetBuildFile(buildFile)
-
+  // Check Config and Buildfiles
+  configFile, buildFile, err := cmd.Controls.CheckConfigs(cmd.App, cmd.SingleFileMode, cmd.Dir)
+  if err != nil {
+    return err
+  }
+  
+  // Api interaction here
   var dc = NewDockerApi(cmd.App.AppState.Meta, configFile, buildFile)
   dc.ShowInfo()
 
-  if err := testFlightTemplates(dc, configFile); err != nil {
+  // Generate Templates
+  // TODO: fails here with filemode
+  if err := cmd.Controls.testFlightTemplates(dc, configFile, cmd.SingleFileMode); err != nil {
     return err
   }
 
@@ -236,6 +275,7 @@ type LaunchCommand struct {
   App      *TestFlight
   Dir      string `short:"d" long:"dir" description:"directory to run in"`
   Force    bool   `short:"f" long:"force" description:"force new image"`
+  SingleFileMode bool `short:"s" long:"singlefile" description:"single ansible file to use"`
 }
 
 func watchForEventsOn(channel ApiChannel) {
@@ -254,22 +294,21 @@ func watchContainerOn(channel ContainerChannel, wg *sync.WaitGroup) {
 }
 
 func (cmd *LaunchCommand) Execute(args []string) error {
-  var wg sync.WaitGroup // used for channels
-
-  configFile, _ := cmd.Controls.CheckConfig()
-  cmd.App.SetConfigFile(configFile)
-
   Logger.Info("Launching Tests... in dir:", cmd.Dir)
   Logger.Debug("Force:", cmd.Force)
-  cmd.App.SetDir(cmd.Dir)
 
-  buildFile, _ := cmd.Controls.CheckBuild(cmd.Dir, RequiredFiles)
-  cmd.App.SetBuildFile(buildFile)
+  var wg sync.WaitGroup // used for channels
+
+  // Check Config and Buildfiles
+  configFile, buildFile, err := cmd.Controls.CheckConfigs(cmd.App, cmd.SingleFileMode, cmd.Dir)
+  if err != nil {
+    return err
+  }
 
   var dc = NewDockerApi(cmd.App.AppState.Meta, configFile, buildFile)
   dc.ShowInfo()
 
-  if err := testFlightTemplates(dc, configFile); err != nil {
+  if err := cmd.Controls.testFlightTemplates(dc, configFile, cmd.SingleFileMode); err != nil {
     return err
   }
 
@@ -338,14 +377,7 @@ type TemplateCommand struct {
   Controls *FlightControls
   App      *TestFlight
   Dir      string `short:"d" long:"dir" description:"directory to run in"`
-}
-
-func testFlightTemplates(dc *DockerApi, configFile *types.ConfigFile) error {
-  if configFile.OverwriteTemplates {
-    return dc.createTestTemplates()
-  }
-
-  return nil
+  SingleFileMode bool `short:"s" long:"singlefile" description:"single ansible file to use"`
 }
 
 func (cmd *TemplateCommand) Execute(args []string) error {
@@ -356,5 +388,5 @@ func (cmd *TemplateCommand) Execute(args []string) error {
   cmd.App.AppState.Meta.Dir = cmd.Dir
 
   dc := NewDockerApi(cmd.App.AppState.Meta, cmd.App.AppState.ConfigFile, cmd.App.AppState.BuildFile)
-  return testFlightTemplates(dc, cmd.App.AppState.ConfigFile)
+  return cmd.Controls.testFlightTemplates(dc, cmd.App.AppState.ConfigFile, cmd.SingleFileMode)
 }

@@ -177,8 +177,19 @@ Version todos:
   - [x] Add file mode command line option for building/launching `-f`, however
         don't code for it, only the flag
 
-#### v0.9.6 - Alpha
+#### v0.9.5 - Alpha
 
+  - [x] bug, filemode was a string, should have been a bool
+  - [x] Add template command to makefile
+  - [x] Add filemode to template command (though doesn't use it yet)
+  - [x] change 'filemode' to 'single file mode' and `-s` , and leave force `-f`
+  - [x] bug, destroy command is creating templates
+  - [x] bug, `.test-flight` dir not being created
+  - [~] but, filemode does not skip dir mode required files => the template
+        is calling for a directory. Require a new Dockerfile template when
+        in single file mode. Test command: `clear && make test-build-s`
+  - [ ] finish filemode on all commands (build, launch, template, abstract it)
+  - [ ] Sync up & Refactor all commands
   - [ ] Add RunDocker Tests and code using go-apibuilder
   - [ ] wire in buildfile resource share specs to container options
   - [ ] Run container from docker image just created

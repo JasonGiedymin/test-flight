@@ -9,6 +9,7 @@ import (
   "os/signal"
   "syscall"
   "strings"
+  // "errors"
 )
 
 // var Info = factorlog.New(os.Stdout, factorlog.NewStdFormatter(`%{Color "green"}%{Date} %{Time} %{File}:%{Line} %{Message}%{Color "reset"}`))
@@ -38,7 +39,10 @@ func findFile(filesFound []string, requiredFile types.RequiredFile, currDir stri
     }
   }
 
-  return false, FileCheckFail.New("Required file/dir not found: [%v/%v]", currDir, requiredFile.FileName)
+  // msg := "Required file/dir not found: [" + currDir + "/" + requiredFile.FileName + "]"
+  // FileCheckFail.New("Required file/dir not found: [%v/%v]", currDir, requiredFile.FileName)
+
+  return false, nil//, errors.New(msg)
 }
 
 func CreateFile(dir *string, requiredFile types.RequiredFile) (*os.File, error) {

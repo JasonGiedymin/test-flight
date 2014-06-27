@@ -135,12 +135,10 @@ func (api *DockerApi) createTestTemplates() error {
     templateInputDir string,
     templateOutputDir string,
     requiredFile types.RequiredFile) error {
-    // check that inventory files exist
     if hasFiles, err := HasRequiredFile(templateOutputDir, requiredFile); err != nil {
       Logger.Error("Error: ", err)
       return err
     } else if hasFiles {
-      // Inventory
       fileToCreate := strings.Join([]string{templateOutputDir, requiredFile.FileName}, "/")
       file, _ := os.Create(fileToCreate)
 
@@ -154,22 +152,27 @@ func (api *DockerApi) createTestTemplates() error {
 
       Logger.Debug("Created file from template:", fileToCreate)
     }
-
-    // check that dir exists
-    // TODO: major cleanup here, need another pass
-    if hasFiles, err := HasRequiredFile(api.meta.Dir, templateDir); err != nil {
-      return err
-    } else if !hasFiles { // create it doesn't
-      if _, err = CreateFile(&api.meta.Dir, templateDir); err != nil {
-        return err
-      }
-    }
     return nil
   }
 
-  // if api.build
-  _ = createFilesFromTemplate(templateInputDir, templateOutputDir, inventory)
-  _ = createFilesFromTemplate(templateInputDir, templateOutputDir, playbook)
+  // If the test-flight templates dir doesn't exist, create it.
+  if hasFiles, err := HasRequiredFile(api.meta.Dir, templateDir); err != nil {
+    return err
+  } else if !hasFiles { // create it doesn't
+    if _, err = CreateFile(&api.meta.Dir, templateDir); err != nil {
+      return err
+    }
+  }
+
+  err := createFilesFromTemplate(templateInputDir, templateOutputDir, inventory)
+  if err != nil {
+    return err
+  }
+
+  err = createFilesFromTemplate(templateInputDir, templateOutputDir, playbook)
+  if err != nil {
+    return err
+  }
 
   return nil
 }
@@ -644,8 +647,6 @@ func (api *DockerApi) CreateDockerImage(fqImageName string) (string, error) {
     Name: "Test-Flight Dockerfile", FileName: "Dockerfile", FileType: "f",
   }
 
-  // var templateDir = getTemplateDir(api.configFile) // might need later
-  // templateOutputDir := strings.Join([]string{api.meta.Pwd, api.meta.Dir, templateDir.FileName}, "/")
   templateInputDir := api.meta.Pwd + "/templates/"
 
   pattern := filepath.Join(templateInputDir, requiredDockerFile.FileName+"*.tmpl")
