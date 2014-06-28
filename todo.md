@@ -185,7 +185,12 @@ Version todos:
   - [x] change 'filemode' to 'single file mode' and `-s` , and leave force `-f`
   - [x] bug, destroy command is creating templates
   - [x] bug, `.test-flight` dir not being created
-  - [~] Refactor test-flight struct into separate file [refactor-types]
+  - [~] Massive Refactor
+    - [x] test-flight struct into separate file [refactor-types]
+    - [x] flatten all dirs
+    - [ ] extract classes to single out functionality and testing,
+          future task will be to break apart again
+    - [ ] make to work after crazy refactor
   - [~] Sub commands should be within Test-Flight Options?
   - [~] Remove exit code in Test-Flight
   - [~] Add config file command param `-c`

@@ -1,7 +1,6 @@
-package types
+package lib
 
 import (
-  "../config"
 )
 
 type FlightControls struct{}

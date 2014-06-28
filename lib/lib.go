@@ -6,7 +6,6 @@ package lib
 
 import (
   Logger "./logging"
-  "./types"
   "bitbucket.org/kardianos/osext"
   "github.com/SpaceMonkeyGo/errors"
   // "github.com/jessevdk/go-flags"
@@ -16,18 +15,18 @@ import (
 // == Default vars ==
 var (
   defaultDir    = "./"
-  mainYaml      = types.RequiredFile{Name: "main yaml", FileName: "main.yml", FileType: "f"}
+  mainYaml      = RequiredFile{Name: "main yaml", FileName: "main.yml", FileType: "f"}
   BadDir        = errors.NewClass("Can't read the current directory")
   FileCheckFail = errors.NewClass("File Check Failed")
-  AnsibleFiles  = []types.RequiredFile{mainYaml}
+  AnsibleFiles  = []RequiredFile{mainYaml}
 )
 
 // Creates a list of required files needed by TestFlight using
 // templateDir via config file as a basis.
-func TestFlightFiles(templateDir string) []types.RequiredFile {
-  return []types.RequiredFile {
+func TestFlightFiles(templateDir string) []RequiredFile {
+  return []RequiredFile {
     {Name: "Test-Flight dir", FileName: templateDir, FileType: "d",//, These will actually be generated
-      // RequiredFiles: []types.RequiredFile{
+      // RequiredFiles: []RequiredFile{
       //   {Name: "Ansible inventory file used for Test-Flight", FileName: "inventory", FileType: "f"},
       //   {Name: "Ansible playbook file used for Test-Flight", FileName: "playbook.yml", FileType: "f"},
       // },
@@ -35,7 +34,7 @@ func TestFlightFiles(templateDir string) []types.RequiredFile {
   }
 }
 
-var RequiredFiles = []types.RequiredFile{
+var RequiredFiles = []RequiredFile{
   {Name: "Test-Flight json build file", FileName: "build.json", FileType: "f"},
   {Name: "Ansible handlers dir", FileName: "handlers", FileType: "d", RequiredFiles: AnsibleFiles},
   {Name: "Ansible meta dir", FileName: "meta", FileType: "d", RequiredFiles: AnsibleFiles},

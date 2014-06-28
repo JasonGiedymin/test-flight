@@ -3,7 +3,6 @@ package main
 import (
   "./lib"
   Logger "./lib/logging"
-  "./lib/types"
   "github.com/jessevdk/go-flags"
   "os"
 )

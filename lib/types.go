@@ -1,7 +1,7 @@
-package types
+package lib
 
 import (
-  Logger "../logging"
+  Logger "./logging"
   "encoding/json"
 )
 

@@ -27,10 +27,9 @@ package lib
 
 import (
   Logger "./logging"
-  "./types"
   "archive/tar"
   "bufio"
-  "bytes"
+  // "bytes"
   "encoding/json"
   "errors"
   "github.com/fsouza/go-dockerclient"
@@ -54,9 +53,9 @@ type ApiChannel chan *docker.APIEvents
 type ContainerChannel chan string
 
 type TemplateVar struct {
-  Meta       *types.ApplicationMeta
-  ConfigFile *types.ConfigFile
-  BuildFile  *types.BuildFile
+  Meta       *ApplicationMeta
+  ConfigFile *ConfigFile
+  BuildFile  *BuildFile
 
   TestDir           string
   Owner             string
@@ -71,20 +70,20 @@ type TemplateVar struct {
   Expose            []int
   Cmd               string
   AddSimple         []string
-  AddComplex        []types.DockerAddComplexEntry
-  AddUser           []types.DockerAddComplexEntry
+  AddComplex        []DockerAddComplexEntry
+  AddUser           []DockerAddComplexEntry
   RunTests          bool
 }
 
 // Proxy Client
 type DockerApi struct {
-  meta       *types.ApplicationMeta
-  configFile *types.ConfigFile
-  buildFile  *types.BuildFile
+  meta       *ApplicationMeta
+  configFile *ConfigFile
+  buildFile  *BuildFile
   client     *docker.Client
 }
 
-func NewDockerApi(meta *types.ApplicationMeta, configFile *types.ConfigFile, buildFile *types.BuildFile) *DockerApi {
+func NewDockerApi(meta *ApplicationMeta, configFile *ConfigFile, buildFile *BuildFile) *DockerApi {
   api := DockerApi{
     meta:       meta,
     configFile: configFile,
@@ -103,8 +102,8 @@ func NewDockerApi(meta *types.ApplicationMeta, configFile *types.ConfigFile, bui
   return &api
 }
 
-func getTemplateDir(configFile *types.ConfigFile) types.RequiredFile {
-  return types.RequiredFile{
+func getTemplateDir(configFile *ConfigFile) RequiredFile {
+  return RequiredFile{
     Name: "Test-Flight Template Dir", FileName: configFile.TemplateDir, FileType: "d",
   }
 }
@@ -120,11 +119,11 @@ func (api *DockerApi) RegisterChannel(eventsChannel chan *docker.APIEvents) {
 func (api *DockerApi) createTestTemplates() error {
   var templateDir = getTemplateDir(api.configFile)
 
-  var inventory = types.RequiredFile{
+  var inventory = RequiredFile{
     Name: "Test-Flight Test Inventory file", FileName: "inventory", FileType: "f",
   }
 
-  var playbook = types.RequiredFile{
+  var playbook = RequiredFile{
     Name: "Test-Flight Test Playbook file", FileName: "playbook.yml", FileType: "f",
   }
 
@@ -134,7 +133,7 @@ func (api *DockerApi) createTestTemplates() error {
   createFilesFromTemplate := func(
     templateInputDir string,
     templateOutputDir string,
-    requiredFile types.RequiredFile) error {
+    requiredFile RequiredFile) error {
     if hasFiles, err := HasRequiredFile(templateOutputDir, requiredFile); err != nil {
       Logger.Error("Error: ", err)
       return err
@@ -262,7 +261,7 @@ func (api *DockerApi) ListContainers(imageName string) ([]string, error) {
   } else {
     switch resp.StatusCode {
     case 200:
-      var jsonResult []types.ApiContainer
+      var jsonResult []ApiContainer
       if err := json.Unmarshal(body, &jsonResult); err != nil {
         Logger.Error("Error while trying to marshall result, body:", jsonResult, " - Error:", err)
         return nil, err
@@ -289,8 +288,8 @@ func (api *DockerApi) ListContainers(imageName string) ([]string, error) {
 
 // Returns container name deleted, empty string if none, and an
 // error (if any)
-func (api *DockerApi) DeleteContainer(name string) ([]types.DeletedContainer, error) {
-  var deletedContainers []types.DeletedContainer
+func (api *DockerApi) DeleteContainer(name string) ([]DeletedContainer, error) {
+  var deletedContainers []DeletedContainer
   var returnError error
 
   endpoint := api.configFile.DockerEndpoint
@@ -363,7 +362,7 @@ func (api *DockerApi) DeleteContainer(name string) ([]types.DeletedContainer, er
         msg := "Could not delete container: " + err.Error()
         Logger.Error(msg)
       } else if *deleted != "" {
-        deletedContainers = append(deletedContainers, types.DeletedContainer{*deleted, container})
+        deletedContainers = append(deletedContainers, DeletedContainer{*deleted, container})
       }
     }
     return deletedContainers, returnError
@@ -562,7 +561,7 @@ func (api *DockerApi) DeleteImage(name string) (string, error) {
 }
 
 // http get using golang packaged lib
-func (api *DockerApi) ShowImageGo() (*types.ApiDockerImage, error) {
+func (api *DockerApi) ShowImageGo() (*ApiDockerImage, error) {
   endpoint := api.configFile.DockerEndpoint
 
   url := strings.Join(
@@ -584,7 +583,7 @@ func (api *DockerApi) ShowImageGo() (*types.ApiDockerImage, error) {
   } else {
     switch resp.StatusCode {
     case 200:
-      var jsonResult types.ApiDockerImage
+      var jsonResult ApiDockerImage
       if err := json.Unmarshal(body, &jsonResult); err != nil {
         Logger.Error(err)
         return nil, err
@@ -600,7 +599,7 @@ func (api *DockerApi) ShowImageGo() (*types.ApiDockerImage, error) {
   }
 }
 
-func (api *DockerApi) GetImageDetails(fqImageName string) (*types.ApiDockerImage, error) {
+func (api *DockerApi) GetImageDetails(fqImageName string) (*ApiDockerImage, error) {
   url := strings.Join(
     []string{
       api.configFile.DockerEndpoint,
@@ -613,7 +612,7 @@ func (api *DockerApi) GetImageDetails(fqImageName string) (*types.ApiDockerImage
 
   // For testing, also need to `import "encoding/json"`
   // result := map[string]json.RawMessage{}
-  result := types.ApiDockerImage{}
+  result := ApiDockerImage{}
 
   Logger.Trace("GetImageDetails Api call to:", url)
   if resp, err := napping.Get(url, nil, &result, nil); err != nil {
@@ -643,7 +642,7 @@ func (api *DockerApi) CreateDockerImage(fqImageName string) (string, error) {
   outputbuf := bytes.NewBuffer(nil)
   dockerfile := bufio.NewWriter(dockerfileBuffer)
 
-  var requiredDockerFile = types.RequiredFile{
+  var requiredDockerFile = RequiredFile{
     Name: "Test-Flight Dockerfile", FileName: "Dockerfile", FileType: "f",
   }
 
@@ -695,7 +694,7 @@ func (api *DockerApi) CreateDockerImage(fqImageName string) (string, error) {
   return fqImageName, nil
 }
 
-func (api *DockerApi) CreateContainer(fqImageName string) (*types.ApiPostResponse, error) {
+func (api *DockerApi) CreateContainer(fqImageName string) (*ApiPostResponse, error) {
   if _, err := api.DeleteContainer(fqImageName); err != nil {
     msg := "Error occured while trying to delete a container. " +
       " This attempt failed for the following reason:" + err.Error()
@@ -706,7 +705,7 @@ func (api *DockerApi) CreateContainer(fqImageName string) (*types.ApiPostRespons
 
   endpoint := api.configFile.DockerEndpoint
 
-  postBody := types.ApiPostRequest{
+  postBody := ApiPostRequest{
     Image:        fqImageName,
     OpenStdin:    true,
     AttachStdin:  false,
@@ -723,7 +722,7 @@ func (api *DockerApi) CreateContainer(fqImageName string) (*types.ApiPostRespons
   )
   Logger.Trace("CreateContainer() - Api call to:", url)
 
-  jsonResult := types.ApiPostResponse{}
+  jsonResult := ApiPostResponse{}
   bytesReader, _ := postBody.Bytes()
   resp, _ := http.Post(url, "text/json", bytes.NewReader(bytesReader))
   defer resp.Body.Close()
@@ -798,7 +797,7 @@ func (api *DockerApi) StopContainer(containerId string) (string, error) {
 func (api *DockerApi) StartContainer(id string) (*string, error) {
   endpoint := api.configFile.DockerEndpoint
 
-  postBody := types.DockerHostConfig{}
+  postBody := DockerHostConfig{}
 
   url := strings.Join(
     []string{
@@ -811,7 +810,7 @@ func (api *DockerApi) StartContainer(id string) (*string, error) {
   )
   Logger.Trace("StartContainer() - Api call to:", url)
 
-  // jsonResult := types.ApiPostResponse{}
+  // jsonResult := ApiPostResponse{}
   var jsonResult string
   bytesReader, _ := postBody.Bytes()
   resp, _ := http.Post(url, "text/json", bytes.NewReader(bytesReader))

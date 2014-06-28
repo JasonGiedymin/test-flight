@@ -1,15 +1,14 @@
-package config
+package lib
 
 import (
-  "../types"
   "encoding/json"
   "io/ioutil"
   "strings"
 )
 
 // For specific defaults
-func NewBuildFile() *types.BuildFile {
-  return &types.BuildFile{
+func NewBuildFile() *BuildFile {
+  return &BuildFile{
     Owner:             "Test-Flight-User",
     ImageName:         "Test-Flight-Test-Image",
     Tag:               "latest",
@@ -21,7 +20,7 @@ func NewBuildFile() *types.BuildFile {
   }
 }
 
-func ReadBuildFile(dir string) (*types.BuildFile, error) {
+func ReadBuildFile(dir string) (*BuildFile, error) {
   path := []string{dir, "build.json"}
   jsonBlob, _ := ioutil.ReadFile(strings.Join(path, "/"))
 

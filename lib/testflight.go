@@ -1,7 +1,7 @@
-package types
+package lib
 
 import (
-  Logger "../logging"
+  Logger "./logging"
   "bitbucket.org/kardianos/osext"
   "os"
   "errors"

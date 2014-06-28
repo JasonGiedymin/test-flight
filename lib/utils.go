@@ -2,7 +2,6 @@ package lib
 
 import (
   Logger "./logging"
-  "./types"
   "archive/tar"
   "io/ioutil"
   "os"

@@ -1,7 +1,7 @@
-package config
+package lib
 
 import (
-  Logger "../logging"
+  Logger "./logging"
   "encoding/json"
   "github.com/SpaceMonkeyGo/errors"
   "io/ioutil"

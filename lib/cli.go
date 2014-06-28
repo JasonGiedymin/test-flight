@@ -1,9 +1,7 @@
 package lib
 
 import (
-  "./config"
   Logger "./logging"
-  "./types"
   "os"
   // "time"
   // "fmt"
@@ -11,9 +9,9 @@ import (
   "runtime"
 )
 
-func (fc *types.FlightControls) Init(app *types.TestFlight) {}
+func (fc *FlightControls) Init(app *TestFlight) {}
 
-func (fc *types.FlightControls) CheckConfigs(app *types.TestFlight, singleFileMode bool, dir string) (*types.ConfigFile, *types.BuildFile, error) {
+func (fc *FlightControls) CheckConfigs(app *TestFlight, singleFileMode bool, dir string) (*ConfigFile, *BuildFile, error) {
   // Prereqs
   app.SetDir(dir)
 
@@ -37,7 +35,7 @@ func (fc *types.FlightControls) CheckConfigs(app *types.TestFlight, singleFileMo
   return configFile, buildFile, nil
 }
 
-func (fc *types.FlightControls) CheckBuild(dir string, requiredFiles []types.RequiredFile) (*types.BuildFile, error) {
+func (fc *FlightControls) CheckBuild(dir string, requiredFiles []RequiredFile) (*BuildFile, error) {
   // Check for test-flight specific files first
   // These are common files
   if _, err := HasRequiredFiles(dir, AnsibleFiles); err != nil {
@@ -56,8 +54,8 @@ func (fc *types.FlightControls) CheckBuild(dir string, requiredFiles []types.Req
   }
 }
 
-func (fc *types.FlightControls) testFlightTemplates(dc *DockerApi, 
-  configFile *types.ConfigFile,
+func (fc *FlightControls) testFlightTemplates(dc *DockerApi, 
+  configFile *ConfigFile,
   singleFileMode bool) error {
 
   if configFile.OverwriteTemplates {
@@ -66,7 +64,7 @@ func (fc *types.FlightControls) testFlightTemplates(dc *DockerApi,
   return nil
 }
 
-func getRequiredFiles(filemode bool) []types.RequiredFile {
+func getRequiredFiles(filemode bool) []RequiredFile {
   if filemode {
     return AnsibleFiles
   } else {
@@ -75,7 +73,7 @@ func getRequiredFiles(filemode bool) []types.RequiredFile {
 }
 
 // TODO: Make as a member of Parser later...
-func getBuildFile(dir string) (*types.BuildFile, error) {
+func getBuildFile(dir string) (*BuildFile, error) {
   buildFile, err := config.ReadBuildFile(dir)
   if err != nil {
     Logger.Error("Error reading build file:", err)
@@ -97,7 +95,7 @@ func commandPreReq(app *TestFlight) {
 
 // == Version Command ==
 type VersionCommand struct {
-  Controls *types.FlightControls
+  Controls *FlightControls
   App      *TestFlight
 }
 
@@ -109,7 +107,7 @@ func (cmd *VersionCommand) Execute(args []string) error {
 
 // == Check Command ==
 type CheckCommand struct {
-  Controls *types.FlightControls
+  Controls *FlightControls
   App      *TestFlight
   Dir      string `short:"d" long:"dir" description:"directory to run in"`
   SingleFileMode bool `short:"s" long:"singlefile" description:"single ansible file to use"`
@@ -140,7 +138,7 @@ func (cmd *CheckCommand) Execute(args []string) error {
 // == Ground Command ==
 // Should stop running containers
 type GroundCommand struct {
-  Controls *types.FlightControls
+  Controls *FlightControls
   App      *TestFlight
   Dir      string `short:"d" long:"dir" description:"directory to run in"`
   SingleFileMode bool `short:"s" long:"singlefile" description:"single ansible file to use"`
@@ -183,7 +181,7 @@ func (cmd *GroundCommand) Execute(args []string) error {
 // == Destroy Command ==
 // Should destroy running containers
 type DestroyCommand struct {
-  Controls *types.FlightControls
+  Controls *FlightControls
   App      *TestFlight
   Dir      string `short:"d" long:"dir" description:"directory to run in"`
   SingleFileMode bool `short:"s" long:"singlefile" description:"single ansible file to use"`
@@ -224,7 +222,7 @@ func (cmd *DestroyCommand) Execute(args []string) error {
 
 // == Build Command ==
 // Should build a docker image
-func (cmd *types.BuildCommand) Execute(args []string) error {
+func (cmd *BuildCommand) Execute(args []string) error {
   // Set vars
   Logger.Info("Building... using information from dir:", cmd.Dir)
 
@@ -262,7 +260,7 @@ func (cmd *types.BuildCommand) Execute(args []string) error {
 
 // == Launch Command ==
 type LaunchCommand struct {
-  Controls *types.FlightControls
+  Controls *FlightControls
   App      *TestFlight
   Dir      string `short:"d" long:"dir" description:"directory to run in"`
   Force    bool   `short:"f" long:"force" description:"force new image"`
@@ -342,7 +340,7 @@ func (cmd *LaunchCommand) Execute(args []string) error {
 
 // == Images Command
 type ImagesCommand struct {
-  Controls *types.FlightControls
+  Controls *FlightControls
   App      *TestFlight
   Dir      string `short:"d" long:"dir" description:"directory to run in"`
 }
@@ -365,7 +363,7 @@ func (cmd *ImagesCommand) Execute(args []string) error {
 
 // == Template Command ==
 type TemplateCommand struct {
-  Controls *types.FlightControls
+  Controls *FlightControls
   App      *TestFlight
   Dir      string `short:"d" long:"dir" description:"directory to run in"`
   SingleFileMode bool `short:"s" long:"singlefile" description:"single ansible file to use"`
