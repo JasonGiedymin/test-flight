@@ -29,7 +29,7 @@ import (
   Logger "./logging"
   "archive/tar"
   "bufio"
-  // "bytes"
+  "bytes"
   "encoding/json"
   "errors"
   "github.com/fsouza/go-dockerclient"

@@ -5,7 +5,7 @@ import (
   "encoding/json"
 )
 
-func bytes(data interface{}) ([]byte, error) {
+func toBytes(data interface{}) ([]byte, error) {
   bytes, err := json.Marshal(data)
   if err != nil {
     return nil, err
@@ -53,7 +53,7 @@ type DockerHostConfig struct {
 }
 
 func (post *DockerHostConfig) Bytes() ([]byte, error) {
-  return bytes(post)
+  return toBytes(post)
 }
 
 type ApiContainerPortDetails struct {
@@ -145,14 +145,9 @@ type BuildCommand struct {
   SingleFileMode bool `short:"s" long:"singlefile" description:"single ansible file to use"`
 }
 
-type CommandOptions struct {
-  Configfile      string `short:"c" long:"config" description:"test-flight config file to use"`
-  Build           BuildCommand
-}
-
 type ApplicationState struct {
   Meta       *ApplicationMeta
-  Options    CommandOptions
+  // Options    CommandOptions
   ConfigFile *ConfigFile
   BuildFile  *BuildFile
 }

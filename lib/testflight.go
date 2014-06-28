@@ -8,7 +8,6 @@ import (
 )
 
 type TestFlight struct {
-  Options       *CommandOptions
   AppState      ApplicationState
   requiredFiles []RequiredFile
 }

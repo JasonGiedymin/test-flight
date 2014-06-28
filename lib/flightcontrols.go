@@ -1,6 +1,8 @@
 package lib
 
 import (
+  "os"
+  Logger "./logging"
 )
 
 type FlightControls struct{}
@@ -11,8 +13,8 @@ func (fc *FlightControls) CheckConfigs(app *TestFlight, singleFileMode bool, dir
   // Prereqs
   app.SetDir(dir)
 
-  configFile, err := config.ReadConfigFile()
-  if config.ReadFileError.Contains(err) {
+  configFile, err := ReadConfigFile()
+  if ReadFileError.Contains(err) {
     os.Exit(ExitCodes["config_missing"])
   }
   app.SetConfigFile(configFile)

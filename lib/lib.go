@@ -5,11 +5,11 @@
 package lib
 
 import (
-  Logger "./logging"
-  "bitbucket.org/kardianos/osext"
+  // Logger "./logging"
+  // "bitbucket.org/kardianos/osext"
   "github.com/SpaceMonkeyGo/errors"
   // "github.com/jessevdk/go-flags"
-  "os"
+  // "os"
 )
 
 // == Default vars ==
