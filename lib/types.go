@@ -138,13 +138,6 @@ type ApplicationMeta struct {
   Dir         string
 }
 
-type BuildCommand struct {
-  Controls *FlightControls
-  App      *TestFlight
-  Dir      string `short:"d" long:"dir" description:"directory to run in"`
-  SingleFileMode bool `short:"s" long:"singlefile" description:"single ansible file to use"`
-}
-
 type ApplicationState struct {
   Meta       *ApplicationMeta
   // Options    CommandOptions

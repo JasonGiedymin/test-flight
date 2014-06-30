@@ -50,26 +50,18 @@ func (cmd *VersionCommand) Execute(args []string) error {
   return nil
 }
 
-// == Check Command ==
-type CheckCommand struct {
-  Controls *FlightControls
-  App      *TestFlight
-  Dir      string `short:"d" long:"dir" description:"directory to run in"`
-  SingleFileMode bool `short:"s" long:"singlefile" description:"single ansible file to use"`
-}
-
 func (cmd *CheckCommand) Execute(args []string) error {
   commandPreReq(cmd.App)
 
   Logger.Info("Running Pre-Flight Check... in dir:", cmd.Dir)
-  cmd.App.AppState.Meta.Dir = cmd.Dir
+  cmd.App.AppState.Meta.Dir = *cmd.Dir
 
-  _, err := HasRequiredFiles(cmd.Dir, RequiredFiles)
+  _, err := HasRequiredFiles(*cmd.Dir, RequiredFiles)
   if err != nil {
     return err
   }
 
-  buildFile, err := ReadBuildFile(cmd.Dir)
+  buildFile, err := ReadBuildFile(*cmd.Dir)
   if err != nil {
     return err
   }
@@ -169,10 +161,10 @@ func (cmd *DestroyCommand) Execute(args []string) error {
 // Should build a docker image
 func (cmd *BuildCommand) Execute(args []string) error {
   // Set vars
-  Logger.Info("Building... using information from dir:", cmd.Dir)
+  Logger.Info("Building... using information from dir:", cmd.Options.Dir)
 
   // Check Config and Buildfiles
-  configFile, buildFile, err := cmd.Controls.CheckConfigs(cmd.App, cmd.SingleFileMode, cmd.Dir)
+  configFile, buildFile, err := cmd.Controls.CheckConfigs(cmd.App, cmd.Options.SingleFileMode, cmd.Options.Dir)
   if err != nil {
     return err
   }
@@ -183,7 +175,7 @@ func (cmd *BuildCommand) Execute(args []string) error {
 
   // Generate Templates
   // TODO: fails here with filemode
-  if err := cmd.Controls.testFlightTemplates(dc, configFile, cmd.SingleFileMode); err != nil {
+  if err := cmd.Controls.testFlightTemplates(dc, configFile, cmd.Options.SingleFileMode); err != nil {
     return err
   }
 

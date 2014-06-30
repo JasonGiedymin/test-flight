@@ -7,10 +7,7 @@ import (
   "os"
 )
 
-type CommandOptions struct {
-  Configfile      string `short:"c" long:"config" description:"test-flight config file to use"`
-  Build           *lib.BuildCommand
-}
+
 
 /* Limited to the app, parser, and commands */
 var (
@@ -19,7 +16,7 @@ var (
   checkCommand   lib.CheckCommand
   launchCommand  lib.LaunchCommand
   versionCommand lib.VersionCommand
-  options        CommandOptions
+  options        lib.CommandOptions
 )
 
 var meta = lib.ApplicationMeta{
@@ -33,7 +30,7 @@ func ProcessCommands() {
     Logger.Error(err)
     os.Exit(lib.ExitCodes["command_fail"])
   } else {
-    Logger.Info("--> Config file to use:", *options.Build)
+    Logger.Info("--> Config file to use:", options.Configfile)
   }
 }
 
@@ -45,15 +42,26 @@ func init() {
   }
 
   flightControls := lib.FlightControls{}
-  // checkCommand := lib.CheckCommand{Controls: &flightControls, App: &app}
-  // imagesCommand := lib.ImagesCommand{Controls: &flightControls, App: &app}
-  buildCommand := lib.BuildCommand{Controls: &flightControls, App: &app}
+  
+  // checkCommand := lib.CheckCommand{Controls: &flightControls, App: &app, Dir: &options.Dir}
+  // imagesCommand := lib.ImagesCommand{Controls: &flightControls, App: &app, Dir: options.Dir}
+  buildCommand := lib.BuildCommand{Controls: &flightControls, App: &app, Options: &options}
   // launchCommand := lib.LaunchCommand{Controls: &flightControls, App: &app}
   // groundCommand := lib.GroundCommand{Controls: &flightControls, App: &app}
   // destroyCommand := lib.DestroyCommand{Controls: &flightControls, App: &app}
   // versionCommand := lib.VersionCommand{Controls: &flightControls, App: &app}
   // templateCommand := lib.TemplateCommand{Controls: &flightControls, App: &app}
-  options = CommandOptions{Build: &buildCommand}
+
+  options = lib.CommandOptions{
+    // Check: &checkCommand,
+    // Images: &imagesCommand,
+    // Build: &buildCommand,
+    // Launch: &launchCommand,
+    // Ground: &groundCommand,
+    // Destroy: &destroyCommand,
+    // Version: &versionCommand,
+    // Template: &templateCommand,
+  }
 
   parser = flags.NewParser(&options, flags.Default)
 
@@ -67,10 +75,10 @@ func init() {
   //   "Shows all images",
   //   &imagesCommand)
 
-  // parser.AddCommand("build",
-  //   "flight build",
-  //   "Build will build an ansible playbook docker image.",
-  //   &buildCommand)
+  parser.AddCommand("build",
+    "flight build",
+    "Build will build an ansible playbook docker image.",
+    &buildCommand)
 
   // parser.AddCommand("launch",
   //   "flight launch",

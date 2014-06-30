@@ -6,6 +6,7 @@ WARN_COLOR=\033[33;01m
 DEPS = $(go list -f '{{range .TestImports}}{{.}} {{end}}' ./...)
 TEST_DIR=tests/test-dirmode
 FILE_MODE_TEST_DIR=tests/test-filemode
+FILE_MODE_CONFIG=tests/test-filemode/test-flight-config.json
 COMMON_OPTS=-race
 
 help:
@@ -76,7 +77,7 @@ test-build:
 
 test-build-s:
 	@echo "$(OK_COLOR)==> Testing Build with FileMode set$(NO_COLOR)"
-	go run $(COMMON_OPTS) flight.go build -s -d $(FILE_MODE_TEST_DIR)
+	go run $(COMMON_OPTS) flight.go -c $(FILE_MODE_CONFIG) -s -d $(FILE_MODE_TEST_DIR) build
 
 test-template:
 	@echo "$(OK_COLOR)==> Testing Template set$(NO_COLOR)"
