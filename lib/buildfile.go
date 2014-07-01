@@ -4,6 +4,7 @@ import (
   "encoding/json"
   "io/ioutil"
   "strings"
+  // "errors"
 )
 
 // For specific defaults
@@ -27,6 +28,17 @@ func ReadBuildFile(dir string) (*BuildFile, error) {
   var buildFile = NewBuildFile()
   err := json.Unmarshal(jsonBlob, buildFile)
   if err != nil {
+    return nil, err
+  }
+
+  return buildFile, nil
+}
+
+// TODO: Make as a member of Parser later...
+func GetBuildFile(dir string) (*BuildFile, error) {
+  buildFile, err := ReadBuildFile(dir)
+  if err != nil {
+    // errors.New("Error reading build file: " + err.Error())
     return nil, err
   }
 

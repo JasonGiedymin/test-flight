@@ -2,7 +2,7 @@ package lib
 
 import (
   Logger "./logging"
-  "os"
+  // "os"
   // "time"
   // "fmt"
   "sync"
@@ -17,33 +17,6 @@ func getRequiredFiles(filemode bool) []RequiredFile {
   }
 }
 
-// TODO: Make as a member of Parser later...
-func getBuildFile(dir string) (*BuildFile, error) {
-  buildFile, err := ReadBuildFile(dir)
-  if err != nil {
-    Logger.Error("Error reading build file:", err)
-    return nil, err
-  }
-
-  Logger.Debug("Buildfile found, contents:", *buildFile)
-  return buildFile, nil
-}
-
-func commandPreReq(app *TestFlight) {
-  // Prereqs
-  configFile, err := ReadConfigFile()
-  if ReadFileError.Contains(err) {
-    os.Exit(ExitCodes["config_missing"])
-  }
-  app.SetConfigFile(configFile)
-}
-
-// == Version Command ==
-type VersionCommand struct {
-  Controls *FlightControls
-  App      *TestFlight
-}
-
 func (cmd *VersionCommand) Execute(args []string) error {
   cmd.App.SetState("VERSION_QUERY")
   Logger.Info("Test-Flight Version:", cmd.App.AppState.Meta.Version)
@@ -51,17 +24,20 @@ func (cmd *VersionCommand) Execute(args []string) error {
 }
 
 func (cmd *CheckCommand) Execute(args []string) error {
-  commandPreReq(cmd.App)
-
   Logger.Info("Running Pre-Flight Check... in dir:", cmd.Options.Dir)
-  cmd.App.AppState.Meta.Dir = cmd.Options.Dir
-
-  _, err := HasRequiredFiles(cmd.Options.Dir, RequiredFiles)
+  _, buildFile, err := cmd.Controls.CheckConfigs(cmd.App, cmd.Options)
   if err != nil {
     return err
   }
 
-  buildFile, err := ReadBuildFile(cmd.Options.Dir)
+  cmd.App.AppState.Meta.Dir = cmd.Options.Dir
+
+  _, err = HasRequiredFiles(cmd.Options.Dir, RequiredFiles)
+  if err != nil {
+    return err
+  }
+
+  buildFile, err = ReadBuildFile(cmd.Options.Dir)
   if err != nil {
     return err
   }
@@ -249,13 +225,16 @@ func (cmd *LaunchCommand) Execute(args []string) error {
 }
 
 func (cmd *ImagesCommand) Execute(args []string) error {
-  commandPreReq(cmd.App)
-
   cmd.App.SetState("IMAGES")
   Logger.Info("Listing images... using config from dir:", cmd.Options.Dir)
+
+  _, buildFile, err := cmd.Controls.CheckConfigs(cmd.App, cmd.Options)
+  if err != nil {
+    return err
+  }  
+
   cmd.App.AppState.Meta.Dir = cmd.Options.Dir
 
-  buildFile, _ := cmd.Controls.CheckBuild(cmd.Options.Dir, RequiredFiles)
   fqImageName := cmd.App.AppState.BuildFile.ImageName + ":" + buildFile.Tag
 
   dc := NewDockerApi(cmd.App.AppState.Meta, cmd.App.AppState.ConfigFile, cmd.App.AppState.BuildFile)
@@ -265,10 +244,14 @@ func (cmd *ImagesCommand) Execute(args []string) error {
 }
 
 func (cmd *TemplateCommand) Execute(args []string) error {
-  commandPreReq(cmd.App)
-
   cmd.App.SetState("TEMPLATE")
   Logger.Info("Creating Templates... in dir:", cmd.Options.Dir)
+
+  _, _, err := cmd.Controls.CheckConfigs(cmd.App, cmd.Options)
+  if err != nil {
+    return err
+  }
+
   cmd.App.AppState.Meta.Dir = cmd.Options.Dir
 
   dc := NewDockerApi(cmd.App.AppState.Meta, cmd.App.AppState.ConfigFile, cmd.App.AppState.BuildFile)

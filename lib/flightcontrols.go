@@ -17,7 +17,7 @@ func (fc *FlightControls) CheckConfigs(app *TestFlight, options *CommandOptions)
   // Prereqs
   app.SetDir(options.Dir)
 
-  configFile, err := ReadConfigFile()
+  configFile, err := ReadConfigFile(options.Configfile)
   if ReadFileError.Contains(err) {
     os.Exit(ExitCodes["config_missing"])
   }
@@ -29,7 +29,8 @@ func (fc *FlightControls) CheckConfigs(app *TestFlight, options *CommandOptions)
   // TODO: as more Control funcs get created refactor this below
   buildFile, err := fc.CheckBuild(options.Dir, requiredFiles)
   if err != nil {
-    Logger.Error(err)
+    TODO: FIX ME
+    Logger.Trace("!!!!!!!!!!!!!!!!!!!here!!!!!!!!!!!!!!!!")
     return nil, nil, err
   }
   app.SetBuildFile(buildFile)
@@ -49,7 +50,7 @@ func (fc *FlightControls) CheckBuild(dir string, requiredFiles []RequiredFile) (
     return nil, err
   }
 
-  if buildFile, err := getBuildFile(dir); err != nil {
+  if buildFile, err := GetBuildFile(dir); err != nil {
     return nil, err
   } else {
     return buildFile, nil

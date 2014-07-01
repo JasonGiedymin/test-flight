@@ -42,20 +42,38 @@ func NewConfigFile() *ConfigFile {
 //   return nil, err
 // }
 
-func ReadConfigFile() (*ConfigFile, error) {
+func getConfig(file string) (*ConfigFile, error) {
+  configFile := NewConfigFile()
+
+  Logger.Debug("Checking for config file in location:", file)
+  jsonBlob, err := ioutil.ReadFile(file)
+  err = json.Unmarshal(jsonBlob, &configFile)
+  if err != nil {
+    msg := "Can't find or having trouble reading " + file +
+      ". Please create the file or address syntax issues. System error:" + err.Error()
+    return nil, ReadFileError.New(msg)
+  }
+
+  return configFile, nil
+}
+
+// tries to find config file in user home, then if it cannot find one there
+// will try to find a config file in the local running directory
+func findConfig() (*ConfigFile, error) {
   configFileName := "test-flight-config.json"
   configFile := NewConfigFile()
 
+  // get home
   usr, err := user.Current()
   if err != nil {
     Logger.Error("Can't read user home.")
     return nil, ReadFileError.New("Can't read user home.")
-  }
-
+  }  
+  
   Logger.Debug("Checking for config file in user HOME: " + usr.HomeDir + "/test-flight-config.json")
-  jsonBlob, _ := ioutil.ReadFile(usr.HomeDir + "/test-flight-config.json")
-  err = json.Unmarshal(jsonBlob, &configFile)
 
+  // try home first
+  configFile, err = getConfig(usr.HomeDir + "/test-flight-config.json")
   if err != nil {
     Logger.Warn(configFileName + " not found in user HOME: " + usr.HomeDir)
 
@@ -64,18 +82,25 @@ func ReadConfigFile() (*ConfigFile, error) {
       return nil, err
     }
 
-    // with user home find config file
+    // try running directory next
     Logger.Debug("Checking for config file in local pwd: " + pwd + "/" + configFileName)
-    jsonBlob, err = ioutil.ReadFile(pwd + "/" + configFileName)
-    err = json.Unmarshal(jsonBlob, &configFile)
+    configFile, err = getConfig(pwd + "/" + configFileName)
     if err != nil {
-      Logger.Error("Can't find or having trouble reading " + configFileName +
-        " in local pwd or user home. Please create the file or address syntax issues.")
-      Logger.Error(err)
-      return nil, ReadFileError.New("Can't find test-flight-config.json file in local pwd.")
+      return nil, errors.New("Could not find configfile in user home or local running" +
+        " directory. Please supply the config file")
     }
   }
 
   Logger.Debug("Found config file, contents:", configFile)
   return configFile, nil
+}
+
+// can be called with default empty param which means user did not specify
+// config file.
+func ReadConfigFile(userSpecified string) (*ConfigFile, error) {
+  if (userSpecified != "") {
+    return getConfig(userSpecified)
+  }
+  
+  return findConfig()  
 }
