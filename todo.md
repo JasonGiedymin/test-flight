@@ -192,9 +192,9 @@ Version todos:
           future task will be to break apart again
     - [x] make to work after crazy refactor => must be done one command at a
           time
+    - [x] refactor CheckConfigs by passing CommandOptions instead
     - [ ] build command, stop looking for config when it is specified
-    - [ ] refactor CheckConfigs by passing CommandOptions instead
-    - [ ] make CheckConfigs return config file if `-c` specified
+      - [ ] make CheckConfigs return config file if `-c` specified
   - [~] Sub commands should be within Test-Flight Options?
   - [~] Remove exit code in Test-Flight
   - [~] Add config file command param `-c`

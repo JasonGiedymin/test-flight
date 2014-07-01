@@ -9,9 +9,13 @@ type FlightControls struct{}
 
 func (fc *FlightControls) Init(app *TestFlight) {}
 
-func (fc *FlightControls) CheckConfigs(app *TestFlight, singleFileMode bool, dir string) (*ConfigFile, *BuildFile, error) {
+func (fc *FlightControls) CheckConfigs(app *TestFlight, options *CommandOptions) (*ConfigFile, *BuildFile, error) {
+  if (options.Configfile != "") {
+    Logger.Info("Using configfile:", options.Configfile)
+  }
+
   // Prereqs
-  app.SetDir(dir)
+  app.SetDir(options.Dir)
 
   configFile, err := ReadConfigFile()
   if ReadFileError.Contains(err) {
@@ -19,11 +23,11 @@ func (fc *FlightControls) CheckConfigs(app *TestFlight, singleFileMode bool, dir
   }
   app.SetConfigFile(configFile)
 
-  requiredFiles := getRequiredFiles(singleFileMode)
+  requiredFiles := getRequiredFiles(options.SingleFileMode)
 
   // Get the buildfile
   // TODO: as more Control funcs get created refactor this below
-  buildFile, err := fc.CheckBuild(dir, requiredFiles)
+  buildFile, err := fc.CheckBuild(options.Dir, requiredFiles)
   if err != nil {
     Logger.Error(err)
     return nil, nil, err

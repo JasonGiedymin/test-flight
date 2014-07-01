@@ -53,15 +53,15 @@ func (cmd *VersionCommand) Execute(args []string) error {
 func (cmd *CheckCommand) Execute(args []string) error {
   commandPreReq(cmd.App)
 
-  Logger.Info("Running Pre-Flight Check... in dir:", cmd.Dir)
-  cmd.App.AppState.Meta.Dir = *cmd.Dir
+  Logger.Info("Running Pre-Flight Check... in dir:", cmd.Options.Dir)
+  cmd.App.AppState.Meta.Dir = cmd.Options.Dir
 
-  _, err := HasRequiredFiles(*cmd.Dir, RequiredFiles)
+  _, err := HasRequiredFiles(cmd.Options.Dir, RequiredFiles)
   if err != nil {
     return err
   }
 
-  buildFile, err := ReadBuildFile(*cmd.Dir)
+  buildFile, err := ReadBuildFile(cmd.Options.Dir)
   if err != nil {
     return err
   }
@@ -72,18 +72,9 @@ func (cmd *CheckCommand) Execute(args []string) error {
   return nil
 }
 
-// == Ground Command ==
-// Should stop running containers
-type GroundCommand struct {
-  Controls *FlightControls
-  App      *TestFlight
-  Dir      string `short:"d" long:"dir" description:"directory to run in"`
-  SingleFileMode bool `short:"s" long:"singlefile" description:"single ansible file to use"`
-}
-
 func (cmd *GroundCommand) Execute(args []string) error {
   // Check Config and Buildfiles
-  configFile, buildFile, err := cmd.Controls.CheckConfigs(cmd.App, cmd.SingleFileMode, cmd.Dir)
+  configFile, buildFile, err := cmd.Controls.CheckConfigs(cmd.App, cmd.Options)
   if err != nil {
     return err
   }
@@ -115,20 +106,11 @@ func (cmd *GroundCommand) Execute(args []string) error {
   return nil
 }
 
-// == Destroy Command ==
-// Should destroy running containers
-type DestroyCommand struct {
-  Controls *FlightControls
-  App      *TestFlight
-  Dir      string `short:"d" long:"dir" description:"directory to run in"`
-  SingleFileMode bool `short:"s" long:"singlefile" description:"single ansible file to use"`
-}
-
 func (cmd *DestroyCommand) Execute(args []string) error {
   Logger.Info("Destroying... using information from dir:", cmd.Dir)
 
   // Check Config and Buildfiles
-  configFile, buildFile, err := cmd.Controls.CheckConfigs(cmd.App, cmd.SingleFileMode, cmd.Dir)
+  configFile, buildFile, err := cmd.Controls.CheckConfigs(cmd.App, cmd.Options)
   if err != nil {
     return err
   }
@@ -164,7 +146,7 @@ func (cmd *BuildCommand) Execute(args []string) error {
   Logger.Info("Building... using information from dir:", cmd.Options.Dir)
 
   // Check Config and Buildfiles
-  configFile, buildFile, err := cmd.Controls.CheckConfigs(cmd.App, cmd.Options.SingleFileMode, cmd.Options.Dir)
+  configFile, buildFile, err := cmd.Controls.CheckConfigs(cmd.App, cmd.Options)
   if err != nil {
     return err
   }
@@ -195,15 +177,6 @@ func (cmd *BuildCommand) Execute(args []string) error {
   return nil
 }
 
-// == Launch Command ==
-type LaunchCommand struct {
-  Controls *FlightControls
-  App      *TestFlight
-  Dir      string `short:"d" long:"dir" description:"directory to run in"`
-  Force    bool   `short:"f" long:"force" description:"force new image"`
-  SingleFileMode bool `short:"s" long:"singlefile" description:"single ansible file to use"`
-}
-
 func watchForEventsOn(channel ApiChannel) {
   for msg := range channel {
     Logger.Trace("DOCKER EVENT:", *msg)
@@ -220,13 +193,13 @@ func watchContainerOn(channel ContainerChannel, wg *sync.WaitGroup) {
 }
 
 func (cmd *LaunchCommand) Execute(args []string) error {
-  Logger.Info("Launching Tests... in dir:", cmd.Dir)
-  Logger.Debug("Force:", cmd.Force)
+  Logger.Info("Launching Tests... in dir:", cmd.Options.Dir)
+  Logger.Debug("Force:", cmd.Options.Force)
 
   var wg sync.WaitGroup // used for channels
 
   // Check Config and Buildfiles
-  configFile, buildFile, err := cmd.Controls.CheckConfigs(cmd.App, cmd.SingleFileMode, cmd.Dir)
+  configFile, buildFile, err := cmd.Controls.CheckConfigs(cmd.App, cmd.Options)
   if err != nil {
     return err
   }
@@ -234,7 +207,7 @@ func (cmd *LaunchCommand) Execute(args []string) error {
   var dc = NewDockerApi(cmd.App.AppState.Meta, configFile, buildFile)
   dc.ShowInfo()
 
-  if err := cmd.Controls.testFlightTemplates(dc, configFile, cmd.SingleFileMode); err != nil {
+  if err := cmd.Controls.testFlightTemplates(dc, configFile, cmd.Options.SingleFileMode); err != nil {
     return err
   }
 
@@ -245,7 +218,7 @@ func (cmd *LaunchCommand) Execute(args []string) error {
 
   fqImageName := cmd.App.AppState.BuildFile.ImageName + ":" + buildFile.Tag
 
-  if !cmd.Force { // if not forcing, check to see if image exists.
+  if !cmd.Options.Force { // if not forcing, check to see if image exists.
     if image, err := dc.GetImageDetails(fqImageName); err != nil {
       return err
     } else if image != nil {
@@ -275,21 +248,14 @@ func (cmd *LaunchCommand) Execute(args []string) error {
   return nil
 }
 
-// == Images Command
-type ImagesCommand struct {
-  Controls *FlightControls
-  App      *TestFlight
-  Dir      string `short:"d" long:"dir" description:"directory to run in"`
-}
-
 func (cmd *ImagesCommand) Execute(args []string) error {
   commandPreReq(cmd.App)
 
   cmd.App.SetState("IMAGES")
-  Logger.Info("Listing images... using config from dir:", cmd.Dir)
-  cmd.App.AppState.Meta.Dir = cmd.Dir
+  Logger.Info("Listing images... using config from dir:", cmd.Options.Dir)
+  cmd.App.AppState.Meta.Dir = cmd.Options.Dir
 
-  buildFile, _ := cmd.Controls.CheckBuild(cmd.Dir, RequiredFiles)
+  buildFile, _ := cmd.Controls.CheckBuild(cmd.Options.Dir, RequiredFiles)
   fqImageName := cmd.App.AppState.BuildFile.ImageName + ":" + buildFile.Tag
 
   dc := NewDockerApi(cmd.App.AppState.Meta, cmd.App.AppState.ConfigFile, cmd.App.AppState.BuildFile)
@@ -298,21 +264,13 @@ func (cmd *ImagesCommand) Execute(args []string) error {
   return nil
 }
 
-// == Template Command ==
-type TemplateCommand struct {
-  Controls *FlightControls
-  App      *TestFlight
-  Dir      string `short:"d" long:"dir" description:"directory to run in"`
-  SingleFileMode bool `short:"s" long:"singlefile" description:"single ansible file to use"`
-}
-
 func (cmd *TemplateCommand) Execute(args []string) error {
   commandPreReq(cmd.App)
 
   cmd.App.SetState("TEMPLATE")
-  Logger.Info("Creating Templates... in dir:", cmd.Dir)
-  cmd.App.AppState.Meta.Dir = cmd.Dir
+  Logger.Info("Creating Templates... in dir:", cmd.Options.Dir)
+  cmd.App.AppState.Meta.Dir = cmd.Options.Dir
 
   dc := NewDockerApi(cmd.App.AppState.Meta, cmd.App.AppState.ConfigFile, cmd.App.AppState.BuildFile)
-  return cmd.Controls.testFlightTemplates(dc, cmd.App.AppState.ConfigFile, cmd.SingleFileMode)
+  return cmd.Controls.testFlightTemplates(dc, cmd.App.AppState.ConfigFile, cmd.Options.SingleFileMode)
 }
