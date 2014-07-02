@@ -3,6 +3,7 @@ package lib
 import (
   "os"
   Logger "./logging"
+  "errors"
 )
 
 type FlightControls struct{}
@@ -29,8 +30,6 @@ func (fc *FlightControls) CheckConfigs(app *TestFlight, options *CommandOptions)
   // TODO: as more Control funcs get created refactor this below
   buildFile, err := fc.CheckBuild(options.Dir, requiredFiles)
   if err != nil {
-    TODO: FIX ME
-    Logger.Trace("!!!!!!!!!!!!!!!!!!!here!!!!!!!!!!!!!!!!")
     return nil, nil, err
   }
   app.SetBuildFile(buildFile)
@@ -42,16 +41,20 @@ func (fc *FlightControls) CheckBuild(dir string, requiredFiles []RequiredFile) (
   // Check for test-flight specific files first
   // These are common files
   if _, err := HasRequiredFiles(dir, AnsibleFiles); err != nil {
-    return nil, err
+    msg := "Error reading required Ansible Files. Error: " + err.Error()
+    return nil, errors.New(msg)
   }
 
   // Check for required files as specified by the user
   if _, err := HasRequiredFiles(dir, requiredFiles); err != nil {
-    return nil, err
+    msg := "Error reading user specified required file. Error: " + err.Error()
+    return nil, errors.New(msg)
   }
 
-  if buildFile, err := GetBuildFile(dir); err != nil {
-    return nil, err
+  buildFilePath := FilePath(dir, "build.json")
+  if buildFile, err := ReadBuildFile(buildFilePath); err != nil {
+    msg := "Error parsing buildfile: [" + buildFilePath + "]. Error: " + err.Error()
+    return nil, errors.New(msg)
   } else {
     return buildFile, nil
   }

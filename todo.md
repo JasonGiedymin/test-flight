@@ -185,7 +185,7 @@ Version todos:
   - [x] change 'filemode' to 'single file mode' and `-s` , and leave force `-f`
   - [x] bug, destroy command is creating templates
   - [x] bug, `.test-flight` dir not being created
-  - [~] Massive Refactor
+  - [x] Massive Refactor
     - [x] test-flight struct into separate file [refactor-types]
     - [x] flatten all dirs
     - [x] extract classes to single out functionality and testing,
@@ -193,16 +193,21 @@ Version todos:
     - [x] make to work after crazy refactor => must be done one command at a
           time
     - [x] refactor CheckConfigs by passing CommandOptions instead
-    - [ ] build command, stop looking for config when it is specified
-      - [ ] make CheckConfigs return config file if `-c` specified
-  - [~] Sub commands should be within Test-Flight Options?
-  - [~] Remove exit code in Test-Flight
-  - [~] Add config file command param `-c`
+    - [x] build command, stop looking for config when it is specified
+      - [x] make CheckConfigs return config file if `-c` specified
+  - [x] Sub commands should be within Test-Flight Options?
+  - [x] Remove exit code in Test-Flight
+  - [x] Add config file command param `-c`
   - [~] but, filemode does not skip dir mode required files => the template
         is calling for a directory. Require a new Dockerfile template when
         in single file mode. Test command: `clear && make test-build-s`
+     - [x] Add FilePath() to generate file paths
+     - [x] Move templates to sub dir `dirmode` and `filemode`
+     - [~] Modify CreateDockerImage() to generate dockerfile based on template
+           which changes if set to filemode.
+  - [ ] Change singlefilemode to just filemode
   - [ ] finish filemode on all commands (build, launch, template, abstract it)
-  - [ ] Sync up & Refactor all commands
+  - [ ] Sync up & Refactor all commands (build should be latest)
   - [ ] Add RunDocker Tests and code using go-apibuilder
   - [ ] wire in buildfile resource share specs to container options
   - [ ] Run container from docker image just created

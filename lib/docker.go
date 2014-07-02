@@ -634,16 +634,26 @@ func (api *DockerApi) GetImageDetails(fqImageName string) (*ApiDockerImage, erro
 // CreateDockerImage creates a docker image by first creating the Dockerfile
 // in memory and then tars it, prior to sending it along to the docker
 // endpoint.
-func (api *DockerApi) CreateDockerImage(fqImageName string) (string, error) {
+func (api *DockerApi) CreateDockerImage(fqImageName string, singlefileMode bool) (string, error) {
   Logger.Debug("Creating Docker image by attempting to build Dockerfile: " + fqImageName)
 
   dockerfileBuffer := bytes.NewBuffer(nil)
   tarbuf := bytes.NewBuffer(nil)
   outputbuf := bytes.NewBuffer(nil)
   dockerfile := bufio.NewWriter(dockerfileBuffer)
+  tmplDir := "filemode"
+  tmplName := "Dockerfile" // file ext of `.tmpl` is implicit, see below
 
+  if singlefileMode {
+    tmplDir = "filemode"
+  }
+
+    TODO: FIX ME
+          When executing `clear && make test-build-s`
+          Not finding templates and/or dir
+    Logger.Trace("!!!!!!!!!!!!!!!!!!!here!!!!!!!!!!!!!!!!")
   var requiredDockerFile = RequiredFile{
-    Name: "Test-Flight Dockerfile", FileName: "Dockerfile", FileType: "f",
+    Name: "Test-Flight Dockerfile", FileName: FilePath(tmplDir, tmplName), FileType: "f",
   }
 
   templateInputDir := api.meta.Pwd + "/templates/"

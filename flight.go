@@ -7,8 +7,6 @@ import (
   "os"
 )
 
-
-
 /* Limited to the app, parser, and commands */
 var (
   app            lib.TestFlight

@@ -1,5 +1,5 @@
 {
-  "templateDir": "example-playbook/.test-flight",
+  "templateDir": ".test-flight",
 
   "overwriteTemplates": true,
 

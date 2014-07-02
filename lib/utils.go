@@ -151,3 +151,13 @@ func CaptureUserCancel(containerChannel *ContainerChannel) {
       close(*containerChannel)
   }()
 }
+
+func FilePath(pathNames ...interface{}) string {
+  var paths []string
+  
+  for _, value := range pathNames {
+    paths = append(paths, value.(string))
+  }
+
+  return strings.Join(paths, "/")
+}

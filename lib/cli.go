@@ -37,7 +37,7 @@ func (cmd *CheckCommand) Execute(args []string) error {
     return err
   }
 
-  buildFile, err = ReadBuildFile(cmd.Options.Dir)
+  buildFile, err = ReadBuildFile(FilePath(cmd.Options.Dir, "build.json"))
   if err != nil {
     return err
   }
@@ -144,7 +144,7 @@ func (cmd *BuildCommand) Execute(args []string) error {
 
   fqImageName := cmd.App.AppState.BuildFile.ImageName + ":" + cmd.App.AppState.BuildFile.Tag
 
-  image, err := dc.CreateDockerImage(fqImageName)
+  image, err := dc.CreateDockerImage(fqImageName, cmd.Options.SingleFileMode)
   if err != nil {
     return err
   }
@@ -203,7 +203,7 @@ func (cmd *LaunchCommand) Execute(args []string) error {
     }
   }
 
-  if image, err := dc.CreateDockerImage(fqImageName); err != nil {
+  if image, err := dc.CreateDockerImage(fqImageName, cmd.Options.SingleFileMode); err != nil {
     return err
   } else {
     if resp, err := dc.CreateContainer(image); err != nil {
