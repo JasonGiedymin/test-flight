@@ -195,19 +195,20 @@ Version todos:
     - [x] refactor CheckConfigs by passing CommandOptions instead
     - [x] build command, stop looking for config when it is specified
       - [x] make CheckConfigs return config file if `-c` specified
-  - [x] Sub commands should be within Test-Flight Options?
-  - [x] Remove exit code in Test-Flight
-  - [x] Add config file command param `-c`
-  - [~] but, filemode does not skip dir mode required files => the template
-        is calling for a directory. Require a new Dockerfile template when
-        in single file mode. Test command: `clear && make test-build-s`
-     - [x] Add FilePath() to generate file paths
-     - [x] Move templates to sub dir `dirmode` and `filemode`
-     - [~] Modify CreateDockerImage() to generate dockerfile based on template
-           which changes if set to filemode.
-  - [ ] Change singlefilemode to just filemode
-  - [ ] finish filemode on all commands (build, launch, template, abstract it)
-  - [ ] Sync up & Refactor all commands (build should be latest)
+    - [x] Sub commands should be within Test-Flight Options?
+    - [x] Remove exit code in Test-Flight
+    - [x] Add config file command param `-c`
+    - [~] but, filemode does not skip dir mode required files => the template
+          is calling for a directory. Require a new Dockerfile template when
+          in single file mode. Test command: `clear && make test-build-s`
+       - [x] Add FilePath() to generate file paths
+       - [x] Move templates to sub dir `dirmode` and `filemode`
+       - [~] Modify CreateDockerImage() to generate dockerfile based on template
+             which changes if set to filemode.
+       - [ ] Change singlefilemode to just filemode
+       - [ ] finish filemode on all commands (build, launch, template, abstract it)
+       - [ ] Sync up & Refactor all commands (build should be latest)
+       - [ ] Merge!
   - [ ] Add RunDocker Tests and code using go-apibuilder
   - [ ] wire in buildfile resource share specs to container options
   - [ ] Run container from docker image just created
