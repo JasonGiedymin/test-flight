@@ -647,16 +647,12 @@ func (api *DockerApi) CreateDockerImage(fqImageName string, singlefileMode bool)
   if singlefileMode {
     tmplDir = "filemode"
   }
-
-    TODO: FIX ME
-          When executing `clear && make test-build-s`
-          Not finding templates and/or dir
-    Logger.Trace("!!!!!!!!!!!!!!!!!!!here!!!!!!!!!!!!!!!!")
+  
   var requiredDockerFile = RequiredFile{
-    Name: "Test-Flight Dockerfile", FileName: FilePath(tmplDir, tmplName), FileType: "f",
+    Name: "Test-Flight Dockerfile", FileName: tmplName, FileType: "f",
   }
 
-  templateInputDir := api.meta.Pwd + "/templates/"
+  templateInputDir := FilePath(api.meta.Pwd, "/templates/", tmplDir)
 
   pattern := filepath.Join(templateInputDir, requiredDockerFile.FileName+"*.tmpl")
   tmpl := template.Must(template.ParseGlob(pattern))

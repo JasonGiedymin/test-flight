@@ -25,10 +25,11 @@ var meta = lib.ApplicationMeta{
 func ProcessCommands() {
   app.SetState("PARSE_COMMAND_LINE")
   if _, err := parser.Parse(); err != nil {
-    Logger.Error(err)
-    os.Exit(lib.ExitCodes["command_fail"])
+    // Logger.Error(err)
+    // os.Exit(lib.ExitCodes["command_fail"])
   } else {
-    Logger.Info("--> Config file to use:", options.Configfile)
+    // TODO: Show Info here
+    Logger.Info("Using Config file:", options.Configfile)
   }
 }
 

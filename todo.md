@@ -205,6 +205,9 @@ Version todos:
        - [x] Move templates to sub dir `dirmode` and `filemode`
        - [~] Modify CreateDockerImage() to generate dockerfile based on template
              which changes if set to filemode.
+       - [x] Bug, Not finding templates and/or dir => templates are registered
+             by name specified within, pass only the dir to the template func
+       - [ ] Detour, fix makefile deps install
        - [ ] Change singlefilemode to just filemode
        - [ ] finish filemode on all commands (build, launch, template, abstract it)
        - [ ] Sync up & Refactor all commands (build should be latest)
@@ -224,6 +227,8 @@ Version todos:
 
 #### v0.9.6 - Alpha
 
+  - [ ] Config banner to use when things go wrong
+  - [ ] Issue links
   - [ ] tests
   - [ ] api docs
   - [ ] refactor params for consistency

@@ -2,6 +2,7 @@ package lib
 
 import (
   Logger "./logging"
+  "errors"
   // "os"
   // "time"
   // "fmt"
@@ -143,6 +144,8 @@ func (cmd *BuildCommand) Execute(args []string) error {
   dc.RegisterChannel(eventsChannel)
 
   fqImageName := cmd.App.AppState.BuildFile.ImageName + ":" + cmd.App.AppState.BuildFile.Tag
+
+  return errors.New("!!!!!!!!!!!!!!!!!! Force error !!!!!!!!!!!!!!!!!")
 
   image, err := dc.CreateDockerImage(fqImageName, cmd.Options.SingleFileMode)
   if err != nil {
