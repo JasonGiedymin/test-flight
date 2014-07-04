@@ -1,8 +1,7 @@
 package lib
 
 import (
-  Logger "./logging"
-  "errors"
+  Logger "github.com/JasonGiedymin/test-flight/lib/logging"
   // "os"
   // "time"
   // "fmt"
@@ -26,26 +25,15 @@ func (cmd *VersionCommand) Execute(args []string) error {
 
 func (cmd *CheckCommand) Execute(args []string) error {
   Logger.Info("Running Pre-Flight Check... in dir:", cmd.Options.Dir)
-  _, buildFile, err := cmd.Controls.CheckConfigs(cmd.App, cmd.Options)
+
+  // Check Config and Buildfiles
+  _, _, err := cmd.Controls.CheckConfigs(cmd.App, cmd.Options)
   if err != nil {
     return err
   }
 
-  cmd.App.AppState.Meta.Dir = cmd.Options.Dir
+  Logger.Info("All checks passed! Files found!")
 
-  _, err = HasRequiredFiles(cmd.Options.Dir, RequiredFiles)
-  if err != nil {
-    return err
-  }
-
-  buildFile, err = ReadBuildFile(FilePath(cmd.Options.Dir, "build.json"))
-  if err != nil {
-    return err
-  }
-
-  cmd.App.AppState.BuildFile = buildFile
-
-  Logger.Debug("Buildfile found, contents:", *buildFile)
   return nil
 }
 
@@ -144,8 +132,6 @@ func (cmd *BuildCommand) Execute(args []string) error {
   dc.RegisterChannel(eventsChannel)
 
   fqImageName := cmd.App.AppState.BuildFile.ImageName + ":" + cmd.App.AppState.BuildFile.Tag
-
-  return errors.New("!!!!!!!!!!!!!!!!!! Force error !!!!!!!!!!!!!!!!!")
 
   image, err := dc.CreateDockerImage(fqImageName, cmd.Options.SingleFileMode)
   if err != nil {

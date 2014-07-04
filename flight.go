@@ -1,8 +1,8 @@
 package main
 
 import (
-  "./lib"
-  Logger "./lib/logging"
+  "github.com/JasonGiedymin/test-flight/lib"
+  Logger "github.com/JasonGiedymin/test-flight/lib/logging"
   "github.com/jessevdk/go-flags"
   "os"
 )
@@ -11,26 +11,11 @@ import (
 var (
   app            lib.TestFlight
   parser         *flags.Parser
-  checkCommand   lib.CheckCommand
-  launchCommand  lib.LaunchCommand
-  versionCommand lib.VersionCommand
   options        lib.CommandOptions
 )
 
 var meta = lib.ApplicationMeta{
   Version: "0.9.5",
-}
-
-// Func to parse the app commands
-func ProcessCommands() {
-  app.SetState("PARSE_COMMAND_LINE")
-  if _, err := parser.Parse(); err != nil {
-    // Logger.Error(err)
-    // os.Exit(lib.ExitCodes["command_fail"])
-  } else {
-    // TODO: Show Info here
-    Logger.Info("Using Config file:", options.Configfile)
-  }
 }
 
 // == App ==
@@ -42,7 +27,7 @@ func init() {
 
   flightControls := lib.FlightControls{}
   
-  // checkCommand := lib.CheckCommand{Controls: &flightControls, App: &app, Dir: &options.Dir}
+  checkCommand := lib.CheckCommand{Controls: &flightControls, App: &app, Options: &options}
   // imagesCommand := lib.ImagesCommand{Controls: &flightControls, App: &app, Dir: options.Dir}
   buildCommand := lib.BuildCommand{Controls: &flightControls, App: &app, Options: &options}
   // launchCommand := lib.LaunchCommand{Controls: &flightControls, App: &app}
@@ -51,23 +36,14 @@ func init() {
   // versionCommand := lib.VersionCommand{Controls: &flightControls, App: &app}
   // templateCommand := lib.TemplateCommand{Controls: &flightControls, App: &app}
 
-  options = lib.CommandOptions{
-    // Check: &checkCommand,
-    // Images: &imagesCommand,
-    // Build: &buildCommand,
-    // Launch: &launchCommand,
-    // Ground: &groundCommand,
-    // Destroy: &destroyCommand,
-    // Version: &versionCommand,
-    // Template: &templateCommand,
-  }
+  options = lib.CommandOptions{}
 
   parser = flags.NewParser(&options, flags.Default)
 
-  // parser.AddCommand("check",
-  //   "flight check",
-  //   "Checks if pre-reqs are satisfied to launch this ansible playbook.",
-  //   &checkCommand)
+  parser.AddCommand("check",
+    "flight check",
+    "Checks if pre-reqs are satisfied to launch this ansible playbook.",
+    &checkCommand)
 
   // parser.AddCommand("images",
   //   "flight images",
@@ -107,6 +83,8 @@ func init() {
 
 // Runs Test-Flight
 func main() {
-  ProcessCommands() // parse command line options now
-  app.SetState("END")
+  if _, err := parser.Parse(); err != nil {
+    Logger.Error(err)
+    // os.Exit(lib.ExitCodes["command_fail"])
+  }
 }

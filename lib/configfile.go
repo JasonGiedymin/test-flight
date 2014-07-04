@@ -1,7 +1,7 @@
 package lib
 
 import (
-  Logger "./logging"
+  Logger "github.com/JasonGiedymin/test-flight/lib/logging"
   "encoding/json"
   "github.com/SpaceMonkeyGo/errors"
   "io/ioutil"
@@ -12,6 +12,15 @@ import (
 var (
   ReadFileError = errors.NewClass("Could not read file.")
 )
+
+type ConfigFile struct {
+  Location           string
+  TemplateDir        string
+  DockerEndpoint     string
+  WorkDir            string
+  DockerAdd          ConfigFileDockerAdd
+  OverwriteTemplates bool
+}
 
 type ConfigFileDockerAdd struct {
   Simple []string
@@ -53,6 +62,9 @@ func getConfig(file string) (*ConfigFile, error) {
       ". Please create the file or address syntax issues. System error:" + err.Error()
     return nil, ReadFileError.New(msg)
   }
+
+  // Augment configfile with it's location
+  configFile.Location = file
 
   return configFile, nil
 }

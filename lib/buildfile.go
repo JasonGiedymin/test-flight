@@ -7,6 +7,23 @@ import (
   // "errors"
 )
 
+type BuildFile struct {
+  Location          string
+  Owner             string
+  ImageName         string
+  Tag               string
+  From              string
+  Version           string
+  RequiresDocker    string
+  RequiresDockerUrl string
+  Env               map[string]string
+  Expose            []int
+  Add               []DockerAddComplexEntry
+  Cmd               string
+  RunTests          bool
+  ResourceShare     ResourceShare
+}
+
 // For specific defaults
 func NewBuildFile() *BuildFile {
   return &BuildFile{
@@ -30,6 +47,8 @@ func ReadBuildFile(filePath string) (*BuildFile, error) {
     return nil, err
   }
 
+  buildFile.Location = filePath
+  
   return buildFile, nil
 }
 

@@ -3,15 +3,18 @@ TEXT_COLOR=\033[1m
 OK_COLOR=\033[32;01m
 ERROR_COLOR=\033[31;01m
 WARN_COLOR=\033[33;01m
+
 DEPS = $(go list -f '{{range .TestImports}}{{.}} {{end}}' ./...)
 TEST_DIR=tests/test-dirmode
 FILE_MODE_TEST_DIR=tests/test-filemode/example-playbook
 FILE_MODE_CONFIG=tests/test-filemode/test-flight-config.json
 COMMON_OPTS=-race
+PACKAGE=$(GOPATH)/src/github.com/JasonGiedymin/test-flight
 
 help:
 	@echo "$(OK_COLOR)-----------------------Commands:----------------------$(NO_COLOR)"
 	@echo "$(TEXT_COLOR) help:       this help listing $(NO_COLOR)"
+	@echo "$(TEXT_COLOR) link:       symlinks this repo to gopath $(NO_COLOR)"
 	@echo "$(TEXT_COLOR) deps:       install dependencies $(NO_COLOR)"
 	@echo "$(TEXT_COLOR) updatedeps: update dependencies $(NO_COLOR)"
 	@echo "$(TEXT_COLOR) format:     formats the code $(NO_COLOR)"
@@ -36,6 +39,10 @@ help:
 	@echo "$(TEXT_COLOR) test-destroy-s: tests the destroy command using filemode in test dir $(NO_COLOR)"
 	@echo "$(TEXT_COLOR) test-images: tests the images command using test dir $(NO_COLOR)"
 	@echo "$(OK_COLOR)------------------------------------------------------$(NO_COLOR)"
+
+link:
+	@echo "$(OK_COLOR)==> Symlinking project to $(PACKAGE) $(NO_COLOR)"
+	@ln -f -s $(shell pwd) $(PACKAGE)
 
 deps:
 	@echo "$(OK_COLOR)==> Installing dependencies $(NO_COLOR)"
@@ -69,7 +76,7 @@ test-check:
 
 test-check-s:
 	@echo "$(OK_COLOR)==> Testing Check with FileMode set$(NO_COLOR)"
-	go run $(COMMON_OPTS) flight.go check -s -d $(FILE_MODE_TEST_DIR)
+	go run $(COMMON_OPTS) flight.go -c $(FILE_MODE_CONFIG) -s -d $(FILE_MODE_TEST_DIR) check
 
 test-build:
 	@echo "$(OK_COLOR)==> Testing Build $(NO_COLOR)"

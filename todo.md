@@ -207,10 +207,25 @@ Version todos:
              which changes if set to filemode.
        - [x] Bug, Not finding templates and/or dir => templates are registered
              by name specified within, pass only the dir to the template func
-       - [ ] Detour, fix makefile deps install
-       - [ ] Change singlefilemode to just filemode
-       - [ ] finish filemode on all commands (build, launch, template, abstract it)
-       - [ ] Sync up & Refactor all commands (build should be latest)
+       - [x] Detour, fix makefile deps install 
+             => added `make link` to link project to the GOPATH
+             => allows for fully qualified "github" import paths now
+       - [x] Parser always kicks out error, ugh, verify. => default behavior, 
+             see: [parser_private.go - Line 313](https://github.com/jessevdk/go-flags/blob/master/parser_private.go#L313)
+       - [-] ~~Change singlefilemode to just filemode~~ => chose singlefilemode
+             to use `-s`.
+       - [~] finish filemode on all commands (build, launch, template, abstract it)
+         - [x] Sync up & Refactor all commands (build should be latest)
+         - [x] move ConfigFile and BuildFile types into respective locations
+         - [x] Add location to ConfigFile and BuildFile for reference
+         - [x] Finalize Build command
+         - [x] Add check command
+         - [ ] Add Images command
+         - [ ] Add Launch command
+         - [ ] Add Ground command
+         - [ ] Add Destroy command
+         - [ ] Add Version command
+         - [ ] Add Template command
        - [ ] Merge!
   - [ ] Add RunDocker Tests and code using go-apibuilder
   - [ ] wire in buildfile resource share specs to container options

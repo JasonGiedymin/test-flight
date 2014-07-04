@@ -1,7 +1,7 @@
 package lib
 
 import (
-  Logger "./logging"
+  Logger "github.com/JasonGiedymin/test-flight/lib/logging"
   "bitbucket.org/kardianos/osext"
   "os"
   "errors"

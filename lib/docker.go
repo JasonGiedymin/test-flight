@@ -26,7 +26,7 @@
 package lib
 
 import (
-  Logger "./logging"
+  Logger "github.com/JasonGiedymin/test-flight/lib/logging"
   "archive/tar"
   "bufio"
   "bytes"

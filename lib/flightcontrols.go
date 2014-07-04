@@ -2,7 +2,7 @@ package lib
 
 import (
   "os"
-  Logger "./logging"
+  Logger "github.com/JasonGiedymin/test-flight/lib/logging"
   "errors"
 )
 
@@ -11,9 +11,8 @@ type FlightControls struct{}
 func (fc *FlightControls) Init(app *TestFlight) {}
 
 func (fc *FlightControls) CheckConfigs(app *TestFlight, options *CommandOptions) (*ConfigFile, *BuildFile, error) {
-  if (options.Configfile != "") {
-    Logger.Info("Using configfile:", options.Configfile)
-  }
+  // Set vars
+  Logger.Info("Using directory:", options.Dir)
 
   // Prereqs
   app.SetDir(options.Dir)
@@ -23,6 +22,7 @@ func (fc *FlightControls) CheckConfigs(app *TestFlight, options *CommandOptions)
     os.Exit(ExitCodes["config_missing"])
   }
   app.SetConfigFile(configFile)
+  Logger.Info("Using configfile:", configFile.Location)
 
   requiredFiles := getRequiredFiles(options.SingleFileMode)
 
@@ -33,6 +33,8 @@ func (fc *FlightControls) CheckConfigs(app *TestFlight, options *CommandOptions)
     return nil, nil, err
   }
   app.SetBuildFile(buildFile)
+  Logger.Info("Using buildfile:", buildFile.Location)
+  Logger.Debug("buildfile - contents:", *buildFile)
 
   return configFile, buildFile, nil
 }

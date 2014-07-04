@@ -1,7 +1,7 @@
 package lib
 
 import (
-  Logger "./logging"
+  Logger "github.com/JasonGiedymin/test-flight/lib/logging"
   "encoding/json"
 )
 
@@ -103,30 +103,6 @@ type ResourceShare struct {
 type DockerAddComplexEntry struct {
   Name     string
   Location string
-}
-
-type ConfigFile struct {
-  TemplateDir        string
-  DockerEndpoint     string
-  WorkDir            string
-  DockerAdd          ConfigFileDockerAdd
-  OverwriteTemplates bool
-}
-
-type BuildFile struct {
-  Owner             string
-  ImageName         string
-  Tag               string
-  From              string
-  Version           string
-  RequiresDocker    string
-  RequiresDockerUrl string
-  Env               map[string]string
-  Expose            []int
-  Add               []DockerAddComplexEntry
-  Cmd               string
-  RunTests          bool
-  ResourceShare     ResourceShare
 }
 
 type ApplicationMeta struct {
