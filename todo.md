@@ -215,12 +215,13 @@ Version todos:
        - [-] ~~Change singlefilemode to just filemode~~ => chose singlefilemode
              to use `-s`.
        - [~] finish filemode on all commands (build, launch, template, abstract it)
+             and also move command methods to specified file
          - [x] Sync up & Refactor all commands (build should be latest)
          - [x] move ConfigFile and BuildFile types into respective locations
          - [x] Add location to ConfigFile and BuildFile for reference
          - [x] Finalize Build command
          - [x] Add check command
-         - [ ] Add Images command
+         - [x] Add Images command
          - [ ] Add Launch command
          - [ ] Add Ground command
          - [ ] Add Destroy command
@@ -242,6 +243,7 @@ Version todos:
 
 #### v0.9.6 - Alpha
 
+  - [ ] Info logger to raw stdout
   - [ ] Config banner to use when things go wrong
   - [ ] Issue links
   - [ ] tests

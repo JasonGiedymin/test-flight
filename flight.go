@@ -28,7 +28,7 @@ func init() {
   flightControls := lib.FlightControls{}
   
   checkCommand := lib.CheckCommand{Controls: &flightControls, App: &app, Options: &options}
-  // imagesCommand := lib.ImagesCommand{Controls: &flightControls, App: &app, Dir: options.Dir}
+  imagesCommand := lib.ImagesCommand{Controls: &flightControls, App: &app, Options: &options}
   buildCommand := lib.BuildCommand{Controls: &flightControls, App: &app, Options: &options}
   // launchCommand := lib.LaunchCommand{Controls: &flightControls, App: &app}
   // groundCommand := lib.GroundCommand{Controls: &flightControls, App: &app}
@@ -45,10 +45,10 @@ func init() {
     "Checks if pre-reqs are satisfied to launch this ansible playbook.",
     &checkCommand)
 
-  // parser.AddCommand("images",
-  //   "flight images",
-  //   "Shows all images",
-  //   &imagesCommand)
+  parser.AddCommand("images",
+    "flight images",
+    "Shows all images",
+    &imagesCommand)
 
   parser.AddCommand("build",
     "flight build",

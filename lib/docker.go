@@ -96,7 +96,7 @@ func NewDockerApi(meta *ApplicationMeta, configFile *ConfigFile, buildFile *Buil
     os.Exit(ExitCodes["docker_error"])
   }
 
-  Logger.Info("Docker endpoint:", configFile.DockerEndpoint)
+  Logger.Debug("Docker client created using endpoint:", configFile.DockerEndpoint)
   api.client = client
 
   return &api
@@ -621,6 +621,7 @@ func (api *DockerApi) GetImageDetails(fqImageName string) (*ApiDockerImage, erro
   } else {
     switch resp.Status() {
     case 200:
+      Logger.Info(result)
       return &result, nil
     case 404:
       Logger.Debug("Image not found")

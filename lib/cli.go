@@ -2,9 +2,6 @@ package lib
 
 import (
   Logger "github.com/JasonGiedymin/test-flight/lib/logging"
-  // "os"
-  // "time"
-  // "fmt"
   "sync"
   "runtime"
 )
@@ -23,20 +20,6 @@ func (cmd *VersionCommand) Execute(args []string) error {
   return nil
 }
 
-func (cmd *CheckCommand) Execute(args []string) error {
-  Logger.Info("Running Pre-Flight Check... in dir:", cmd.Options.Dir)
-
-  // Check Config and Buildfiles
-  _, _, err := cmd.Controls.CheckConfigs(cmd.App, cmd.Options)
-  if err != nil {
-    return err
-  }
-
-  Logger.Info("All checks passed! Files found!")
-
-  return nil
-}
-
 func (cmd *GroundCommand) Execute(args []string) error {
   // Check Config and Buildfiles
   configFile, buildFile, err := cmd.Controls.CheckConfigs(cmd.App, cmd.Options)
@@ -46,7 +29,7 @@ func (cmd *GroundCommand) Execute(args []string) error {
   
   Logger.Info("Grounding Tests... in dir:", cmd.Dir)
 
-  var dc = NewDockerApi(cmd.App.AppState.Meta, configFile, buildFile)
+  dc := NewDockerApi(cmd.App.AppState.Meta, configFile, buildFile)
   dc.ShowInfo()
 
   if err := cmd.Controls.testFlightTemplates(dc, configFile, cmd.SingleFileMode); err != nil {
@@ -80,7 +63,7 @@ func (cmd *DestroyCommand) Execute(args []string) error {
     return err
   }
 
-  var dc = NewDockerApi(cmd.App.AppState.Meta, configFile, buildFile)
+  dc := NewDockerApi(cmd.App.AppState.Meta, configFile, buildFile)
   dc.ShowInfo()
 
   // Register channel so we can watch for events as they happen
@@ -101,44 +84,6 @@ func (cmd *DestroyCommand) Execute(args []string) error {
   }
 
   // Nothing to do
-  return nil
-}
-
-// == Build Command ==
-// Should build a docker image
-func (cmd *BuildCommand) Execute(args []string) error {
-  // Set vars
-  Logger.Info("Building... using information from dir:", cmd.Options.Dir)
-
-  // Check Config and Buildfiles
-  configFile, buildFile, err := cmd.Controls.CheckConfigs(cmd.App, cmd.Options)
-  if err != nil {
-    return err
-  }
-  
-  // Api interaction here
-  var dc = NewDockerApi(cmd.App.AppState.Meta, configFile, buildFile)
-  dc.ShowInfo()
-
-  // Generate Templates
-  // TODO: fails here with filemode
-  if err := cmd.Controls.testFlightTemplates(dc, configFile, cmd.Options.SingleFileMode); err != nil {
-    return err
-  }
-
-  // Register channel so we can watch for events as they happen
-  eventsChannel := make(ApiChannel)
-  go watchForEventsOn(eventsChannel)
-  dc.RegisterChannel(eventsChannel)
-
-  fqImageName := cmd.App.AppState.BuildFile.ImageName + ":" + cmd.App.AppState.BuildFile.Tag
-
-  image, err := dc.CreateDockerImage(fqImageName, cmd.Options.SingleFileMode)
-  if err != nil {
-    return err
-  }
-
-  Logger.Trace("Created Docker Image:", image)
   return nil
 }
 
@@ -169,7 +114,7 @@ func (cmd *LaunchCommand) Execute(args []string) error {
     return err
   }
 
-  var dc = NewDockerApi(cmd.App.AppState.Meta, configFile, buildFile)
+  dc := NewDockerApi(cmd.App.AppState.Meta, configFile, buildFile)
   dc.ShowInfo()
 
   if err := cmd.Controls.testFlightTemplates(dc, configFile, cmd.Options.SingleFileMode); err != nil {
@@ -210,25 +155,6 @@ func (cmd *LaunchCommand) Execute(args []string) error {
     }
   }
 
-  return nil
-}
-
-func (cmd *ImagesCommand) Execute(args []string) error {
-  cmd.App.SetState("IMAGES")
-  Logger.Info("Listing images... using config from dir:", cmd.Options.Dir)
-
-  _, buildFile, err := cmd.Controls.CheckConfigs(cmd.App, cmd.Options)
-  if err != nil {
-    return err
-  }  
-
-  cmd.App.AppState.Meta.Dir = cmd.Options.Dir
-
-  fqImageName := cmd.App.AppState.BuildFile.ImageName + ":" + buildFile.Tag
-
-  dc := NewDockerApi(cmd.App.AppState.Meta, cmd.App.AppState.ConfigFile, cmd.App.AppState.BuildFile)
-
-  dc.GetImageDetails(fqImageName)
   return nil
 }
 

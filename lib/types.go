@@ -82,19 +82,6 @@ type ApiDockerConfig struct {
   MemorySwap   int
 }
 
-type ApiDockerImage struct {
-  Architecture    string
-  Author          string
-  Comment         string
-  Config          ApiDockerConfig
-  Container       string
-  ContainerConfig ApiDockerConfig
-  DockerVersion   string
-  Id              string
-  Os              string
-  Parent          string
-}
-
 type ResourceShare struct {
   Mem int
   Cpu int
@@ -105,6 +92,7 @@ type DockerAddComplexEntry struct {
   Location string
 }
 
+//TODO: Merge with config
 type ApplicationMeta struct {
   Version     string
   LastCommand string
