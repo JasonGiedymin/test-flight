@@ -222,7 +222,8 @@ Version todos:
          - [x] Finalize Build command
          - [x] Add check command
          - [x] Add Images command
-         - [ ] Add Launch command
+         - [~] Add Launch command
+          - [ ] Bug, fix response code issue when running test-launch-f-s
          - [ ] Add Ground command
          - [ ] Add Destroy command
          - [ ] Add Version command

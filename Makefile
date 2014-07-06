@@ -104,8 +104,8 @@ test-launch-f:
 	go run $(COMMON_OPTS) flight.go launch -f -d $(TEST_DIR)
 
 test-launch-f-s:
-	@echo "$(OK_COLOR)==> Testing Launch with Force set $(NO_COLOR)"
-	go run $(COMMON_OPTS) flight.go launch -f -s -d $(FILE_MODE_TEST_DIR)
+	@echo "$(OK_COLOR)==> Testing Launch with Force set and using FileMode $(NO_COLOR)"
+	go run $(COMMON_OPTS) flight.go -c $(FILE_MODE_CONFIG) -f -s -d $(FILE_MODE_TEST_DIR) launch
 
 test-ground:
 	@echo "$(OK_COLOR)==> Testing Ground $(NO_COLOR)"

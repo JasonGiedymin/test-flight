@@ -30,7 +30,7 @@ func init() {
   checkCommand := lib.CheckCommand{Controls: &flightControls, App: &app, Options: &options}
   imagesCommand := lib.ImagesCommand{Controls: &flightControls, App: &app, Options: &options}
   buildCommand := lib.BuildCommand{Controls: &flightControls, App: &app, Options: &options}
-  // launchCommand := lib.LaunchCommand{Controls: &flightControls, App: &app}
+  launchCommand := lib.LaunchCommand{Controls: &flightControls, App: &app, Options: &options}
   // groundCommand := lib.GroundCommand{Controls: &flightControls, App: &app}
   // destroyCommand := lib.DestroyCommand{Controls: &flightControls, App: &app}
   // versionCommand := lib.VersionCommand{Controls: &flightControls, App: &app}
@@ -55,10 +55,10 @@ func init() {
     "Build will build an ansible playbook docker image.",
     &buildCommand)
 
-  // parser.AddCommand("launch",
-  //   "flight launch",
-  //   "Launch builds, runs, and tests an ansible playbook.",
-  //   &launchCommand)
+  parser.AddCommand("launch",
+    "flight launch",
+    "Launch builds, runs, and tests an ansible playbook.",
+    &launchCommand)
 
   // parser.AddCommand("ground",
   //   "flight ground",
