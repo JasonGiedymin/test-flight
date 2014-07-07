@@ -1,6 +1,7 @@
 package lib
 
 import (
+  Logger "github.com/JasonGiedymin/test-flight/lib/logging"
   "encoding/json"
   "io/ioutil"
   // "strings"
@@ -44,6 +45,7 @@ func ReadBuildFile(filePath string) (*BuildFile, error) {
   var buildFile = NewBuildFile()
   err := json.Unmarshal(jsonBlob, buildFile)
   if err != nil {
+    Logger.Error("Error while trying to parse buildfile,", filePath, err)
     return nil, err
   }
 

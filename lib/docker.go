@@ -727,6 +727,8 @@ func (api *DockerApi) CreateContainer(fqImageName string) (*ApiPostResponse, err
     },
     "/",
   )
+
+  // url = url + "?name='test-1'"
   Logger.Trace("CreateContainer() - Api call to:", url)
 
   jsonResult := ApiPostResponse{}
@@ -738,6 +740,8 @@ func (api *DockerApi) CreateContainer(fqImageName string) (*ApiPostResponse, err
     Logger.Error("Could not contact docker endpoint:", endpoint)
     return nil, err
   } else {
+    msg := "Unexpected response code: " + string(resp.StatusCode)
+
     switch resp.StatusCode {
     case 201:
       if err := json.Unmarshal(body, &jsonResult); err != nil {
@@ -747,15 +751,16 @@ func (api *DockerApi) CreateContainer(fqImageName string) (*ApiPostResponse, err
       Logger.Info("Created container:", fqImageName)
       return &jsonResult, nil
     case 404:
-      Logger.Warn("No such container")
+      msg = "No such container"
+      Logger.Warn(msg)
     case 406:
-      Logger.Warn("Impossible to attach (container not running)")
+      msg = "Impossible to attach (container not running)"
+      Logger.Warn(msg)
     case 500:
-      Logger.Error("Error while trying to communicate to docker endpoint:", endpoint)
+      msg = "Error while trying to communicate to docker endpoint: " + endpoint
+      Logger.Error(msg)
     }
 
-    msg := "Unexpected response code: " + string(resp.StatusCode)
-    Logger.Error(msg)
     return nil, errors.New(msg)
   }
 }

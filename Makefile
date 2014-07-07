@@ -5,7 +5,7 @@ ERROR_COLOR=\033[31;01m
 WARN_COLOR=\033[33;01m
 
 DEPS = $(go list -f '{{range .TestImports}}{{.}} {{end}}' ./...)
-TEST_DIR=tests/test-dirmode
+TEST_DIR=tests/test-dirmode/example-playbook
 FILE_MODE_TEST_DIR=tests/test-filemode/example-playbook
 FILE_MODE_CONFIG=tests/test-filemode/test-flight-config.json
 COMMON_OPTS=-race
