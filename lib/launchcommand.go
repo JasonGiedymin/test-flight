@@ -27,9 +27,10 @@ func (cmd *LaunchCommand) Execute(args []string) error {
   dc := NewDockerApi(cmd.App.AppState.Meta, configFile, buildFile)
   dc.ShowInfo()
 
-  if err := cmd.Controls.testFlightTemplates(dc, configFile, cmd.Options.SingleFileMode); err != nil {
+  if err := cmd.Controls.testFlightTemplates(dc, configFile, *cmd.Options); err != nil {
     return err
   }
+  Logger.Trace("Created test-flight templates.")
 
   // Register channel so we can watch for events as they happen
   eventsChannel := make(ApiChannel)

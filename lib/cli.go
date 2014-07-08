@@ -32,7 +32,7 @@ func (cmd *GroundCommand) Execute(args []string) error {
   dc := NewDockerApi(cmd.App.AppState.Meta, configFile, buildFile)
   dc.ShowInfo()
 
-  if err := cmd.Controls.testFlightTemplates(dc, configFile, cmd.SingleFileMode); err != nil {
+  if err := cmd.Controls.testFlightTemplates(dc, configFile, *cmd.Options); err != nil {
     return err
   }
 
@@ -114,5 +114,5 @@ func (cmd *TemplateCommand) Execute(args []string) error {
   cmd.App.AppState.Meta.Dir = cmd.Options.Dir
 
   dc := NewDockerApi(cmd.App.AppState.Meta, cmd.App.AppState.ConfigFile, cmd.App.AppState.BuildFile)
-  return cmd.Controls.testFlightTemplates(dc, cmd.App.AppState.ConfigFile, cmd.Options.SingleFileMode)
+  return cmd.Controls.testFlightTemplates(dc, cmd.App.AppState.ConfigFile, *cmd.Options)
 }

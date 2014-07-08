@@ -116,7 +116,7 @@ func (api *DockerApi) RegisterChannel(eventsChannel chan *docker.APIEvents) {
   eventsChannel <- &docker.APIEvents{Status: "Listening in on Docker Events..."}
 }
 
-func (api *DockerApi) createTestTemplates() error {
+func (api *DockerApi) createTestTemplates(options CommandOptions) error {
   var templateDir = getTemplateDir(api.configFile)
 
   var inventory = RequiredFile{
@@ -127,8 +127,25 @@ func (api *DockerApi) createTestTemplates() error {
     Name: "Test-Flight Test Playbook file", FileName: "playbook.yml", FileType: "f",
   }
 
-  templateOutputDir := strings.Join([]string{api.meta.Pwd, api.meta.Dir, templateDir.FileName}, "/")
-  templateInputDir := api.meta.Pwd + "/templates/"
+  // TODO: better to have a type specified that is calculated
+  //       much earlier in the process
+  var modeDir = func() string {
+    if options.SingleFileMode {
+      return "filemode"
+    } else {
+      return "dirmode"
+    }
+  }()
+
+  // --HERE MUST KNOW ABOUT SUB DIR dirmode/filemode of templates
+  // -- needs to work for input and output dir
+
+  // The directory where the templates used to create inventory and playbook
+  // This is used below in `ExecuteTemplate()`
+  templateInputDir := FilePath(api.meta.Pwd, "templates", modeDir)
+
+  // The directory where to put the generated files
+  templateOutputDir := FilePath(api.meta.Pwd, api.meta.Dir, templateDir.FileName)
 
   createFilesFromTemplate := func(
     templateInputDir string,
@@ -719,21 +736,12 @@ func (api *DockerApi) CreateContainer(fqImageName string) (*ApiPostResponse, err
     AttachStdout: true,
   }
 
-  url := strings.Join(
-    []string{
-      endpoint,
-      "containers",
-      "create",
-    },
-    "/",
-  )
-
-  // url = url + "?name='test-1'"
+  url := FilePath(endpoint, "containers", "create")
   Logger.Trace("CreateContainer() - Api call to:", url)
 
   jsonResult := ApiPostResponse{}
   bytesReader, _ := postBody.Bytes()
-  resp, _ := http.Post(url, "text/json", bytes.NewReader(bytesReader))
+  resp, _ := http.Post(url, "application/json", bytes.NewReader(bytesReader))
   defer resp.Body.Close()
 
   if body, err := ioutil.ReadAll(resp.Body); err != nil {
@@ -756,8 +764,13 @@ func (api *DockerApi) CreateContainer(fqImageName string) (*ApiPostResponse, err
     case 406:
       msg = "Impossible to attach (container not running)"
       Logger.Warn(msg)
-    case 500:
-      msg = "Error while trying to communicate to docker endpoint: " + endpoint
+    case 500: 
+      // noticed that when docker endpoint fails, it fails with just
+      // status 500, no message back. Logs do show error though somewhat
+      // slim details. i.e No command specified where command is really CMD :-(
+      msg = "Server and/or API error while trying to communicate with docker " +
+        "endpoint: " + endpoint + ". Could be malformed Dockerfile (template). " +
+        "Check your remote docker endpoint logs."
       Logger.Error(msg)
     }
 

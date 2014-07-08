@@ -96,6 +96,14 @@ func Trace(v ...interface{}) {
   LogDebug.Trace(v)
 }
 
+func What(v ...interface{}) {
+ if Log == nil {
+    setup()
+  }
+
+  LogDebug.Trace("*** ", v) 
+}
+
 func Console(v ...interface{}) {
  if Log == nil {
     setup()

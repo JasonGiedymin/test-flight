@@ -223,7 +223,20 @@ Version todos:
          - [x] Add check command
          - [x] Add Images command
          - [~] Add Launch command
-          - [ ] Bug, fix response code issue when running test-launch-f-s
+          - [x] Fix test-launch (to some degree)
+          - [x] Bug, fix response code issue when running test-launch-f-s
+            - [x] Fix template generation command to use mode dir
+            - [x] Add `Logger.What()` command to help console debugging
+            - [x] When error from create container, print it?
+            - [x] Add `known_issues.md` to list known issues
+            - [x] Copy inventory and playbook templates to `filemode` dir
+            => Found that Dockerfile template did not specify `CMD` since I
+               commented it out for testing. Remote Docker endpoint returned
+               HTTP Status code 500 with no other information. Docker docs (atm)
+               only say server error. Checked remote endpoint logs, and revealed
+               that "no command was specified", which means no "CMD" was found
+               in the Dockerfile. Think that docker error codes should come back
+               with some messages.
          - [ ] Add Ground command
          - [ ] Add Destroy command
          - [ ] Add Version command
@@ -241,6 +254,10 @@ Version todos:
   - [ ] Update README with make commands
   - [ ] Add cleanup command (Removes images/tags with None)
   - [ ] endpoint timeout
+  - [ ] Add check to inspect that all required templates exist in:
+    - [ ] `templates/dirmode`
+    - [ ] `templates/filemode`
+  - [ ] Use `FilePath()` everywhere where doing `strings.Join()`
 
 #### v0.9.6 - Alpha
 
