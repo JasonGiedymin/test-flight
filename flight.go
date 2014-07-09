@@ -31,8 +31,8 @@ func init() {
   imagesCommand := lib.ImagesCommand{Controls: &flightControls, App: &app, Options: &options}
   buildCommand := lib.BuildCommand{Controls: &flightControls, App: &app, Options: &options}
   launchCommand := lib.LaunchCommand{Controls: &flightControls, App: &app, Options: &options}
-  // groundCommand := lib.GroundCommand{Controls: &flightControls, App: &app}
-  // destroyCommand := lib.DestroyCommand{Controls: &flightControls, App: &app}
+  groundCommand := lib.GroundCommand{Controls: &flightControls, App: &app, Options: &options}
+  destroyCommand := lib.DestroyCommand{Controls: &flightControls, App: &app, Options: &options}
   // versionCommand := lib.VersionCommand{Controls: &flightControls, App: &app}
   // templateCommand := lib.TemplateCommand{Controls: &flightControls, App: &app}
 
@@ -60,15 +60,15 @@ func init() {
     "Launch builds, runs, and tests an ansible playbook.",
     &launchCommand)
 
-  // parser.AddCommand("ground",
-  //   "flight ground",
-  //   "Ground stops all containers found running this ansible playbook.",
-  //   &groundCommand)
+  parser.AddCommand("ground",
+    "flight ground",
+    "Ground stops all containers found running this ansible playbook.",
+    &groundCommand)
 
-  // parser.AddCommand("destroy",
-  //   "flight destroy",
-  //   "Destroy destroys all containers and images found running this ansible playbook.",
-  //   &destroyCommand)
+  parser.AddCommand("destroy",
+    "flight destroy",
+    "Destroy destroys all containers and images found running this ansible playbook.",
+    &destroyCommand)
 
   // parser.AddCommand("template",
   //   "flight template",

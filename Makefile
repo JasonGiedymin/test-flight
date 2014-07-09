@@ -109,19 +109,19 @@ test-launch-f-s:
 
 test-ground:
 	@echo "$(OK_COLOR)==> Testing Ground $(NO_COLOR)"
-	go run $(COMMON_OPTS) flight.go ground -d $(TEST_DIR)
+	go run $(COMMON_OPTS) flight.go -d $(TEST_DIR) ground
 
-test-ground-s:
+test-ground-f-s:
 	@echo "$(OK_COLOR)==> Testing Ground with FileMode set $(NO_COLOR)"
-	go run $(COMMON_OPTS) flight.go ground -s -d $(FILE_MODE_TEST_DIR)
+	go run $(COMMON_OPTS) flight.go -c $(FILE_MODE_CONFIG) -s -d $(FILE_MODE_TEST_DIR) ground
 
 test-destroy:
 	@echo "$(OK_COLOR)==> Testing Destroy $(NO_COLOR)"
 	go run $(COMMON_OPTS) flight.go destroy -d $(TEST_DIR)
 
-test-destroy-s:
+test-destroy-f-s:
 	@echo "$(OK_COLOR)==> Testing Destroy with FileMode set $(NO_COLOR)"
-	go run $(COMMON_OPTS) flight.go destroy -s -d $(FILE_MODE_TEST_DIR)
+	go run $(COMMON_OPTS) flight.go -c $(FILE_MODE_CONFIG) -s -d $(FILE_MODE_TEST_DIR) destroy
 
 test-images:
 	@echo "$(OK_COLOR)==> Testing Images $(NO_COLOR)"

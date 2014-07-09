@@ -171,7 +171,7 @@ Version todos:
     - [x] Complete `Attach` so that it reads from the stream
     - [x] channel the console output => still waits on exit, for now
     - [x] wait on container channel => WaitGroup
-  - [x] Fix interfact wrapping in logging messages => temporary fix with 
+  - [x] Fix interfact wrapping in logging messages => temporary fix with
         v[0] (index 0), and only for console logging
   - [x] control-c watch => use channel and signal notify
   - [x] Add file mode command line option for building/launching `-f`, however
@@ -207,10 +207,10 @@ Version todos:
              which changes if set to filemode.
        - [x] Bug, Not finding templates and/or dir => templates are registered
              by name specified within, pass only the dir to the template func
-       - [x] Detour, fix makefile deps install 
+       - [x] Detour, fix makefile deps install
              => added `make link` to link project to the GOPATH
              => allows for fully qualified "github" import paths now
-       - [x] Parser always kicks out error, ugh, verify. => default behavior, 
+       - [x] Parser always kicks out error, ugh, verify. => default behavior,
              see: [parser_private.go - Line 313](https://github.com/jessevdk/go-flags/blob/master/parser_private.go#L313)
        - [-] ~~Change singlefilemode to just filemode~~ => chose singlefilemode
              to use `-s`.
@@ -237,8 +237,8 @@ Version todos:
                that "no command was specified", which means no "CMD" was found
                in the Dockerfile. Think that docker error codes should come back
                with some messages.
-         - [ ] Add Ground command
-         - [ ] Add Destroy command
+         - [x] Add Ground command
+         - [x] Add Destroy command
          - [ ] Add Version command
          - [ ] Add Template command
        - [ ] Merge!
