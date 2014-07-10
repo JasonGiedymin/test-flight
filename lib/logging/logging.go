@@ -14,7 +14,7 @@ var (
   debugFile *os.File = getDebugFile()
 )
 
-var debugLogFormat = `%{Color "red" "ERROR"}%{Color "yellow" "WARN"}%{Color "green" "INFO"}%{Color "cyan" "DEBUG"}%{Color "white+b" "TRACE"}[%{Date} %{Time}] [%{SEVERITY}] - %{Message}%{Color "reset"}`
+var debugLogFormat = `%{Color "red" "ERROR"}%{Color "yellow" "WARN"}%{Color "green" "INFO"}%{Color "cyan" "DEBUG"}%{Color "white+b" "TRACE"}[%{Date} %{Time}] [%{SEVERITY}:%{File}:%{Line}] - %{Message}%{Color "reset"}`
 var consoleLogFormat = `%{Color "red" "ERROR"}%{Color "yellow" "WARN"}%{Color "green" "INFO"}%{Color "cyan" "DEBUG"}%{Color "white+b" "TRACE"}%{Message}%{Color "reset"}`
 var stdLogFormat = `%{Color "red" "ERROR"}%{Color "yellow" "WARN"}%{Color "green" "INFO"}%{Color "cyan" "DEBUG"}%{Color "white+b" "TRACE"}[%{Date} %{Time}] [%{SEVERITY}] - %{Message}%{Color "reset"}`
 var fileLogFormat = `[%{Date} %{Time}] [%{SEVERITY}] - %{Message}%{Color "reset"}`
@@ -57,7 +57,7 @@ func Error(v ...interface{}) {
   }
 
   Log.Error(v)
-  // File.Println(v)
+  File.Println(v)
 }
 
 // Things that aren't errors but you should know
@@ -93,7 +93,15 @@ func Trace(v ...interface{}) {
     setup()
   }
 
-  Log.Trace(v)
+  LogDebug.Trace(v)
+}
+
+func What(v ...interface{}) {
+ if Log == nil {
+    setup()
+  }
+
+  LogDebug.Trace("*** ", v) 
 }
 
 func Console(v ...interface{}) {

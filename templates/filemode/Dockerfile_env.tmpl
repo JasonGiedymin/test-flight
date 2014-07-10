@@ -1,0 +1,14 @@
+{{define "Dockerfile_env"}}
+
+# Required Test-Flight Working dir
+ENV WORKDIR {{.WorkDir}}/{{.ImageName}}
+
+{{if .Env}}
+# -----> Env entries
+{{range $key, $value := .Env}}
+ENV {{$key}} {{$value}}
+{{end}}
+# <----- end Env
+{{end}}
+
+{{end}}

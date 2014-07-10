@@ -1,11 +1,11 @@
-package types
+package lib
 
 import (
-  Logger "../logging"
+  Logger "github.com/JasonGiedymin/test-flight/lib/logging"
   "encoding/json"
 )
 
-func bytes(data interface{}) ([]byte, error) {
+func toBytes(data interface{}) ([]byte, error) {
   bytes, err := json.Marshal(data)
   if err != nil {
     return nil, err
@@ -53,7 +53,7 @@ type DockerHostConfig struct {
 }
 
 func (post *DockerHostConfig) Bytes() ([]byte, error) {
-  return bytes(post)
+  return toBytes(post)
 }
 
 type ApiContainerPortDetails struct {
@@ -82,19 +82,6 @@ type ApiDockerConfig struct {
   MemorySwap   int
 }
 
-type ApiDockerImage struct {
-  Architecture    string
-  Author          string
-  Comment         string
-  Config          ApiDockerConfig
-  Container       string
-  ContainerConfig ApiDockerConfig
-  DockerVersion   string
-  Id              string
-  Os              string
-  Parent          string
-}
-
 type ResourceShare struct {
   Mem int
   Cpu int
@@ -105,36 +92,7 @@ type DockerAddComplexEntry struct {
   Location string
 }
 
-type ConfigFileDockerAdd struct {
-  Simple []string
-  // User   []map[string]string
-  Complex []DockerAddComplexEntry
-}
-
-type ConfigFile struct {
-  TemplateDir        string
-  DockerEndpoint     string
-  WorkDir            string
-  DockerAdd          ConfigFileDockerAdd
-  OverwriteTemplates bool
-}
-
-type BuildFile struct {
-  Owner             string
-  ImageName         string
-  Tag               string
-  From              string
-  Version           string
-  RequiresDocker    string
-  RequiresDockerUrl string
-  Env               map[string]string
-  Expose            []int
-  Add               []DockerAddComplexEntry
-  Cmd               string
-  RunTests          bool
-  ResourceShare     ResourceShare
-}
-
+//TODO: Merge with config
 type ApplicationMeta struct {
   Version     string
   LastCommand string
@@ -144,12 +102,9 @@ type ApplicationMeta struct {
   Dir         string
 }
 
-type CommandOptions struct {
-}
-
 type ApplicationState struct {
   Meta       *ApplicationMeta
-  Options    CommandOptions
+  // Options    CommandOptions
   ConfigFile *ConfigFile
   BuildFile  *BuildFile
 }

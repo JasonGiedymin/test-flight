@@ -1,0 +1,17 @@
+{{define "playbook.yml"}}---
+#
+# Test-Flight Test Playbook
+#
+# Test-Flight v{{.Meta.Version}} Generated Playbook File
+#
+
+- hosts: localhost
+  sudo: True
+  roles:
+    - role: ./
+
+{{if .RunTests}}
+- include: tests/main.yml
+{{end}}
+
+{{end}}

@@ -1,9 +1,8 @@
 package main
 
 import (
-  "./lib"
-  // Logger "./lib/logging"
-  "./lib/types"
+  "github.com/JasonGiedymin/test-flight/lib"
+  Logger "github.com/JasonGiedymin/test-flight/lib/logging"
   "github.com/jessevdk/go-flags"
   "os"
 )
@@ -12,36 +11,32 @@ import (
 var (
   app            lib.TestFlight
   parser         *flags.Parser
-  checkCommand   lib.CheckCommand
-  launchCommand  lib.LaunchCommand
-  versionCommand lib.VersionCommand
-  options        types.CommandOptions
+  options        lib.CommandOptions
 )
 
-// Func to parse the app commands
-func ProcessCommands() {
-  app.SetState("PARSE_COMMAND_LINE")
-  if _, err := parser.Parse(); err != nil {
-    os.Exit(lib.ExitCodes["command_fail"])
-  }
+var meta = lib.ApplicationMeta{
+  Version: "0.9.5",
 }
 
 // == App ==
 func init() {
-  err := app.Init()
+  err := app.Init(&meta)
   if err != nil {
     os.Exit(lib.ExitCodes["init_fail"])
   }
 
   flightControls := lib.FlightControls{}
-  checkCommand := lib.CheckCommand{Controls: &flightControls, App: &app}
-  imagesCommand := lib.ImagesCommand{Controls: &flightControls, App: &app}
-  buildCommand := lib.BuildCommand{Controls: &flightControls, App: &app}
-  launchCommand := lib.LaunchCommand{Controls: &flightControls, App: &app}
-  groundCommand := lib.GroundCommand{Controls: &flightControls, App: &app}
-  destroyCommand := lib.DestroyCommand{Controls: &flightControls, App: &app}
-  versionCommand := lib.VersionCommand{Controls: &flightControls, App: &app}
-  templateCommand := lib.TemplateCommand{Controls: &flightControls, App: &app}
+  
+  checkCommand := lib.CheckCommand{Controls: &flightControls, App: &app, Options: &options}
+  imagesCommand := lib.ImagesCommand{Controls: &flightControls, App: &app, Options: &options}
+  buildCommand := lib.BuildCommand{Controls: &flightControls, App: &app, Options: &options}
+  launchCommand := lib.LaunchCommand{Controls: &flightControls, App: &app, Options: &options}
+  groundCommand := lib.GroundCommand{Controls: &flightControls, App: &app, Options: &options}
+  destroyCommand := lib.DestroyCommand{Controls: &flightControls, App: &app, Options: &options}
+  versionCommand := lib.VersionCommand{Controls: &flightControls, App: &app, Options: &options}
+  templateCommand := lib.TemplateCommand{Controls: &flightControls, App: &app, Options: &options}
+
+  options = lib.CommandOptions{}
 
   parser = flags.NewParser(&options, flags.Default)
 
@@ -75,19 +70,21 @@ func init() {
     "Destroy destroys all containers and images found running this ansible playbook.",
     &destroyCommand)
 
-  parser.AddCommand("template",
-    "flight template",
-    "Creates templates required for test-flight.",
-    &templateCommand)
-
   parser.AddCommand("version",
     "shows version",
     "Show Test-Flight version number.",
     &versionCommand)
+
+  parser.AddCommand("template",
+    "flight template",
+    "Creates templates required for test-flight.",
+    &templateCommand)
 }
 
 // Runs Test-Flight
 func main() {
-  ProcessCommands() // parse command line options now
-  app.SetState("END")
+  if _, err := parser.Parse(); err != nil {
+    Logger.Error(err)
+    // os.Exit(lib.ExitCodes["command_fail"])
+  }
 }

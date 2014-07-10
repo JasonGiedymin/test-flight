@@ -171,7 +171,7 @@ Version todos:
     - [x] Complete `Attach` so that it reads from the stream
     - [x] channel the console output => still waits on exit, for now
     - [x] wait on container channel => WaitGroup
-  - [x] Fix interfact wrapping in logging messages => temporary fix with 
+  - [x] Fix interfact wrapping in logging messages => temporary fix with
         v[0] (index 0), and only for console logging
   - [x] control-c watch => use channel and signal notify
   - [x] Add file mode command line option for building/launching `-f`, however
@@ -185,11 +185,65 @@ Version todos:
   - [x] change 'filemode' to 'single file mode' and `-s` , and leave force `-f`
   - [x] bug, destroy command is creating templates
   - [x] bug, `.test-flight` dir not being created
-  - [~] but, filemode does not skip dir mode required files => the template
-        is calling for a directory. Require a new Dockerfile template when
-        in single file mode. Test command: `clear && make test-build-s`
-  - [ ] finish filemode on all commands (build, launch, template, abstract it)
-  - [ ] Sync up & Refactor all commands
+  - [x] Massive Refactor
+    - [x] test-flight struct into separate file [refactor-types]
+    - [x] flatten all dirs
+    - [x] extract classes to single out functionality and testing,
+          future task will be to break apart again
+    - [x] make to work after crazy refactor => must be done one command at a
+          time
+    - [x] refactor CheckConfigs by passing CommandOptions instead
+    - [x] build command, stop looking for config when it is specified
+      - [x] make CheckConfigs return config file if `-c` specified
+    - [x] Sub commands should be within Test-Flight Options?
+    - [x] Remove exit code in Test-Flight
+    - [x] Add config file command param `-c`
+    - [~] but, filemode does not skip dir mode required files => the template
+          is calling for a directory. Require a new Dockerfile template when
+          in single file mode. Test command: `clear && make test-build-s`
+       - [x] Add FilePath() to generate file paths
+       - [x] Move templates to sub dir `dirmode` and `filemode`
+       - [~] Modify CreateDockerImage() to generate dockerfile based on template
+             which changes if set to filemode.
+       - [x] Bug, Not finding templates and/or dir => templates are registered
+             by name specified within, pass only the dir to the template func
+       - [x] Detour, fix makefile deps install
+             => added `make link` to link project to the GOPATH
+             => allows for fully qualified "github" import paths now
+       - [x] Parser always kicks out error, ugh, verify. => default behavior,
+             see: [parser_private.go - Line 313](https://github.com/jessevdk/go-flags/blob/master/parser_private.go#L313)
+       - [-] ~~Change singlefilemode to just filemode~~ => chose singlefilemode
+             to use `-s`.
+       - [~] finish filemode on all commands (build, launch, template, abstract it)
+             and also move command methods to specified file
+         - [x] Sync up & Refactor all commands (build should be latest)
+         - [x] move ConfigFile and BuildFile types into respective locations
+         - [x] Add location to ConfigFile and BuildFile for reference
+         - [x] Finalize Build command
+         - [x] Add check command
+         - [x] Add Images command
+         - [~] Add Launch command
+          - [x] Fix test-launch (to some degree)
+          - [x] Bug, fix response code issue when running test-launch-f-s
+            - [x] Fix template generation command to use mode dir
+            - [x] Add `Logger.What()` command to help console debugging
+            - [x] When error from create container, print it?
+            - [x] Add `known_issues.md` to list known issues
+            - [x] Copy inventory and playbook templates to `filemode` dir
+            => Found that Dockerfile template did not specify `CMD` since I
+               commented it out for testing. Remote Docker endpoint returned
+               HTTP Status code 500 with no other information. Docker docs (atm)
+               only say server error. Checked remote endpoint logs, and revealed
+               that "no command was specified", which means no "CMD" was found
+               in the Dockerfile. Think that docker error codes should come back
+               with some messages.
+         - [x] Add Ground command
+         - [x] Add Destroy command
+         - [x] Add Version command
+         - [x] Add Template command
+           - [x] Remove flight control testTemplate method
+           - [x] Add additional logging to docker template creation
+       - [ ] Merge!
   - [ ] Add RunDocker Tests and code using go-apibuilder
   - [ ] wire in buildfile resource share specs to container options
   - [ ] Run container from docker image just created
@@ -202,9 +256,16 @@ Version todos:
   - [ ] Update README with make commands
   - [ ] Add cleanup command (Removes images/tags with None)
   - [ ] endpoint timeout
+  - [ ] Add check to inspect that all required templates exist in:
+    - [ ] `templates/dirmode`
+    - [ ] `templates/filemode`
+  - [ ] Use `FilePath()` everywhere where doing `strings.Join()`
 
 #### v0.9.6 - Alpha
 
+  - [ ] Info logger to raw stdout
+  - [ ] Config banner to use when things go wrong
+  - [ ] Issue links
   - [ ] tests
   - [ ] api docs
   - [ ] refactor params for consistency

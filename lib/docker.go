@@ -26,8 +26,7 @@
 package lib
 
 import (
-  Logger "./logging"
-  "./types"
+  Logger "github.com/JasonGiedymin/test-flight/lib/logging"
   "archive/tar"
   "bufio"
   "bytes"
@@ -54,9 +53,9 @@ type ApiChannel chan *docker.APIEvents
 type ContainerChannel chan string
 
 type TemplateVar struct {
-  Meta       *types.ApplicationMeta
-  ConfigFile *types.ConfigFile
-  BuildFile  *types.BuildFile
+  Meta       *ApplicationMeta
+  ConfigFile *ConfigFile
+  BuildFile  *BuildFile
 
   TestDir           string
   Owner             string
@@ -71,20 +70,20 @@ type TemplateVar struct {
   Expose            []int
   Cmd               string
   AddSimple         []string
-  AddComplex        []types.DockerAddComplexEntry
-  AddUser           []types.DockerAddComplexEntry
+  AddComplex        []DockerAddComplexEntry
+  AddUser           []DockerAddComplexEntry
   RunTests          bool
 }
 
 // Proxy Client
 type DockerApi struct {
-  meta       *types.ApplicationMeta
-  configFile *types.ConfigFile
-  buildFile  *types.BuildFile
+  meta       *ApplicationMeta
+  configFile *ConfigFile
+  buildFile  *BuildFile
   client     *docker.Client
 }
 
-func NewDockerApi(meta *types.ApplicationMeta, configFile *types.ConfigFile, buildFile *types.BuildFile) *DockerApi {
+func NewDockerApi(meta *ApplicationMeta, configFile *ConfigFile, buildFile *BuildFile) *DockerApi {
   api := DockerApi{
     meta:       meta,
     configFile: configFile,
@@ -97,14 +96,14 @@ func NewDockerApi(meta *types.ApplicationMeta, configFile *types.ConfigFile, bui
     os.Exit(ExitCodes["docker_error"])
   }
 
-  Logger.Info("Docker endpoint:", configFile.DockerEndpoint)
+  Logger.Debug("Docker client created using endpoint:", configFile.DockerEndpoint)
   api.client = client
 
   return &api
 }
 
-func getTemplateDir(configFile *types.ConfigFile) types.RequiredFile {
-  return types.RequiredFile{
+func getTemplateDir(configFile *ConfigFile) RequiredFile {
+  return RequiredFile{
     Name: "Test-Flight Template Dir", FileName: configFile.TemplateDir, FileType: "d",
   }
 }
@@ -117,51 +116,81 @@ func (api *DockerApi) RegisterChannel(eventsChannel chan *docker.APIEvents) {
   eventsChannel <- &docker.APIEvents{Status: "Listening in on Docker Events..."}
 }
 
-func (api *DockerApi) createTestTemplates() error {
+func (api *DockerApi) createTestTemplates(options CommandOptions) error {
   var templateDir = getTemplateDir(api.configFile)
 
-  var inventory = types.RequiredFile{
+  var inventory = RequiredFile{
     Name: "Test-Flight Test Inventory file", FileName: "inventory", FileType: "f",
   }
 
-  var playbook = types.RequiredFile{
+  var playbook = RequiredFile{
     Name: "Test-Flight Test Playbook file", FileName: "playbook.yml", FileType: "f",
   }
 
-  templateOutputDir := strings.Join([]string{api.meta.Pwd, api.meta.Dir, templateDir.FileName}, "/")
-  templateInputDir := api.meta.Pwd + "/templates/"
+  // TODO: better to have a type specified that is calculated
+  //       much earlier in the process
+  var modeDir = func() string {
+    if options.SingleFileMode {
+      return "filemode"
+    } else {
+      return "dirmode"
+    }
+  }()
+
+  // --HERE MUST KNOW ABOUT SUB DIR dirmode/filemode of templates
+  // -- needs to work for input and output dir
+
+  // The directory where the templates used to create inventory and playbook
+  // This is used below in `ExecuteTemplate()`
+  templateInputDir := FilePath(api.meta.Pwd, "templates", modeDir)
+
+  // The directory where to put the generated files
+  templateOutputDir := FilePath(api.meta.Pwd, api.meta.Dir, templateDir.FileName)
 
   createFilesFromTemplate := func(
     templateInputDir string,
     templateOutputDir string,
-    requiredFile types.RequiredFile) error {
+    requiredFile RequiredFile) error {
     if hasFiles, err := HasRequiredFile(templateOutputDir, requiredFile); err != nil {
-      Logger.Error("Error: ", err)
+      Logger.Error("Error:", err)
       return err
-    } else if hasFiles {
-      fileToCreate := strings.Join([]string{templateOutputDir, requiredFile.FileName}, "/")
-      file, _ := os.Create(fileToCreate)
+    } else {
+      if hasFiles && api.configFile.OverwriteTemplates || !hasFiles {
+        fileToCreate := strings.Join([]string{templateOutputDir, requiredFile.FileName}, "/")
+        var err error
+        file, err := os.Create(fileToCreate)
+        if err != nil {
+          Logger.Error("Error:", err)
+          return err
+        }
 
-      pattern := filepath.Join(templateInputDir, requiredFile.FileName+"*.tmpl")
-      tmpl := template.Must(template.ParseGlob(pattern))
 
-      if err = tmpl.ExecuteTemplate(file, requiredFile.FileName, *api.getTemplateVar()); err != nil {
-        Logger.Error("template execution: %s", err)
-        return err
+        pattern := filepath.Join(templateInputDir, requiredFile.FileName+"*.tmpl")
+        tmpl := template.Must(template.ParseGlob(pattern))
+
+        if err = tmpl.ExecuteTemplate(file, requiredFile.FileName, *api.getTemplateVar()); err != nil {
+          Logger.Error("template execution: %s", err)
+          return err
+        }
+
+        Logger.Debug("Created file from template:", fileToCreate)
+      } else if hasFiles && !api.configFile.OverwriteTemplates {
+        Logger.Debug(requiredFile.Name, "exists, and system configured to not overwrite.")
       }
-
-      Logger.Debug("Created file from template:", fileToCreate)
     }
+
     return nil
   }
 
   // If the test-flight templates dir doesn't exist, create it.
   if hasFiles, err := HasRequiredFile(api.meta.Dir, templateDir); err != nil {
     return err
-  } else if !hasFiles { // create it doesn't
+  } else if !hasFiles { // create if it doesn't exist
     if _, err = CreateFile(&api.meta.Dir, templateDir); err != nil {
       return err
     }
+  } else {
+    Logger.Debug("Required template files already exist. Overwrite set to:", api.configFile.OverwriteTemplates)
   }
 
   err := createFilesFromTemplate(templateInputDir, templateOutputDir, inventory)
@@ -262,7 +291,7 @@ func (api *DockerApi) ListContainers(imageName string) ([]string, error) {
   } else {
     switch resp.StatusCode {
     case 200:
-      var jsonResult []types.ApiContainer
+      var jsonResult []ApiContainer
       if err := json.Unmarshal(body, &jsonResult); err != nil {
         Logger.Error("Error while trying to marshall result, body:", jsonResult, " - Error:", err)
         return nil, err
@@ -289,8 +318,8 @@ func (api *DockerApi) ListContainers(imageName string) ([]string, error) {
 
 // Returns container name deleted, empty string if none, and an
 // error (if any)
-func (api *DockerApi) DeleteContainer(name string) ([]types.DeletedContainer, error) {
-  var deletedContainers []types.DeletedContainer
+func (api *DockerApi) DeleteContainer(name string) ([]DeletedContainer, error) {
+  var deletedContainers []DeletedContainer
   var returnError error
 
   endpoint := api.configFile.DockerEndpoint
@@ -363,7 +392,7 @@ func (api *DockerApi) DeleteContainer(name string) ([]types.DeletedContainer, er
         msg := "Could not delete container: " + err.Error()
         Logger.Error(msg)
       } else if *deleted != "" {
-        deletedContainers = append(deletedContainers, types.DeletedContainer{*deleted, container})
+        deletedContainers = append(deletedContainers, DeletedContainer{*deleted, container})
       }
     }
     return deletedContainers, returnError
@@ -562,7 +591,7 @@ func (api *DockerApi) DeleteImage(name string) (string, error) {
 }
 
 // http get using golang packaged lib
-func (api *DockerApi) ShowImageGo() (*types.ApiDockerImage, error) {
+func (api *DockerApi) ShowImageGo() (*ApiDockerImage, error) {
   endpoint := api.configFile.DockerEndpoint
 
   url := strings.Join(
@@ -584,7 +613,7 @@ func (api *DockerApi) ShowImageGo() (*types.ApiDockerImage, error) {
   } else {
     switch resp.StatusCode {
     case 200:
-      var jsonResult types.ApiDockerImage
+      var jsonResult ApiDockerImage
       if err := json.Unmarshal(body, &jsonResult); err != nil {
         Logger.Error(err)
         return nil, err
@@ -600,7 +629,7 @@ func (api *DockerApi) ShowImageGo() (*types.ApiDockerImage, error) {
   }
 }
 
-func (api *DockerApi) GetImageDetails(fqImageName string) (*types.ApiDockerImage, error) {
+func (api *DockerApi) GetImageDetails(fqImageName string) (*ApiDockerImage, error) {
   url := strings.Join(
     []string{
       api.configFile.DockerEndpoint,
@@ -613,7 +642,7 @@ func (api *DockerApi) GetImageDetails(fqImageName string) (*types.ApiDockerImage
 
   // For testing, also need to `import "encoding/json"`
   // result := map[string]json.RawMessage{}
-  result := types.ApiDockerImage{}
+  result := ApiDockerImage{}
 
   Logger.Trace("GetImageDetails Api call to:", url)
   if resp, err := napping.Get(url, nil, &result, nil); err != nil {
@@ -622,6 +651,7 @@ func (api *DockerApi) GetImageDetails(fqImageName string) (*types.ApiDockerImage
   } else {
     switch resp.Status() {
     case 200:
+      Logger.Info(result)
       return &result, nil
     case 404:
       Logger.Debug("Image not found")
@@ -635,19 +665,25 @@ func (api *DockerApi) GetImageDetails(fqImageName string) (*types.ApiDockerImage
 // CreateDockerImage creates a docker image by first creating the Dockerfile
 // in memory and then tars it, prior to sending it along to the docker
 // endpoint.
-func (api *DockerApi) CreateDockerImage(fqImageName string) (string, error) {
+func (api *DockerApi) CreateDockerImage(fqImageName string, singlefileMode bool) (string, error) {
   Logger.Debug("Creating Docker image by attempting to build Dockerfile: " + fqImageName)
 
   dockerfileBuffer := bytes.NewBuffer(nil)
   tarbuf := bytes.NewBuffer(nil)
   outputbuf := bytes.NewBuffer(nil)
   dockerfile := bufio.NewWriter(dockerfileBuffer)
+  tmplDir := "filemode"
+  tmplName := "Dockerfile" // file ext of `.tmpl` is implicit, see below
 
-  var requiredDockerFile = types.RequiredFile{
-    Name: "Test-Flight Dockerfile", FileName: "Dockerfile", FileType: "f",
+  if singlefileMode {
+    tmplDir = "filemode"
+  }
+  
+  var requiredDockerFile = RequiredFile{
+    Name: "Test-Flight Dockerfile", FileName: tmplName, FileType: "f",
   }
 
-  templateInputDir := api.meta.Pwd + "/templates/"
+  templateInputDir := FilePath(api.meta.Pwd, "/templates/", tmplDir)
 
   pattern := filepath.Join(templateInputDir, requiredDockerFile.FileName+"*.tmpl")
   tmpl := template.Must(template.ParseGlob(pattern))
@@ -695,7 +731,7 @@ func (api *DockerApi) CreateDockerImage(fqImageName string) (string, error) {
   return fqImageName, nil
 }
 
-func (api *DockerApi) CreateContainer(fqImageName string) (*types.ApiPostResponse, error) {
+func (api *DockerApi) CreateContainer(fqImageName string) (*ApiPostResponse, error) {
   if _, err := api.DeleteContainer(fqImageName); err != nil {
     msg := "Error occured while trying to delete a container. " +
       " This attempt failed for the following reason:" + err.Error()
@@ -706,32 +742,27 @@ func (api *DockerApi) CreateContainer(fqImageName string) (*types.ApiPostRespons
 
   endpoint := api.configFile.DockerEndpoint
 
-  postBody := types.ApiPostRequest{
+  postBody := ApiPostRequest{
     Image:        fqImageName,
     OpenStdin:    true,
     AttachStdin:  false,
     AttachStdout: true,
   }
 
-  url := strings.Join(
-    []string{
-      endpoint,
-      "containers",
-      "create",
-    },
-    "/",
-  )
+  url := FilePath(endpoint, "containers", "create")
   Logger.Trace("CreateContainer() - Api call to:", url)
 
-  jsonResult := types.ApiPostResponse{}
+  jsonResult := ApiPostResponse{}
   bytesReader, _ := postBody.Bytes()
-  resp, _ := http.Post(url, "text/json", bytes.NewReader(bytesReader))
+  resp, _ := http.Post(url, "application/json", bytes.NewReader(bytesReader))
   defer resp.Body.Close()
 
   if body, err := ioutil.ReadAll(resp.Body); err != nil {
     Logger.Error("Could not contact docker endpoint:", endpoint)
     return nil, err
   } else {
+    msg := "Unexpected response code: " + string(resp.StatusCode)
+
     switch resp.StatusCode {
     case 201:
       if err := json.Unmarshal(body, &jsonResult); err != nil {
@@ -741,15 +772,21 @@ func (api *DockerApi) CreateContainer(fqImageName string) (*types.ApiPostRespons
       Logger.Info("Created container:", fqImageName)
       return &jsonResult, nil
     case 404:
-      Logger.Warn("No such container")
+      msg = "No such container"
+      Logger.Warn(msg)
     case 406:
-      Logger.Warn("Impossible to attach (container not running)")
-    case 500:
-      Logger.Error("Error while trying to communicate to docker endpoint:", endpoint)
+      msg = "Impossible to attach (container not running)"
+      Logger.Warn(msg)
+    case 500: 
+      // noticed that when docker endpoint fails, it fails with just
+      // status 500, no message back. Logs do show error though somewhat
+      // slim details. i.e No command specified where command is really CMD :-(
+      msg = "Server and/or API error while trying to communicate with docker " +
+        "endpoint: " + endpoint + ". Could be malformed Dockerfile (template). " +
+        "Check your remote docker endpoint logs."
+      Logger.Error(msg)
     }
 
-    msg := "Unexpected response code: " + string(resp.StatusCode)
-    Logger.Error(msg)
     return nil, errors.New(msg)
   }
 }
@@ -798,7 +835,7 @@ func (api *DockerApi) StopContainer(containerId string) (string, error) {
 func (api *DockerApi) StartContainer(id string) (*string, error) {
   endpoint := api.configFile.DockerEndpoint
 
-  postBody := types.DockerHostConfig{}
+  postBody := DockerHostConfig{}
 
   url := strings.Join(
     []string{
@@ -811,7 +848,7 @@ func (api *DockerApi) StartContainer(id string) (*string, error) {
   )
   Logger.Trace("StartContainer() - Api call to:", url)
 
-  // jsonResult := types.ApiPostResponse{}
+  // jsonResult := ApiPostResponse{}
   var jsonResult string
   bytesReader, _ := postBody.Bytes()
   resp, _ := http.Post(url, "text/json", bytes.NewReader(bytesReader))
