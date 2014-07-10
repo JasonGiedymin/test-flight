@@ -33,8 +33,8 @@ func init() {
   launchCommand := lib.LaunchCommand{Controls: &flightControls, App: &app, Options: &options}
   groundCommand := lib.GroundCommand{Controls: &flightControls, App: &app, Options: &options}
   destroyCommand := lib.DestroyCommand{Controls: &flightControls, App: &app, Options: &options}
-  // versionCommand := lib.VersionCommand{Controls: &flightControls, App: &app}
-  // templateCommand := lib.TemplateCommand{Controls: &flightControls, App: &app}
+  versionCommand := lib.VersionCommand{Controls: &flightControls, App: &app, Options: &options}
+  templateCommand := lib.TemplateCommand{Controls: &flightControls, App: &app, Options: &options}
 
   options = lib.CommandOptions{}
 
@@ -70,15 +70,15 @@ func init() {
     "Destroy destroys all containers and images found running this ansible playbook.",
     &destroyCommand)
 
-  // parser.AddCommand("template",
-  //   "flight template",
-  //   "Creates templates required for test-flight.",
-  //   &templateCommand)
+  parser.AddCommand("version",
+    "shows version",
+    "Show Test-Flight version number.",
+    &versionCommand)
 
-  // parser.AddCommand("version",
-  //   "shows version",
-  //   "Show Test-Flight version number.",
-  //   &versionCommand)
+  parser.AddCommand("template",
+    "flight template",
+    "Creates templates required for test-flight.",
+    &templateCommand)
 }
 
 // Runs Test-Flight

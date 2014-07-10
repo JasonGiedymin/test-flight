@@ -239,8 +239,10 @@ Version todos:
                with some messages.
          - [x] Add Ground command
          - [x] Add Destroy command
-         - [ ] Add Version command
-         - [ ] Add Template command
+         - [x] Add Version command
+         - [x] Add Template command
+           - [x] Remove flight control testTemplate method
+           - [x] Add additional logging to docker template creation
        - [ ] Merge!
   - [ ] Add RunDocker Tests and code using go-apibuilder
   - [ ] wire in buildfile resource share specs to container options

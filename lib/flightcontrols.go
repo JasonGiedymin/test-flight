@@ -61,14 +61,3 @@ func (fc *FlightControls) CheckBuild(dir string, requiredFiles []RequiredFile) (
     return buildFile, nil
   }
 }
-
-func (fc *FlightControls) testFlightTemplates(
-  dc *DockerApi, 
-  configFile *ConfigFile,
-  options CommandOptions) error {
-
-  if configFile.OverwriteTemplates {
-    return dc.createTestTemplates(options)
-  }
-  return nil
-}

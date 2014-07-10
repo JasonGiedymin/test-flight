@@ -89,11 +89,11 @@ test-build-s:
 
 test-template:
 	@echo "$(OK_COLOR)==> Testing Template set $(NO_COLOR)"
-	go run $(COMMON_OPTS) flight.go template -d $(TEST_DIR)
+	go run $(COMMON_OPTS) flight.go -d $(TEST_DIR) template
 
-test-template-s:
+test-template-f-s:
 	@echo "$(OK_COLOR)==> Testing Template with FileMode set $(NO_COLOR)"
-	go run $(COMMON_OPTS) flight.go template -s -d $(FILE_MODE_TEST_DIR)
+	go run $(COMMON_OPTS) flight.go -f -s -d $(FILE_MODE_TEST_DIR) template
 
 test-launch:
 	@echo "$(OK_COLOR)==> Testing Launch $(NO_COLOR)"

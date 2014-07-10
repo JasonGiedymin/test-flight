@@ -152,32 +152,45 @@ func (api *DockerApi) createTestTemplates(options CommandOptions) error {
     templateOutputDir string,
     requiredFile RequiredFile) error {
     if hasFiles, err := HasRequiredFile(templateOutputDir, requiredFile); err != nil {
-      Logger.Error("Error: ", err)
+      Logger.Error("Error:", err)
       return err
-    } else if hasFiles {
-      fileToCreate := strings.Join([]string{templateOutputDir, requiredFile.FileName}, "/")
-      file, _ := os.Create(fileToCreate)
+    } else {
+      if hasFiles && api.configFile.OverwriteTemplates || !hasFiles {
+        fileToCreate := strings.Join([]string{templateOutputDir, requiredFile.FileName}, "/")
+        var err error
+        file, err := os.Create(fileToCreate)
+        if err != nil {
+          Logger.Error("Error:", err)
+          return err
+        }
 
-      pattern := filepath.Join(templateInputDir, requiredFile.FileName+"*.tmpl")
-      tmpl := template.Must(template.ParseGlob(pattern))
 
-      if err = tmpl.ExecuteTemplate(file, requiredFile.FileName, *api.getTemplateVar()); err != nil {
-        Logger.Error("template execution: %s", err)
-        return err
+        pattern := filepath.Join(templateInputDir, requiredFile.FileName+"*.tmpl")
+        tmpl := template.Must(template.ParseGlob(pattern))
+
+        if err = tmpl.ExecuteTemplate(file, requiredFile.FileName, *api.getTemplateVar()); err != nil {
+          Logger.Error("template execution: %s", err)
+          return err
+        }
+
+        Logger.Debug("Created file from template:", fileToCreate)
+      } else if hasFiles && !api.configFile.OverwriteTemplates {
+        Logger.Debug(requiredFile.Name, "exists, and system configured to not overwrite.")
       }
-
-      Logger.Debug("Created file from template:", fileToCreate)
     }
+
     return nil
   }
 
   // If the test-flight templates dir doesn't exist, create it.
   if hasFiles, err := HasRequiredFile(api.meta.Dir, templateDir); err != nil {
     return err
-  } else if !hasFiles { // create it doesn't
+  } else if !hasFiles { // create if it doesn't exist
     if _, err = CreateFile(&api.meta.Dir, templateDir); err != nil {
       return err
     }
+  } else {
+    Logger.Debug("Required template files already exist. Overwrite set to:", api.configFile.OverwriteTemplates)
   }
 
   err := createFilesFromTemplate(templateInputDir, templateOutputDir, inventory)
