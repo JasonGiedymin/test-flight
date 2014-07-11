@@ -9,12 +9,14 @@ TEST_DIR=tests/test-dirmode/example-playbook
 FILE_MODE_TEST_DIR=tests/test-filemode/example-playbook
 FILE_MODE_CONFIG=tests/test-filemode/test-flight-config.json
 COMMON_OPTS=-race
-PACKAGE=$(GOPATH)/src/github.com/JasonGiedymin/test-flight
+PACKAGE=github.com/JasonGiedymin/test-flight
+PATH_SRC=$(GOPATH)/src/github.com/JasonGiedymin/test-flight
 
 help:
 	@echo "$(OK_COLOR)-----------------------Commands:----------------------$(NO_COLOR)"
 	@echo "$(TEXT_COLOR) help:       this help listing $(NO_COLOR)"
 	@echo "$(TEXT_COLOR) link:       symlinks this repo to gopath $(NO_COLOR)"
+	@echo "$(TEXT_COLOR) install:    installs test-flight (via go) $(NO_COLOR)"
 	@echo "$(TEXT_COLOR) deps:       install dependencies $(NO_COLOR)"
 	@echo "$(TEXT_COLOR) updatedeps: update dependencies $(NO_COLOR)"
 	@echo "$(TEXT_COLOR) format:     formats the code $(NO_COLOR)"
@@ -42,8 +44,14 @@ help:
 	@echo "$(OK_COLOR)------------------------------------------------------$(NO_COLOR)"
 
 link:
-	@echo "$(OK_COLOR)==> Symlinking project to $(PACKAGE) $(NO_COLOR)"
-	@ln -f -s $(shell pwd) $(PACKAGE)
+	@echo "$(OK_COLOR)==> Symlinking project to $(PATH_SRC) $(NO_COLOR)"
+	@ln -vFfsn $(shell pwd) $(PATH_SRC)
+
+install-pkg:
+	@echo "$(OK_COLOR)==> Installing Test-Flight $(PATH_SRC) $(NO_COLOR)"
+	@go install $(PACKAGE)
+
+install: install-pkg
 
 deps:
 	@echo "$(OK_COLOR)==> Installing dependencies $(NO_COLOR)"
@@ -69,66 +77,66 @@ lint:
 
 test-version:
 	@echo "$(OK_COLOR)==> Testing Version $(NO_COLOR)"
-	go run $(COMMON_OPTS) flight.go version
+	go run $(COMMON_OPTS) test-flight.go version
 
 test-check:
 	@echo "$(OK_COLOR)==> Testing Check $(NO_COLOR)"
-	go run $(COMMON_OPTS) flight.go check -s -d $(TEST_DIR)
+	go run $(COMMON_OPTS) test-flight.go check -s -d $(TEST_DIR)
 
 test-check-s:
 	@echo "$(OK_COLOR)==> Testing Check with FileMode set $(NO_COLOR)"
-	go run $(COMMON_OPTS) flight.go -c $(FILE_MODE_CONFIG) -s -d $(FILE_MODE_TEST_DIR) check
+	go run $(COMMON_OPTS) test-flight.go -c $(FILE_MODE_CONFIG) -s -d $(FILE_MODE_TEST_DIR) check
 
 test-build:
 	@echo "$(OK_COLOR)==> Testing Build $(NO_COLOR)"
-	go run $(COMMON_OPTS) flight.go build -d $(TEST_DIR)
+	go run $(COMMON_OPTS) test-flight.go build -d $(TEST_DIR)
 
 test-build-s:
 	@echo "$(OK_COLOR)==> Testing Build with FileMode set $(NO_COLOR)"
-	go run $(COMMON_OPTS) flight.go -c $(FILE_MODE_CONFIG) -s -d $(FILE_MODE_TEST_DIR) build
+	go run $(COMMON_OPTS) test-flight.go -c $(FILE_MODE_CONFIG) -s -d $(FILE_MODE_TEST_DIR) build
 
 test-template:
 	@echo "$(OK_COLOR)==> Testing Template set $(NO_COLOR)"
-	go run $(COMMON_OPTS) flight.go -d $(TEST_DIR) template
+	go run $(COMMON_OPTS) test-flight.go -d $(TEST_DIR) template
 
 test-template-f-s:
 	@echo "$(OK_COLOR)==> Testing Template with FileMode set $(NO_COLOR)"
-	go run $(COMMON_OPTS) flight.go -f -s -d $(FILE_MODE_TEST_DIR) template
+	go run $(COMMON_OPTS) test-flight.go -f -s -d $(FILE_MODE_TEST_DIR) template
 
 test-launch:
 	@echo "$(OK_COLOR)==> Testing Launch $(NO_COLOR)"
-	go run $(COMMON_OPTS) flight.go launch -d $(TEST_DIR)
+	go run $(COMMON_OPTS) test-flight.go launch -d $(TEST_DIR)
 
 test-launch-f:
 	@echo "$(OK_COLOR)==> Testing Launch with Force set $(NO_COLOR)"
-	go run $(COMMON_OPTS) flight.go launch -f -d $(TEST_DIR)
+	go run $(COMMON_OPTS) test-flight.go launch -f -d $(TEST_DIR)
 
 test-launch-f-s:
 	@echo "$(OK_COLOR)==> Testing Launch with Force set and using FileMode $(NO_COLOR)"
-	go run $(COMMON_OPTS) flight.go -c $(FILE_MODE_CONFIG) -f -s -d $(FILE_MODE_TEST_DIR) launch
+	go run $(COMMON_OPTS) test-flight.go -c $(FILE_MODE_CONFIG) -f -s -d $(FILE_MODE_TEST_DIR) launch
 
 test-ground:
 	@echo "$(OK_COLOR)==> Testing Ground $(NO_COLOR)"
-	go run $(COMMON_OPTS) flight.go -d $(TEST_DIR) ground
+	go run $(COMMON_OPTS) test-flight.go -d $(TEST_DIR) ground
 
 test-ground-f-s:
 	@echo "$(OK_COLOR)==> Testing Ground with FileMode set $(NO_COLOR)"
-	go run $(COMMON_OPTS) flight.go -c $(FILE_MODE_CONFIG) -s -d $(FILE_MODE_TEST_DIR) ground
+	go run $(COMMON_OPTS) test-flight.go -c $(FILE_MODE_CONFIG) -s -d $(FILE_MODE_TEST_DIR) ground
 
 test-destroy:
 	@echo "$(OK_COLOR)==> Testing Destroy $(NO_COLOR)"
-	go run $(COMMON_OPTS) flight.go destroy -d $(TEST_DIR)
+	go run $(COMMON_OPTS) test-flight.go destroy -d $(TEST_DIR)
 
 test-destroy-f-s:
 	@echo "$(OK_COLOR)==> Testing Destroy with FileMode set $(NO_COLOR)"
-	go run $(COMMON_OPTS) flight.go -c $(FILE_MODE_CONFIG) -s -d $(FILE_MODE_TEST_DIR) destroy
+	go run $(COMMON_OPTS) test-flight.go -c $(FILE_MODE_CONFIG) -s -d $(FILE_MODE_TEST_DIR) destroy
 
 test-images:
 	@echo "$(OK_COLOR)==> Testing Images $(NO_COLOR)"
-	go run $(COMMON_OPTS) flight.go images -d $(TEST_DIR)
+	go run $(COMMON_OPTS) test-flight.go images -d $(TEST_DIR)
 
 test-images-s:
 	@echo "$(OK_COLOR)==> Testing Images with FileMode set $(NO_COLOR)"
-	go run $(COMMON_OPTS) flight.go -c $(FILE_MODE_CONFIG) -s -d $(FILE_MODE_TEST_DIR) images
+	go run $(COMMON_OPTS) test-flight.go -c $(FILE_MODE_CONFIG) -s -d $(FILE_MODE_TEST_DIR) images
 
 all: format lint test

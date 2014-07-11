@@ -1,8 +1,0 @@
-#
-# Test-Flight Test Playbook
-#
-# Test-Flight v0.9.5 Generated Inventory File
-#
-
-[local]
-localhost

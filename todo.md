@@ -247,6 +247,23 @@ Version todos:
 
 #### v0.9.6 - Alpha
 
+  - [x] Update version
+  - [x] Modify `make link` to properly link
+  - [x] Add `make install` to install command
+  - [x] Rename `flight.go` to `test-flight.go` (golang standard)
+  - [ ] Modify Template dir scheme:
+    - [ ] global install location for templates (`~)
+      - [-] ~~move config to `~/.test-flight` dir in home and in pwd~~
+      - [ ] `test-flight-config.json` rename `templateDir` to `ansibleTemplatesDir` 
+      - [ ] `test-flight-config.json` add `dockerTemplatesDir`
+        - [ ] Add `~/.test-flight/system`
+        - [ ] Add `~/.test-flight/user`
+      - [ ] `test-flight-config.json` add `useSystemDockerTemplates={true|false}`
+  - [ ] Help command
+  - [ ] Readme
+    - [ ] Bare minimum
+    - [ ] Advanced L1 usage (custom config)
+    - [ ] Advanced L2 usage (custom templates)
   - [ ] Add RunDocker Tests and code using go-apibuilder
   - [ ] wire in buildfile resource share specs to container options
   - [ ] Run container from docker image just created
