@@ -243,7 +243,10 @@ Version todos:
          - [x] Add Template command
            - [x] Remove flight control testTemplate method
            - [x] Add additional logging to docker template creation
-       - [ ] Merge!
+       - [x] Merge!
+
+#### v0.9.6 - Alpha
+
   - [ ] Add RunDocker Tests and code using go-apibuilder
   - [ ] wire in buildfile resource share specs to container options
   - [ ] Run container from docker image just created
@@ -261,7 +264,7 @@ Version todos:
     - [ ] `templates/filemode`
   - [ ] Use `FilePath()` everywhere where doing `strings.Join()`
 
-#### v0.9.6 - Alpha
+#### v0.9.7 - Alpha
 
   - [ ] Info logger to raw stdout
   - [ ] Config banner to use when things go wrong
@@ -284,7 +287,7 @@ Version todos:
   - [ ] create simple map for docker hasFiles (I need functional programming!)
   - [ ] test-flight cleanup
 
-### v0.9.7 - Beta release
+### v0.9.8 - Beta release
 
   - [ ] add check for minimal docker version allowed
   - [ ] build.json - add entries to specify list of tests to run and their order
