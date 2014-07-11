@@ -1,0 +1,16 @@
+---
+#
+# Test-Flight Test Playbook
+#
+# Test-Flight v0.9.5 Generated Playbook File
+#
+
+- hosts: localhost
+  sudo: True
+  roles:
+    - role: ./
+
+
+- include: tests/main.yml
+
+

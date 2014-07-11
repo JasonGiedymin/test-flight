@@ -1,0 +1,15 @@
+{{define "Dockerfile_cmd"}}
+
+{{if .Expose}}
+# -----> Expose entries
+{{range $item := .Expose}}
+Expose {{$item}}
+{{end}}
+# <----- end Expose entries
+{{end}}
+
+{{if .Cmd}}
+CMD {{.Cmd}}
+{{end}}
+
+{{end}}

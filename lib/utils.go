@@ -1,14 +1,14 @@
 package lib
 
 import (
-  Logger "./logging"
-  "./types"
+  Logger "github.com/JasonGiedymin/test-flight/lib/logging"
   "archive/tar"
   "io/ioutil"
   "os"
   "os/signal"
   "syscall"
   "strings"
+  // "errors"
 )
 
 // var Info = factorlog.New(os.Stdout, factorlog.NewStdFormatter(`%{Color "green"}%{Date} %{Time} %{File}:%{Line} %{Message}%{Color "reset"}`))
@@ -24,7 +24,7 @@ func ConvertFiles(files []os.FileInfo) []string {
   return convertedFiles
 }
 
-func findFile(filesFound []string, requiredFile types.RequiredFile, currDir string) (bool, error) {
+func findFile(filesFound []string, requiredFile RequiredFile, currDir string) (bool, error) {
   for _, file := range filesFound {
     if file == requiredFile.FileName {
       if len(requiredFile.RequiredFiles) > 0 && requiredFile.FileType == "d" {
@@ -38,10 +38,13 @@ func findFile(filesFound []string, requiredFile types.RequiredFile, currDir stri
     }
   }
 
-  return false, FileCheckFail.New("Required file/dir not found: [%v/%v]", currDir, requiredFile.FileName)
+  // msg := "Required file/dir not found: [" + currDir + "/" + requiredFile.FileName + "]"
+  // FileCheckFail.New("Required file/dir not found: [%v/%v]", currDir, requiredFile.FileName)
+
+  return false, nil//, errors.New(msg)
 }
 
-func CreateFile(dir *string, requiredFile types.RequiredFile) (*os.File, error) {
+func CreateFile(dir *string, requiredFile RequiredFile) (*os.File, error) {
   var fileName = *dir + "/" + requiredFile.FileName
   var err error
   var file *os.File
@@ -64,7 +67,7 @@ func CreateFile(dir *string, requiredFile types.RequiredFile) (*os.File, error) 
  * Reads the current directory and returns
  *   - bool: if all the required files were found
  */
-func HasRequiredFiles(dir string, requiredFiles []types.RequiredFile) (bool, error) {
+func HasRequiredFiles(dir string, requiredFiles []RequiredFile) (bool, error) {
   if dir == "" {
     dir = defaultDir
   }
@@ -86,8 +89,8 @@ func HasRequiredFiles(dir string, requiredFiles []types.RequiredFile) (bool, err
   return true, nil
 }
 
-func HasRequiredFile(dir string, requiredFile types.RequiredFile) (bool, error) {
-  return HasRequiredFiles(dir, []types.RequiredFile{requiredFile})
+func HasRequiredFile(dir string, requiredFile RequiredFile) (bool, error) {
+  return HasRequiredFiles(dir, []RequiredFile{requiredFile})
 }
 
 func TarDirectory(tw *tar.Writer, dir string) error {
@@ -147,4 +150,14 @@ func CaptureUserCancel(containerChannel *ContainerChannel) {
       Logger.Info("User canceling, closing stream...")
       close(*containerChannel)
   }()
+}
+
+func FilePath(pathNames ...interface{}) string {
+  var paths []string
+  
+  for _, value := range pathNames {
+    paths = append(paths, value.(string))
+  }
+
+  return strings.Join(paths, "/")
 }
