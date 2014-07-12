@@ -17,6 +17,7 @@ help:
 	@echo "$(TEXT_COLOR) help:       this help listing $(NO_COLOR)"
 	@echo "$(TEXT_COLOR) link:       symlinks this repo to gopath $(NO_COLOR)"
 	@echo "$(TEXT_COLOR) install:    installs test-flight (via go) $(NO_COLOR)"
+	@echo "$(TEXT_COLOR) dev-setup   set up developer environment $(NO_COLOR)"
 	@echo "$(TEXT_COLOR) deps:       install dependencies $(NO_COLOR)"
 	@echo "$(TEXT_COLOR) updatedeps: update dependencies $(NO_COLOR)"
 	@echo "$(TEXT_COLOR) format:     formats the code $(NO_COLOR)"
@@ -46,12 +47,20 @@ help:
 link:
 	@echo "$(OK_COLOR)==> Symlinking project to $(PATH_SRC) $(NO_COLOR)"
 	@ln -vFfsn $(shell pwd) $(PATH_SRC)
+	@echo "$(OK_COLOR)==> Creating local test dir: $(shell pwd)/.test-flight $(NO_COLOR)"
+	@mkdir -p $(shell pwd)/.test-flight
+	@echo "$(OK_COLOR)==> Symlinking test-flight-config.json into .test-flight/ $(NO_COLOR)"
+	@ln -vFfsn $(shell pwd)/test-flight-config.json $(shell pwd)/.test-flight/
+	@echo "$(OK_COLOR)==> Symlinking templates into .test-flight $(NO_COLOR)"
+	@ln -vFfsn $(shell pwd)/templates $(shell pwd)/.test-flight/
 
 install-pkg:
 	@echo "$(OK_COLOR)==> Installing Test-Flight $(PATH_SRC) $(NO_COLOR)"
 	@go install $(PACKAGE)
 
 install: install-pkg
+
+dev-setup: deps link
 
 deps:
 	@echo "$(OK_COLOR)==> Installing dependencies $(NO_COLOR)"

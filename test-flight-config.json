@@ -1,5 +1,5 @@
 {
-  "templateDir": ".test-flight",
+  "ansibleTemplatesDir": ".test-flight",
 
   "overwriteTemplates": true,
 

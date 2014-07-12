@@ -9,11 +9,12 @@ package lib
 *   4. Processing a command failed
  */
 var ExitCodes = map[string]int{
-  "success":        0,
-  "misc":           1,
-  "init_fail":      2,
-  "config_missing": 3,
-  "command_fail":   4,
-  "docker_error":   5,
-  "user_exit":      6,
+    "success":        0,
+    "misc":           1,
+    "init_fail":      2,
+    "config_missing": 3,
+    "command_fail":   4,
+    "docker_error":   5,
+    "user_exit":      6,
+    "system_error":   7,
 }

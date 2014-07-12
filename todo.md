@@ -251,14 +251,18 @@ Version todos:
   - [x] Modify `make link` to properly link
   - [x] Add `make install` to install command
   - [x] Rename `flight.go` to `test-flight.go` (golang standard)
-  - [ ] Modify Template dir scheme:
-    - [ ] global install location for templates (`~)
-      - [-] ~~move config to `~/.test-flight` dir in home and in pwd~~
-      - [ ] `test-flight-config.json` rename `templateDir` to `ansibleTemplatesDir` 
-      - [ ] `test-flight-config.json` add `dockerTemplatesDir`
-        - [ ] Add `~/.test-flight/system`
-        - [ ] Add `~/.test-flight/user`
-      - [ ] `test-flight-config.json` add `useSystemDockerTemplates={true|false}`
+  - [x] Modify Template dir scheme:
+    - [x] Add config for location of templates and assets
+      - [x] reference config in `/.test-flight` dir in home and in pwd
+      - [x] `test-flight-config.json` rename `templateDir` to `AnsibleTemplatesDir`
+      - [x] Fix bug in `CheckCommand` where it will not read the error if one exists
+            causing nil pointer exceptions.
+      - [x] `test-flight-config.json` add `TestFlightAssets`
+      - [x] `test-flight-config.json` add `UseSystemDockerTemplates={true|false}`
+        - [x] Add `~/.test-flight/system` folder
+        - [x] Add `~/.test-flight/user` folder
+      - [x] Uncomment out gitignore of `.test-flight` for tests and example
+  - [ ] Add Ansible playbook `default` dir
   - [ ] Help command
   - [ ] Readme
     - [ ] Bare minimum
