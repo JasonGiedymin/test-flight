@@ -12,12 +12,15 @@ func (fc *FlightControls) Init(app *TestFlight) {}
 
 func (fc *FlightControls) CheckConfigs(app *TestFlight, options *CommandOptions) (*ConfigFile, *BuildFile, error) {
     // Set vars
+    if options.Dir == "" {
+        options.Dir = "./" // set to local working dir as default
+    }
     Logger.Info("Using directory:", options.Dir)
 
     // Prereqs
     app.SetDir(options.Dir)
 
-    configFile, err := ReadConfigFile(options.Configfile)
+    configFile, err := ReadConfigFile(options.Configfile, options.Dir)
     if err != nil {
         return nil, nil, err
     }
@@ -41,13 +44,6 @@ func (fc *FlightControls) CheckConfigs(app *TestFlight, options *CommandOptions)
 }
 
 func (fc *FlightControls) CheckBuild(dir string, requiredFiles []RequiredFile) (*BuildFile, error) {
-    // Check for test-flight specific files first
-    // These are common files
-    if _, err := HasRequiredFiles(dir, AnsibleFiles); err != nil {
-        msg := "Error reading required Ansible Files. Error: " + err.Error()
-        return nil, errors.New(msg)
-    }
-
     // Check for required files as specified by the user
     if _, err := HasRequiredFiles(dir, requiredFiles); err != nil {
         msg := "Error reading user specified required file. Error: " + err.Error()

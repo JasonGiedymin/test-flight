@@ -7,7 +7,7 @@ WARN_COLOR=\033[33;01m
 DEPS = $(go list -f '{{range .TestImports}}{{.}} {{end}}' ./...)
 TEST_DIR=tests/test-dirmode/example-playbook
 FILE_MODE_TEST_DIR=tests/test-filemode/example-playbook
-FILE_MODE_CONFIG=tests/test-filemode/test-flight-config.json
+FILE_MODE_CONFIG=tests/test-filemode/example-playbook/test-flight-config.json
 COMMON_OPTS=-race
 PACKAGE=github.com/JasonGiedymin/test-flight
 PATH_SRC=$(GOPATH)/src/github.com/JasonGiedymin/test-flight
@@ -90,7 +90,7 @@ test-version:
 
 test-check:
 	@echo "$(OK_COLOR)==> Testing Check $(NO_COLOR)"
-	go run $(COMMON_OPTS) test-flight.go check -s -d $(TEST_DIR)
+	go run $(COMMON_OPTS) test-flight.go check -d $(TEST_DIR)
 
 test-check-s:
 	@echo "$(OK_COLOR)==> Testing Check with FileMode set $(NO_COLOR)"

@@ -262,7 +262,14 @@ Version todos:
         - [x] Add `~/.test-flight/system` folder
         - [x] Add `~/.test-flight/user` folder
       - [x] Uncomment out gitignore of `.test-flight` for tests and example
-  - [ ] Add Ansible playbook `default` dir
+  - [x] Modify template path lookup
+    - [x] Path lookup occurs in the following order: Home, pwd
+          Modify to look at specified dir (`-d`), then pwd, then user home
+  - [x] Add Ansible playbook `defaults` dir
+    - [x] Fix bug in `FlightControls.Checkbuild()` where it is checking for
+          ansible files when it shouldn't as `requiredFiles` is actually
+          passed in. => used `requiredFiles`
+    - [x] Add Trace calls to see files being found
   - [ ] Help command
   - [ ] Readme
     - [ ] Bare minimum

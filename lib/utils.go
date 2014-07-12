@@ -1,14 +1,14 @@
 package lib
 
 import (
-  Logger "github.com/JasonGiedymin/test-flight/lib/logging"
-  "archive/tar"
-  "io/ioutil"
-  "os"
-  "os/signal"
-  "syscall"
-  "strings"
-  // "errors"
+    "archive/tar"
+    "errors"
+    Logger "github.com/JasonGiedymin/test-flight/lib/logging"
+    "io/ioutil"
+    "os"
+    "os/signal"
+    "strings"
+    "syscall"
 )
 
 // var Info = factorlog.New(os.Stdout, factorlog.NewStdFormatter(`%{Color "green"}%{Date} %{Time} %{File}:%{Line} %{Message}%{Color "reset"}`))
@@ -16,50 +16,50 @@ import (
 
 // Converts []FileInfo => []string
 func ConvertFiles(files []os.FileInfo) []string {
-  convertedFiles := []string{}
-  for _, value := range files {
-    convertedFiles = append(convertedFiles, value.Name())
-  }
+    convertedFiles := []string{}
+    for _, value := range files {
+        convertedFiles = append(convertedFiles, value.Name())
+    }
 
-  return convertedFiles
+    return convertedFiles
 }
 
 func findFile(filesFound []string, requiredFile RequiredFile, currDir string) (bool, error) {
-  for _, file := range filesFound {
-    if file == requiredFile.FileName {
-      if len(requiredFile.RequiredFiles) > 0 && requiredFile.FileType == "d" {
-        nextDir := currDir + "/" + requiredFile.FileName
-        _, err := HasRequiredFiles(nextDir, requiredFile.RequiredFiles)
-        if err != nil {
-          return false, err
+    for _, file := range filesFound {
+        if file == requiredFile.FileName {
+            if len(requiredFile.RequiredFiles) > 0 && requiredFile.FileType == "d" {
+                nextDir := currDir + "/" + requiredFile.FileName
+                _, err := HasRequiredFiles(nextDir, requiredFile.RequiredFiles)
+                if err != nil {
+                    return false, err
+                }
+            }
+            return true, nil
         }
-      }
-      return true, nil
     }
-  }
 
-  // msg := "Required file/dir not found: [" + currDir + "/" + requiredFile.FileName + "]"
-  // FileCheckFail.New("Required file/dir not found: [%v/%v]", currDir, requiredFile.FileName)
+    // msg := "Required file/dir not found: [" + currDir + "/" + requiredFile.FileName + "]"
+    // FileCheckFail.New("Required file/dir not found: [%v/%v]", currDir, requiredFile.FileName)
 
-  return false, nil//, errors.New(msg)
+    return false, nil //, errors.New(msg)
 }
 
 func CreateFile(dir *string, requiredFile RequiredFile) (*os.File, error) {
-  var fileName = *dir + "/" + requiredFile.FileName
-  var err error
-  var file *os.File
+    var fileName = *dir + "/" + requiredFile.FileName
+    var err error
+    var file *os.File
 
-  if requiredFile.FileType == "d" {
-    if err = os.Mkdir(fileName, 0755); err != nil {
-      return nil, err
+    if requiredFile.FileType == "d" {
+        if err = os.Mkdir(fileName, 0755); err != nil {
+            return nil, err
+        }
+    } else if requiredFile.FileType == "f" {
+        if _, err = os.Create(fileName); err != nil {
+            return nil, nil
+        }
     }
-  } else if requiredFile.FileType == "f" {
-    if _, err = os.Create(fileName); err != nil {
-      return nil, nil
-    }
-  }
 
-  return file, nil
+    return file, nil
 }
 
 // TODO: goroutine + channels to further optimize
@@ -68,96 +68,101 @@ func CreateFile(dir *string, requiredFile RequiredFile) (*os.File, error) {
  *   - bool: if all the required files were found
  */
 func HasRequiredFiles(dir string, requiredFiles []RequiredFile) (bool, error) {
-  if dir == "" {
-    dir = defaultDir
-  }
-
-  filesFromDisk, err := ioutil.ReadDir(dir)
-
-  if err != nil {
-    return false, err
-  }
-
-  for _, requiredFile := range requiredFiles {
-    found, err := findFile(ConvertFiles(filesFromDisk), requiredFile, dir)
-
-    if !found {
-      return false, err
+    if dir == "" {
+        dir = defaultDir
     }
-  }
 
-  return true, nil
+    filesFromDisk, err := ioutil.ReadDir(dir)
+
+    if err != nil {
+        return false, err
+    }
+
+    for _, requiredFile := range requiredFiles {
+        if found, err := findFile(ConvertFiles(filesFromDisk), requiredFile, dir); err != nil {
+            return false, err
+        } else {
+            if !found {
+                msg := "Can't find " + requiredFile.Name + ": " + FilePath(dir, requiredFile.FileName)
+                return false, errors.New(msg)
+            } else {
+                Logger.Trace("Found:", FilePath(dir, requiredFile.FileName))
+            }
+        }
+    }
+
+    return true, nil
 }
 
 func HasRequiredFile(dir string, requiredFile RequiredFile) (bool, error) {
-  return HasRequiredFiles(dir, []RequiredFile{requiredFile})
+    return HasRequiredFiles(dir, []RequiredFile{requiredFile})
 }
 
 func TarDirectory(tw *tar.Writer, dir string) error {
-  Logger.Trace("Taring: ", dir)
+    Logger.Trace("Taring: ", dir)
 
-  var archive = func(files []os.FileInfo) error {
-    Logger.Trace("Found files to archive into context: ", len(files))
+    var archive = func(files []os.FileInfo) error {
+        Logger.Trace("Found files to archive into context: ", len(files))
 
-    for _, file := range files {
-      fullFilePath := strings.Join([]string{dir, file.Name()}, "/")
+        for _, file := range files {
+            fullFilePath := strings.Join([]string{dir, file.Name()}, "/")
 
-      if file.IsDir() {
-        TarDirectory(tw, fullFilePath)
-        continue
-      }
+            if file.IsDir() {
+                TarDirectory(tw, fullFilePath)
+                continue
+            }
 
-      hdr := &tar.Header{
-        Name: fullFilePath,
-        Size: file.Size(),
-      }
-      if err := tw.WriteHeader(hdr); err != nil {
-        Logger.Error("Could not write context archive header", err)
-        return err
-      }
+            hdr := &tar.Header{
+                Name: fullFilePath,
+                Size: file.Size(),
+            }
+            if err := tw.WriteHeader(hdr); err != nil {
+                Logger.Error("Could not write context archive header", err)
+                return err
+            }
 
-      if bytes, err := ioutil.ReadFile(fullFilePath); err != nil {
-        Logger.Error("Could not read context file: ["+fullFilePath+"]", err)
-        return err
-      } else {
-        if _, err := tw.Write(bytes); err != nil {
-          Logger.Error("Could not archive context file: ["+fullFilePath+"]", err)
-          return err
+            if bytes, err := ioutil.ReadFile(fullFilePath); err != nil {
+                Logger.Error("Could not read context file: ["+fullFilePath+"]", err)
+                return err
+            } else {
+                if _, err := tw.Write(bytes); err != nil {
+                    Logger.Error("Could not archive context file: ["+fullFilePath+"]", err)
+                    return err
+                }
+            }
+
+            Logger.Trace("Archived into context the file: [" + fullFilePath + "]")
         }
-      }
 
-      Logger.Trace("Archived into context the file: [" + fullFilePath + "]")
+        Logger.Trace("Successfully archived context", dir)
+        return nil
     }
 
-    Logger.Trace("Successfully archived context", dir)
-    return nil
-  }
-
-  if filesFromDisk, err := ioutil.ReadDir(dir); err != nil {
-    Logger.Error("Error while trying to tar ["+dir+"]", err)
-    return err
-  } else {
-    return archive(filesFromDisk)
-  }
+    if filesFromDisk, err := ioutil.ReadDir(dir); err != nil {
+        Logger.Error("Error while trying to tar ["+dir+"]", err)
+        return err
+    } else {
+        return archive(filesFromDisk)
+    }
 }
 
 func CaptureUserCancel(containerChannel *ContainerChannel) {
-  syschan := make(chan os.Signal, 1)
-  signal.Notify(syschan, os.Interrupt)
-  signal.Notify(syschan, syscall.SIGTERM)
-  go func() {
-      <- syschan
-      Logger.Info("User canceling, closing stream...")
-      close(*containerChannel)
-  }()
+    syschan := make(chan os.Signal, 1)
+    signal.Notify(syschan, os.Interrupt)
+    signal.Notify(syschan, syscall.SIGTERM)
+    go func() {
+        <-syschan
+        Logger.Info("User canceling, closing stream...")
+        close(*containerChannel)
+    }()
 }
 
 func FilePath(pathNames ...interface{}) string {
-  var paths []string
-  
-  for _, value := range pathNames {
-    paths = append(paths, value.(string))
-  }
+    var paths []string
 
-  return strings.Join(paths, "/")
+    for _, value := range pathNames {
+        paths = append(paths, value.(string))
+    }
+
+    return strings.Join(paths, "/")
 }

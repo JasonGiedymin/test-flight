@@ -99,12 +99,41 @@ func getConfig(file string) (*ConfigFile, error) {
 
 // tries to find config file in user home, then if it cannot find one there
 // will try to find a config file in the local running directory
-func findConfig() (*ConfigFile, error) {
+func findConfig(dir string) (*ConfigFile, error) {
     configFileName := "test-flight-config.json"
     configFile := NewConfigFile()
+    logConfigFile := func(configFile *ConfigFile) {
+        Logger.Debug("Found config file.")
+        Logger.Trace("Config file contents:", *configFile)
+    }
 
-    // get home
-    usr, err := user.Current()
+    // try dir specified
+    localConfigPath := FilePath(dir, configFileName)
+    configFile, err := getConfig(localConfigPath)
+    if err != nil {
+        Logger.Warn("Could not find configfile in specified directory.")
+    } else {
+        logConfigFile(configFile)
+        return configFile, nil
+    }
+
+    // try running directory next
+    pwd, err := os.Getwd()
+    if err != nil {
+        return nil, err
+    }
+    Logger.Debug("Checking for config file in local pwd: " + pwd + "/" + configFileName)
+    pwdConfigPath := FilePath(pwd, ".test-flight", configFileName)
+    configFile, err = getConfig(pwdConfigPath)
+    if err != nil {
+        Logger.Warn("Could not find configfile in local running directory.")
+    } else {
+        logConfigFile(configFile)
+        return configFile, nil
+    }
+
+    // try home
+    usr, err := user.Current() // to get user home, get user first
     if err != nil {
         Logger.Error("Can't read user home.")
         // return nil, ReadFileError.New("Can't read user home.")
@@ -112,39 +141,25 @@ func findConfig() (*ConfigFile, error) {
     }
 
     homeConfigPath := FilePath(usr.HomeDir, ".test-flight", "test-flight-config.json")
-
     Logger.Debug("Checking for config file in user HOME: ", homeConfigPath)
 
-    // try home first
     configFile, err = getConfig(homeConfigPath)
     if err != nil {
         Logger.Warn(configFileName + " not found in user HOME: " + usr.HomeDir)
-
-        pwd, err := os.Getwd()
-        if err != nil {
-            return nil, err
-        }
-
-        // try running directory next
-        Logger.Debug("Checking for config file in local pwd: " + pwd + "/" + configFileName)
-        pwdConfigPath := FilePath(pwd, ".test-flight", configFileName)
-        configFile, err = getConfig(pwdConfigPath)
-        if err != nil {
-            return nil, errors.New("Could not find configfile in user home or local running" +
-                " directory. Please supply the config file.")
-        }
+    } else {
+        logConfigFile(configFile)
+        return configFile, nil
     }
 
-    Logger.Debug("Found config file, contents:", configFile)
-    return configFile, nil
+    return nil, errors.New("Cannot find config file, Please supply the config file.")
 }
 
 // can be called with default empty param which means user did not specify
 // config file.
-func ReadConfigFile(userSpecified string) (*ConfigFile, error) {
+func ReadConfigFile(userSpecified string, dir string) (*ConfigFile, error) {
     if userSpecified != "" {
         return getConfig(userSpecified)
     }
 
-    return findConfig()
+    return findConfig(dir)
 }
