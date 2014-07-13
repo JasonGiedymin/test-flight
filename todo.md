@@ -270,16 +270,27 @@ Version todos:
           ansible files when it shouldn't as `requiredFiles` is actually
           passed in. => used `requiredFiles`
     - [x] Add Trace calls to see files being found
+  - [x] Regression:
+    - [x] fix images command
+    - [x] fix ground command
+    - [x] fix launch command
+  - [x] In dir Usage:
+    - [x] cd `tests/test-dirmode/example-playbook`, run `test-flight build`
+          => must specify location of templates, in test case it is the project
+             level templates `../../../`.
+  - [-] ~~Run container from docker image just created~~ Done via launch
+  - [-] ~~Finish refactor of CLI, dry it up~~ Done via `massive-refactor`
+  - [ ] Bug when found a config file yet can't un marshal it, will reports it 
+        as not found.
   - [ ] Help command
   - [ ] Readme
     - [ ] Bare minimum
     - [ ] Advanced L1 usage (custom config)
     - [ ] Advanced L2 usage (custom templates)
+  - [ ] Unit Tests
+  - [ ] Tests ~~and refactor~~
   - [ ] Add RunDocker Tests and code using go-apibuilder
   - [ ] wire in buildfile resource share specs to container options
-  - [ ] Run container from docker image just created
-  - [ ] Finish refactor of CLI, dry it up
-  - [ ] Tests and refactor
   - [ ] Rebuild DockerApi calls that use golang http with go-apibuilder
   - [ ] Refactor and check returns of APIs
   - [ ] Remove napping

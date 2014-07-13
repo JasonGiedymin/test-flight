@@ -678,25 +678,47 @@ func (api *DockerApi) GetImageDetails(fqImageName string) (*ApiDockerImage, erro
 // CreateDockerImage creates a docker image by first creating the Dockerfile
 // in memory and then tars it, prior to sending it along to the docker
 // endpoint.
-func (api *DockerApi) CreateDockerImage(fqImageName string, singlefileMode bool) (string, error) {
+func (api *DockerApi) CreateDockerImage(fqImageName string, options *CommandOptions) (string, error) {
     Logger.Debug("Creating Docker image by attempting to build Dockerfile: " + fqImageName)
 
     dockerfileBuffer := bytes.NewBuffer(nil)
     tarbuf := bytes.NewBuffer(nil)
     outputbuf := bytes.NewBuffer(nil)
     dockerfile := bufio.NewWriter(dockerfileBuffer)
-    tmplDir := "filemode"
     tmplName := "Dockerfile" // file ext of `.tmpl` is implicit, see below
-
-    if singlefileMode {
-        tmplDir = "filemode"
-    }
 
     var requiredDockerFile = RequiredFile{
         Name: "Test-Flight Dockerfile", FileName: tmplName, FileType: "f",
     }
 
-    templateInputDir := FilePath(api.meta.Pwd, "/templates/", tmplDir)
+    modeDir := func() string {
+        if options.SingleFileMode {
+            return "filemode"
+        } else {
+            return "dirmode"
+        }
+    }()
+
+    // --HERE MUST KNOW ABOUT SUB DIR dirmode/filemode of templates
+    // -- needs to work for input and output dir
+
+    // The directory where the templates used to create inventory and playbook
+    templates := func() string {
+        // could have been simpler but I want to log path at this level
+        var templatePath string
+
+        if api.configFile.UseSystemDockerTemplates {
+            templatePath = FilePath(api.configFile.TestFlightAssets, "templates", "system")
+        } else {
+            templatePath = FilePath(api.configFile.TestFlightAssets, "templates", "user")
+        }
+
+        Logger.Debug("Using template dir:", templatePath)
+        return templatePath
+    }()
+
+    // This is used below in `ExecuteTemplate()`
+    templateInputDir := FilePath(templates, modeDir)
 
     pattern := filepath.Join(templateInputDir, requiredDockerFile.FileName+"*.tmpl")
     tmpl := template.Must(template.ParseGlob(pattern))
