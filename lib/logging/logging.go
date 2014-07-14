@@ -41,6 +41,12 @@ func setup() {
     File = factorlog.New(
         debugFile,
         factorlog.NewStdFormatter(fileLogFormat))
+
+    // TODO: set log level here
+    // Log.SetVerbosity(1)
+    // LogDebug.SetVerbosity(1)
+    // LogConsole.SetVerbosity(1)
+    // File.SetVerbosity(4)
 }
 
 // Checks to see if Loggers should be set

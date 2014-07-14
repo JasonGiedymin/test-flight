@@ -280,22 +280,29 @@ Version todos:
              level templates `../../../`.
   - [-] ~~Run container from docker image just created~~ Done via launch
   - [-] ~~Finish refactor of CLI, dry it up~~ Done via `massive-refactor`
-  - [ ] Bug when found a config file yet can't un marshal it, will reports it 
-        as not found.
-  - [ ] Help command
+  - [x] Bug when found a config file yet can't un marshal it, will reports it 
+        as not found. => found that warning message noted could not find file,
+        when it should say "can't find or unmarshal" and log the error being
+        passed.
+  - [x] Replace waits with channels => using `WaitGroup` with channels and 
+        goroutines.
+  - [x] Help command
+    - [x] `--help` built-in but reports error => lib will return error on help
+          so must do type assertion check on error of type `flags.Error`.
+  - [~] Add debug mode via `-v` or `--verbose` mode (`[]bool`)
+  - [ ] Unit Tests
+  - [ ] Tests ~~and refactor~~
+  - [ ] Improve show info display
+  - [ ] Update README with make commands
   - [ ] Readme
     - [ ] Bare minimum
     - [ ] Advanced L1 usage (custom config)
     - [ ] Advanced L2 usage (custom templates)
-  - [ ] Unit Tests
-  - [ ] Tests ~~and refactor~~
   - [ ] Add RunDocker Tests and code using go-apibuilder
-  - [ ] wire in buildfile resource share specs to container options
   - [ ] Rebuild DockerApi calls that use golang http with go-apibuilder
   - [ ] Refactor and check returns of APIs
+  - [ ] wire in buildfile resource share specs to container options
   - [ ] Remove napping
-  - [ ] Replace waits with channels
-  - [ ] Update README with make commands
   - [ ] Add cleanup command (Removes images/tags with None)
   - [ ] endpoint timeout
   - [ ] Add check to inspect that all required templates exist in:

@@ -111,7 +111,8 @@ func findConfig(dir string) (*ConfigFile, error) {
     localConfigPath := FilePath(dir, configFileName)
     configFile, err := getConfig(localConfigPath)
     if err != nil {
-        Logger.Warn("Could not find configfile in specified directory.")
+        msg := "Config: " + localConfigPath + " may not exist or cannot be read. " + err.Error()
+        Logger.Warn(msg)
     } else {
         logConfigFile(configFile)
         return configFile, nil
@@ -126,7 +127,8 @@ func findConfig(dir string) (*ConfigFile, error) {
     pwdConfigPath := FilePath(pwd, ".test-flight", configFileName)
     configFile, err = getConfig(pwdConfigPath)
     if err != nil {
-        Logger.Warn("Could not find configfile in local running directory.")
+        msg := "Config: " + localConfigPath + " may not exist or cannot be read. " + err.Error()
+        Logger.Warn(msg)
     } else {
         logConfigFile(configFile)
         return configFile, nil
@@ -145,7 +147,8 @@ func findConfig(dir string) (*ConfigFile, error) {
 
     configFile, err = getConfig(homeConfigPath)
     if err != nil {
-        Logger.Warn(configFileName + " not found in user HOME: " + usr.HomeDir)
+        msg := "Config: " + localConfigPath + " may not exist or cannot be read. " + err.Error()
+        Logger.Warn(msg)
     } else {
         logConfigFile(configFile)
         return configFile, nil

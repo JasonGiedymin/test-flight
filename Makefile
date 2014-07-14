@@ -44,6 +44,10 @@ help:
 	@echo "$(TEXT_COLOR) test-images-s: tests the images command using filemode in test dir $(NO_COLOR)"
 	@echo "$(OK_COLOR)------------------------------------------------------$(NO_COLOR)"
 
+help:
+	@echo "$(OK_COLOR)==> Testing Help $(PATH_SRC) $(NO_COLOR)"
+	go run $(COMMON_OPTS) test-flight.go --help
+
 link:
 	@echo "$(OK_COLOR)==> Symlinking project to $(PATH_SRC) $(NO_COLOR)"
 	@ln -vFfsn $(shell pwd) $(PATH_SRC)
