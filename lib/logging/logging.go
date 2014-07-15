@@ -12,20 +12,40 @@ var (
     LogConsole *factorlog.FactorLog // channel??
     File       *factorlog.FactorLog
     debugFile  *os.File = getDebugFile()
+    verbosity  int
 )
 
-var debugLogFormat = `%{Color "red" "ERROR"}%{Color "yellow" "WARN"}%{Color "green" "INFO"}%{Color "cyan" "DEBUG"}%{Color "white+b" "TRACE"}[%{Date} %{Time}] [%{SEVERITY}] - %{Message}%{Color "reset"}`
-var consoleLogFormat = `%{Color "red" "ERROR"}%{Color "yellow" "WARN"}%{Color "green" "INFO"}%{Color "cyan" "DEBUG"}%{Color "white+b" "TRACE"}%{Message}%{Color "reset"}`
-var stdLogFormat = `%{Color "red" "ERROR"}%{Color "yellow" "WARN"}%{Color "green" "INFO"}%{Color "cyan" "DEBUG"}%{Color "white+b" "TRACE"}[%{Date} %{Time}] [%{SEVERITY}] - %{Message}%{Color "reset"}`
-var fileLogFormat = `[%{Date} %{Time}] [%{SEVERITY}] - %{Message}%{Color "reset"}`
+const debugLogFormat = `%{Color "red" "ERROR"}%{Color "yellow" "WARN"}%{Color "green" "INFO"}%{Color "cyan" "DEBUG"}%{Color "white+b" "TRACE"}[%{Date} %{Time}] [%{SEVERITY}] - %{Message}%{Color "reset"}`
+const consoleLogFormat = `%{Color "red" "ERROR"}%{Color "yellow" "WARN"}%{Color "green" "INFO"}%{Color "cyan" "DEBUG"}%{Color "white+b" "TRACE"}%{Message}%{Color "reset"}`
+const stdLogFormat = `%{Color "red" "ERROR"}%{Color "yellow" "WARN"}%{Color "green" "INFO"}%{Color "cyan" "DEBUG"}%{Color "white+b" "TRACE"}[%{Date} %{Time}] [%{SEVERITY}] - %{Message}%{Color "reset"}`
+const fileLogFormat = `[%{Date} %{Time}] [%{SEVERITY}] - %{Message}%{Color "reset"}`
+
+var levels = map[int]factorlog.Severity{
+    1:  factorlog.INFO,
+    2:  factorlog.DEBUG,
+    3:  factorlog.TRACE,
+    4:  factorlog.TRACE, // 4 is Trace + file logging
+}
 
 func getDebugFile() *os.File {
-    newFile, _ := os.Create("debug.log")
-    return newFile
+    if verbosity >= 4 {
+        newFile, _ := os.Create("debug.log")
+        return newFile
+    }
+
+    return nil
 }
 
 // Sets up Loggers
-func setup() {
+func Setup() {
+    maxLevel := func(verbosity int) int {
+        max := len(levels)
+        if verbosity > max {
+            return max
+        }
+        return verbosity
+    }
+
     Log = factorlog.New(
         os.Stdout,
         factorlog.NewStdFormatter(stdLogFormat))
@@ -38,38 +58,43 @@ func setup() {
         os.Stdout,
         factorlog.NewStdFormatter(consoleLogFormat))
 
-    File = factorlog.New(
-        debugFile,
-        factorlog.NewStdFormatter(fileLogFormat))
-
     // TODO: set log level here
-    // Log.SetVerbosity(1)
-    // LogDebug.SetVerbosity(1)
-    // LogConsole.SetVerbosity(1)
-    // File.SetVerbosity(4)
+    Log.SetMinMaxSeverity(levels[maxLevel(verbosity)], factorlog.ERROR)
+    // LogDebug.SetMinMaxSeverity(levels[maxLevel(verbosity)], factorlog.ERROR)
+    LogConsole.SetMinMaxSeverity(levels[maxLevel(verbosity)], factorlog.ERROR)
+
+    if verbosity >= 4 {
+        File = factorlog.New(
+            debugFile,
+            factorlog.NewStdFormatter(fileLogFormat))
+    }
 }
 
 // Checks to see if Loggers should be set
-func load() {
+func Load(newVerbosity int) {
+    verbosity = newVerbosity
     if Log == nil {
-        setup()
+        Setup()
     }
 }
 
 // Absolute Errors
 func Error(v ...interface{}) {
     if Log == nil {
-        setup()
+        Setup()
     }
 
     Log.Error(v)
-    File.Println(v)
+
+    if verbosity >= 4 {
+        File.Println(v)
+    }
 }
 
 // Things that aren't errors but you should know
 func Warn(v ...interface{}) {
     if Log == nil {
-        setup()
+        Setup()
     }
 
     Log.Warn(v)
@@ -78,7 +103,7 @@ func Warn(v ...interface{}) {
 // General Application Info
 func Info(v ...interface{}) {
     if Log == nil {
-        setup()
+        Setup()
     }
 
     Log.Info(v)
@@ -87,24 +112,24 @@ func Info(v ...interface{}) {
 // More Info, params, situation, etc...
 func Debug(v ...interface{}) {
     if Log == nil {
-        setup()
+        Setup()
     }
 
-    LogDebug.Debug(v)
+    Log.Debug(v)
 }
 
 // Use Trace when run debugging for debug builds for fine grain info
 func Trace(v ...interface{}) {
     if Log == nil {
-        setup()
+        Setup()
     }
 
-    LogDebug.Trace(v)
+    Log.Trace(v)
 }
 
 func What(v ...interface{}) {
     if Log == nil {
-        setup()
+        Setup()
     }
 
     LogDebug.Trace("*** ", v)
@@ -112,7 +137,7 @@ func What(v ...interface{}) {
 
 func Console(v ...interface{}) {
     if Log == nil {
-        setup()
+        Setup()
     }
 
     LogConsole.Info(v[0])

@@ -66,5 +66,7 @@ func (cmd *LaunchCommand) Execute(args []string) error {
         }
     }
 
+    Logger.Info("Complete.")
+
     return nil
 }

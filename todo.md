@@ -289,7 +289,10 @@ Version todos:
   - [x] Help command
     - [x] `--help` built-in but reports error => lib will return error on help
           so must do type assertion check on error of type `flags.Error`.
-  - [~] Add debug mode via `-v` or `--verbose` mode (`[]bool`)
+  - [x] Add debug mode via `-v` or `--verbose` mode (`[]bool`)
+  - [x] Bug, build command via `make test-build` doesn't work =>
+        change to configfile json necessary.
+  - [ ] Remove app.Init()
   - [ ] Unit Tests
   - [ ] Tests ~~and refactor~~
   - [ ] Improve show info display
@@ -312,6 +315,7 @@ Version todos:
 
 #### v0.9.7 - Alpha
 
+  - [ ] Refactor Logging code (struct, no globals etc...)
   - [ ] Info logger to raw stdout
   - [ ] Config banner to use when things go wrong
   - [ ] Issue links

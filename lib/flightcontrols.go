@@ -11,6 +11,11 @@ type FlightControls struct{}
 func (fc *FlightControls) Init(app *TestFlight) {}
 
 func (fc *FlightControls) CheckConfigs(app *TestFlight, options *CommandOptions) (*ConfigFile, *BuildFile, error) {
+    // Setup Logging
+    // TODO: Replace with only Load once app.Init() is gone
+    Logger.Load(len(options.Verbose))
+    Logger.Setup()
+
     // Set vars
     if options.Dir == "" {
         options.Dir = "./" // set to local working dir as default
