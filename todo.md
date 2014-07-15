@@ -247,16 +247,69 @@ Version todos:
 
 #### v0.9.6 - Alpha
 
+  - [x] Update version
+  - [x] Modify `make link` to properly link
+  - [x] Add `make install` to install command
+  - [x] Rename `flight.go` to `test-flight.go` (golang standard)
+  - [x] Modify Template dir scheme:
+    - [x] Add config for location of templates and assets
+      - [x] reference config in `/.test-flight` dir in home and in pwd
+      - [x] `test-flight-config.json` rename `templateDir` to `AnsibleTemplatesDir`
+      - [x] Fix bug in `CheckCommand` where it will not read the error if one exists
+            causing nil pointer exceptions.
+      - [x] `test-flight-config.json` add `TestFlightAssets`
+      - [x] `test-flight-config.json` add `UseSystemDockerTemplates={true|false}`
+        - [x] Add `~/.test-flight/system` folder
+        - [x] Add `~/.test-flight/user` folder
+      - [x] Uncomment out gitignore of `.test-flight` for tests and example
+  - [x] Modify template path lookup
+    - [x] Path lookup occurs in the following order: Home, pwd
+          Modify to look at specified dir (`-d`), then pwd, then user home
+  - [x] Add Ansible playbook `defaults` dir
+    - [x] Fix bug in `FlightControls.Checkbuild()` where it is checking for
+          ansible files when it shouldn't as `requiredFiles` is actually
+          passed in. => used `requiredFiles`
+    - [x] Add Trace calls to see files being found
+  - [x] Regression:
+    - [x] fix images command
+    - [x] fix ground command
+    - [x] fix launch command
+  - [x] In dir Usage:
+    - [x] cd `tests/test-dirmode/example-playbook`, run `test-flight build`
+          => must specify location of templates, in test case it is the project
+             level templates `../../../`.
+  - [-] ~~Run container from docker image just created~~ Done via launch
+  - [-] ~~Finish refactor of CLI, dry it up~~ Done via `massive-refactor`
+  - [x] Bug when found a config file yet can't un marshal it, will reports it 
+        as not found. => found that warning message noted could not find file,
+        when it should say "can't find or unmarshal" and log the error being
+        passed.
+  - [x] Replace waits with channels => using `WaitGroup` with channels and 
+        goroutines.
+  - [x] Help command
+    - [x] `--help` built-in but reports error => lib will return error on help
+          so must do type assertion check on error of type `flags.Error`.
+  - [x] Add debug mode via `-v` or `--verbose` mode (`[]bool`)
+  - [x] Bug, build command via `make test-build` doesn't work =>
+        change to configfile json necessary.
+
+#### v0.9.7 - Alpha
+
+  - [ ] version 0.9.7
+  - [ ] Remove app.Init()
+  - [ ] Unit Tests
+  - [ ] Tests ~~and refactor~~
+  - [ ] Improve show info display
+  - [ ] Update README with make commands
+  - [ ] Readme
+    - [ ] Bare minimum
+    - [ ] Advanced L1 usage (custom config)
+    - [ ] Advanced L2 usage (custom templates)
   - [ ] Add RunDocker Tests and code using go-apibuilder
-  - [ ] wire in buildfile resource share specs to container options
-  - [ ] Run container from docker image just created
-  - [ ] Finish refactor of CLI, dry it up
-  - [ ] Tests and refactor
   - [ ] Rebuild DockerApi calls that use golang http with go-apibuilder
   - [ ] Refactor and check returns of APIs
+  - [ ] wire in buildfile resource share specs to container options
   - [ ] Remove napping
-  - [ ] Replace waits with channels
-  - [ ] Update README with make commands
   - [ ] Add cleanup command (Removes images/tags with None)
   - [ ] endpoint timeout
   - [ ] Add check to inspect that all required templates exist in:
@@ -264,8 +317,9 @@ Version todos:
     - [ ] `templates/filemode`
   - [ ] Use `FilePath()` everywhere where doing `strings.Join()`
 
-#### v0.9.7 - Alpha
+#### v0.9.8 - Alpha
 
+  - [ ] Refactor Logging code (struct, no globals etc...)
   - [ ] Info logger to raw stdout
   - [ ] Config banner to use when things go wrong
   - [ ] Issue links
@@ -287,7 +341,7 @@ Version todos:
   - [ ] create simple map for docker hasFiles (I need functional programming!)
   - [ ] test-flight cleanup
 
-### v0.9.8 - Beta release
+### v0.9.9 - Beta release
 
   - [ ] add check for minimal docker version allowed
   - [ ] build.json - add entries to specify list of tests to run and their order
