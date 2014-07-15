@@ -292,6 +292,10 @@ Version todos:
   - [x] Add debug mode via `-v` or `--verbose` mode (`[]bool`)
   - [x] Bug, build command via `make test-build` doesn't work =>
         change to configfile json necessary.
+
+#### v0.9.7 - Alpha
+
+  - [ ] version 0.9.7
   - [ ] Remove app.Init()
   - [ ] Unit Tests
   - [ ] Tests ~~and refactor~~
@@ -313,7 +317,7 @@ Version todos:
     - [ ] `templates/filemode`
   - [ ] Use `FilePath()` everywhere where doing `strings.Join()`
 
-#### v0.9.7 - Alpha
+#### v0.9.8 - Alpha
 
   - [ ] Refactor Logging code (struct, no globals etc...)
   - [ ] Info logger to raw stdout
@@ -337,7 +341,7 @@ Version todos:
   - [ ] create simple map for docker hasFiles (I need functional programming!)
   - [ ] test-flight cleanup
 
-### v0.9.8 - Beta release
+### v0.9.9 - Beta release
 
   - [ ] add check for minimal docker version allowed
   - [ ] build.json - add entries to specify list of tests to run and their order
