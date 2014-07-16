@@ -35,15 +35,16 @@ type ConfigFileDockerAdd struct {
 
 // Used for defaults
 func NewConfigFile() *ConfigFile {
-    pwd, err := os.Getwd() // use working dir
+    usr, _ := user.Current() // to get user home, get user first
+    pwd, err := os.Getwd()   // use working dir
     if err != nil {
-        pwd = "~" // else use home dir by default
+        pwd = usr.HomeDir // else use home dir by default
     }
 
     return &ConfigFile{ // optional values:
         DockerEndpoint:           "http://localhost:4243",
-        AnsibleTemplatesDir:      ".test-flight",
-        TestFlightAssets:         FilePath(pwd, ".test-flight"),
+        AnsibleTemplatesDir:      FilePath(pwd, ".test-flight"),
+        TestFlightAssets:         FilePath(usr.HomeDir, ".test-flight"),
         UseSystemDockerTemplates: true,
     }
 }

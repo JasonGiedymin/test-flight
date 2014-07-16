@@ -98,17 +98,31 @@ func HasRequiredFile(dir string, requiredFile RequiredFile) (bool, error) {
     return HasRequiredFiles(dir, []RequiredFile{requiredFile})
 }
 
-func TarDirectory(tw *tar.Writer, dir string) error {
+func TarDirectory(tw *tar.Writer, dir string, ignoreList []string) error {
     Logger.Trace("Taring: ", dir)
+
+    shouldIgnore := func(file string) bool {
+        for _, entry := range ignoreList {
+            if entry == file {
+                return true
+            }
+        }
+        return false
+    }
 
     var archive = func(files []os.FileInfo) error {
         Logger.Trace("Found files to archive into context: ", len(files))
 
         for _, file := range files {
+            if shouldIgnore(file.Name()) {
+                Logger.Debug("Ignoring:", file.Name())
+                continue
+            }
+
             fullFilePath := strings.Join([]string{dir, file.Name()}, "/")
 
             if file.IsDir() {
-                TarDirectory(tw, fullFilePath)
+                TarDirectory(tw, fullFilePath, ignoreList)
                 continue
             }
 
@@ -146,6 +160,7 @@ func TarDirectory(tw *tar.Writer, dir string) error {
     }
 }
 
+// listens for ctrl-c from the user
 func CaptureUserCancel(containerChannel *ContainerChannel) {
     syschan := make(chan os.Signal, 1)
     signal.Notify(syschan, os.Interrupt)

@@ -8,9 +8,12 @@
   "env": {
     "ENV_MODE": "dev"
   },
+  "ignore": [
+    "ignoreme"
+  ],
   "add": [],
   "expose": [3000, 3001],
-  "cmd": "sleep 15 && apt-cache search apache2",
+  "cmd": "sleep 5 && echo 'Hello World'",
   "runTests": true,
   "resourceShare": {
     "mem": 1024,

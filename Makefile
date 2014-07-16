@@ -8,8 +8,8 @@ DEPS = $(go list -f '{{range .TestImports}}{{.}} {{end}}' ./...)
 TEST_DIR=tests/test-dirmode/example-playbook
 FILE_MODE_TEST_DIR=tests/test-filemode/example-playbook
 FILE_MODE_CONFIG=tests/test-filemode/example-playbook/test-flight-config.json
-COMMON_OPTS=-race
-COMMON_FLIGHT_OPTS=-v
+COMMON_OPTS=
+COMMON_FLIGHT_OPTS=-vvvv
 PACKAGE=github.com/JasonGiedymin/test-flight
 PATH_SRC=$(GOPATH)/src/github.com/JasonGiedymin/test-flight
 
@@ -52,12 +52,20 @@ help-cmd:
 link:
 	@echo "$(OK_COLOR)==> Symlinking project to $(PATH_SRC) $(NO_COLOR)"
 	@ln -vFfsn $(shell pwd) $(PATH_SRC)
+
 	@echo "$(OK_COLOR)==> Creating local test dir: $(shell pwd)/.test-flight $(NO_COLOR)"
 	@mkdir -p $(shell pwd)/.test-flight
 	@echo "$(OK_COLOR)==> Symlinking test-flight-config.json into .test-flight/ $(NO_COLOR)"
 	@ln -vFfsn $(shell pwd)/test-flight-config.json $(shell pwd)/.test-flight/
 	@echo "$(OK_COLOR)==> Symlinking templates into .test-flight $(NO_COLOR)"
 	@ln -vFfsn $(shell pwd)/templates $(shell pwd)/.test-flight/
+
+	@echo "$(OK_COLOR)==> Creating home test dir: $(HOME)/.test-flight $(NO_COLOR)"
+	@mkdir -p $(HOME)/.test-flight
+	@echo "$(OK_COLOR)==> Symlinking test-flight-config.json into $(HOME)/.test-flight/ $(NO_COLOR)"
+	@ln -vFfsn $(shell pwd)/test-flight-config.json $(HOME)/.test-flight/
+	@echo "$(OK_COLOR)==> Symlinking templates into $(HOME)/.test-flight $(NO_COLOR)"
+	@ln -vFfsn $(shell pwd)/templates $(HOME)/.test-flight/
 
 install-pkg:
 	@echo "$(OK_COLOR)==> Installing Test-Flight $(PATH_SRC) $(NO_COLOR)"

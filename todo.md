@@ -295,7 +295,21 @@ Version todos:
 
 #### v0.9.7 - Alpha
 
-  - [ ] version 0.9.7
+  - [x] version 0.9.7
+  - [x] retest all commands
+  - [x] check that only files specified are tar'd => create ignore entry in
+        buildfile
+  - [~] test with ansible-nodejs
+  - [x] refactor docker.CreateDockerImage() to not use docker client
+    - [x] stream stdout from image building not working =>
+          `make install` and `cd github/AnsibleShipyard/ansible-galaxy-roles/roles/ansible-nodejs` using `test-flight -f -vvvv launch` as the command. Listen()
+          seems to work but output buffer from client not filling, suggest
+          custom call to build image.
+      - [x] Add custom `BuildImage()` method with streaming output
+      - [x] Modify console to putput bright green to distinguish INFO and 
+            content streaming from Docker
+    - [x] defer immediately after call in `attach` method
+    - [ ] monitor output stream from `attach` channel and `listen` for errors
   - [ ] Remove app.Init()
   - [ ] Unit Tests
   - [ ] Tests ~~and refactor~~

@@ -16,19 +16,21 @@ var (
 )
 
 const debugLogFormat = `%{Color "red" "ERROR"}%{Color "yellow" "WARN"}%{Color "green" "INFO"}%{Color "cyan" "DEBUG"}%{Color "white+b" "TRACE"}[%{Date} %{Time}] [%{SEVERITY}] - %{Message}%{Color "reset"}`
-const consoleLogFormat = `%{Color "red" "ERROR"}%{Color "yellow" "WARN"}%{Color "green" "INFO"}%{Color "cyan" "DEBUG"}%{Color "white+b" "TRACE"}%{Message}%{Color "reset"}`
+const consoleLogFormat = `%{Color "red" "ERROR"}%{Color "yellow" "WARN"}%{Color "green+bh" "INFO"}%{Color "cyan" "DEBUG"}%{Color "white+b" "TRACE"}%{Message}%{Color "reset"}`
 const stdLogFormat = `%{Color "red" "ERROR"}%{Color "yellow" "WARN"}%{Color "green" "INFO"}%{Color "cyan" "DEBUG"}%{Color "white+b" "TRACE"}[%{Date} %{Time}] [%{SEVERITY}] - %{Message}%{Color "reset"}`
 const fileLogFormat = `[%{Date} %{Time}] [%{SEVERITY}] - %{Message}%{Color "reset"}`
 
 var levels = map[int]factorlog.Severity{
-    1:  factorlog.INFO,
-    2:  factorlog.DEBUG,
-    3:  factorlog.TRACE,
-    4:  factorlog.TRACE, // 4 is Trace + file logging
+    0:  factorlog.INFO,
+    1:  factorlog.DEBUG,
+    2:  factorlog.TRACE,
+    3:  factorlog.TRACE, // 3 is Trace + file logging
 }
 
+var maxVerbosity = len(levels)
+
 func getDebugFile() *os.File {
-    if verbosity >= 4 {
+    if verbosity >= maxVerbosity {
         newFile, _ := os.Create("debug.log")
         return newFile
     }
@@ -63,7 +65,7 @@ func Setup() {
     // LogDebug.SetMinMaxSeverity(levels[maxLevel(verbosity)], factorlog.ERROR)
     LogConsole.SetMinMaxSeverity(levels[maxLevel(verbosity)], factorlog.ERROR)
 
-    if verbosity >= 4 {
+    if verbosity >= maxVerbosity {
         File = factorlog.New(
             debugFile,
             factorlog.NewStdFormatter(fileLogFormat))
@@ -86,7 +88,7 @@ func Error(v ...interface{}) {
 
     Log.Error(v)
 
-    if verbosity >= 4 {
+    if verbosity >= maxVerbosity {
         File.Println(v)
     }
 }
