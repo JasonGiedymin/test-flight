@@ -8,6 +8,7 @@ import (
     "os"
     "os/signal"
     "strings"
+    "sync"
     "syscall"
 )
 
@@ -161,14 +162,19 @@ func TarDirectory(tw *tar.Writer, dir string, ignoreList []string) error {
 }
 
 // listens for ctrl-c from the user
-func CaptureUserCancel(containerChannel *ContainerChannel) {
+func CaptureUserCancel(containerChannel *ContainerChannel, wg *sync.WaitGroup) {
     syschan := make(chan os.Signal, 1)
     signal.Notify(syschan, os.Interrupt)
     signal.Notify(syschan, syscall.SIGTERM)
     go func() {
         <-syschan
-        Logger.Info("User canceling, closing stream...")
-        close(*containerChannel)
+        Logger.Debug("Canceling user operation...")
+        if wg != nil {
+            *containerChannel <- "canceled"
+            wg.Done()
+        }
+        defer close(*containerChannel)
+        return
     }()
 }
 

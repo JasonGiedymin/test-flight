@@ -309,7 +309,11 @@ Version todos:
       - [x] Modify console to putput bright green to distinguish INFO and 
             content streaming from Docker
     - [x] defer immediately after call in `attach` method
-    - [ ] monitor output stream from `attach` channel and `listen` for errors
+    - [x] `make install` should cleanup `$GOPATH/pkg/<test-flight>`
+    - [x] monitor output stream from `attach` channel and `listen` for errors
+      - [x] allow user cancel which grounds build => but user must manually
+            delete intermediate container.
+  - [x] Allow launch of existing container but with a warning (`launchcommand todo`)
   - [ ] Remove app.Init()
   - [ ] Unit Tests
   - [ ] Tests ~~and refactor~~
@@ -354,6 +358,10 @@ Version todos:
   - [ ] create/show test-flight specific images?
   - [ ] create simple map for docker hasFiles (I need functional programming!)
   - [ ] test-flight cleanup
+  - [ ] Add channel to log timing information asynchronously:
+    - [ ] how long things are taking?
+    - [ ] if docker is downloading?
+    - [ ] tick/tock while waiting?
 
 ### v0.9.9 - Beta release
 

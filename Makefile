@@ -12,12 +12,15 @@ COMMON_OPTS=
 COMMON_FLIGHT_OPTS=-vvvv
 PACKAGE=github.com/JasonGiedymin/test-flight
 PATH_SRC=$(GOPATH)/src/github.com/JasonGiedymin/test-flight
+PATH_PKG=$(GOPATH)/pkg/*/github.com/JasonGiedymin/test-flight
 
 help:
 	@echo "$(OK_COLOR)-----------------------Commands:----------------------$(NO_COLOR)"
 	@echo "$(TEXT_COLOR) help-cmd:   this help listing $(NO_COLOR)"
 	@echo "$(TEXT_COLOR) link:       symlinks this repo to gopath $(NO_COLOR)"
 	@echo "$(TEXT_COLOR) install:    installs test-flight (via go) $(NO_COLOR)"
+	@echo "$(TEXT_COLOR) uninstall:  uninstalls test-flight (via go) $(NO_COLOR)"
+	@echo "$(TEXT_COLOR) reinstall:  uninstalls and then installs test-flight (via go) $(NO_COLOR)"
 	@echo "$(TEXT_COLOR) dev-setup   set up developer environment $(NO_COLOR)"
 	@echo "$(TEXT_COLOR) deps:       install dependencies $(NO_COLOR)"
 	@echo "$(TEXT_COLOR) updatedeps: update dependencies $(NO_COLOR)"
@@ -72,6 +75,12 @@ install-pkg:
 	@go install $(PACKAGE)
 
 install: install-pkg
+
+uninstall:
+	@echo "$(OK_COLOR)==> Uninstalling Test-Flight $(PATH_PKG) $(NO_COLOR)"
+	@if [ -d $(PATH_PKG) ]; then rm -R $(PATH_PKG); fi;
+
+reinstall: uninstall install
 
 dev-setup: deps link
 
