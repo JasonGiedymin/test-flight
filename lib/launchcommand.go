@@ -40,44 +40,54 @@ func (cmd *LaunchCommand) Execute(args []string) error {
 
     fqImageName := cmd.App.AppState.BuildFile.ImageName + ":" + buildFile.Tag
 
-    if !cmd.Options.Force { // if not forcing, check to see if image exists.
-        if image, err := dc.GetImageDetails(fqImageName); err != nil {
-            return err
-        } else if image != nil {
-            Logger.What(image.Id)
-            // Logger.Warn("Cannot launch new image, one with the same name already exists. User did not specify 'force' option.")
-            // Logger.Warn("Starting an existing container")
-            //TODO: here start existing container
-            // if _, err := dc.StartContainer(image.Id); err != nil {
-            //     msg := "Error starting existing container. Error: " + err.Error()
-            //     return errors.New(msg)
-            // } else {
-            //     wg.Add(1)
-            //     containerChannel := dc.Attach(image.Id)
-            //     go watchContainerOn(containerChannel, &wg)
-            //     wg.Wait()
-            // }
+    getImageId := func() (string, error) {
 
-            return nil
+        if image, err := dc.GetImageDetails(fqImageName); err != nil {
+            return "", err
+        } else { // response from endpoint (but could be 404)
+            if image == nil { // doesn't exist
+                if newImage, err := dc.CreateDockerImage(fqImageName, cmd.Options); err != nil {
+                    return "", err
+                } else {
+                    return newImage, nil
+                }
+            } else { // exists
+                if cmd.Options.Force { // recreate anyway
+                    if newImage, err := dc.CreateDockerImage(fqImageName, cmd.Options); err != nil {
+                        return "", err
+                    } else {
+                        return newImage, nil
+                    }
+                } else { // warn user
+                    Logger.Warn("Will be starting a container that already exists.")
+                    return image.Id, nil
+                }
+            }
+            return image.Id, nil
         }
     }
 
-    if image, err := dc.CreateDockerImage(fqImageName, cmd.Options); err != nil {
-        return err
-    } else {
-        if resp, err := dc.CreateContainer(image); err != nil {
+    createAndStartContainerFrom := func(imageId string) error {
+        if container, err := dc.CreateContainer(imageId); err != nil {
             return err
         } else {
-            Logger.Trace("Docker Container to start:", resp.Id)
-            if _, err := dc.StartContainer(resp.Id); err != nil {
+            Logger.Trace("Docker Container to start:", container.Id)
+            if _, err := dc.StartContainer(container.Id); err != nil {
                 return err
             } else {
                 wg.Add(1)
-                containerChannel := dc.Attach(resp.Id)
+                containerChannel := dc.Attach(container.Id)
                 go watchContainerOn(containerChannel, &wg)
                 wg.Wait()
+                return nil
             }
         }
+    }
+
+    if imageId, err := getImageId(); err != nil {
+        return err
+    } else {
+        return createAndStartContainerFrom(imageId)
     }
 
     Logger.Info("Complete.")
