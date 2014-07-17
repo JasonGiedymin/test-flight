@@ -1,6 +1,7 @@
 package lib
 
 import (
+    // "errors"
     Logger "github.com/JasonGiedymin/test-flight/lib/logging"
     "sync"
 )
@@ -43,7 +44,20 @@ func (cmd *LaunchCommand) Execute(args []string) error {
         if image, err := dc.GetImageDetails(fqImageName); err != nil {
             return err
         } else if image != nil {
-            Logger.Warn("Cannot launch new image, one with the same name already exists. User did not specify 'force' option.")
+            Logger.What(image.Id)
+            // Logger.Warn("Cannot launch new image, one with the same name already exists. User did not specify 'force' option.")
+            // Logger.Warn("Starting an existing container")
+            //TODO: here start existing container
+            // if _, err := dc.StartContainer(image.Id); err != nil {
+            //     msg := "Error starting existing container. Error: " + err.Error()
+            //     return errors.New(msg)
+            // } else {
+            //     wg.Add(1)
+            //     containerChannel := dc.Attach(image.Id)
+            //     go watchContainerOn(containerChannel, &wg)
+            //     wg.Wait()
+            // }
+
             return nil
         }
     }

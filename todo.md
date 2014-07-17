@@ -309,7 +309,11 @@ Version todos:
       - [x] Modify console to putput bright green to distinguish INFO and 
             content streaming from Docker
     - [x] defer immediately after call in `attach` method
-    - [ ] monitor output stream from `attach` channel and `listen` for errors
+    - [x] `make install` should cleanup `$GOPATH/pkg/<test-flight>`
+    - [x] monitor output stream from `attach` channel and `listen` for errors
+      - [x] allow user cancel which grounds build => but user must manually
+            delete intermediate container.
+  - [ ] Allow launch of existing container but with a warning (`launchcommand todo`)
   - [ ] Remove app.Init()
   - [ ] Unit Tests
   - [ ] Tests ~~and refactor~~

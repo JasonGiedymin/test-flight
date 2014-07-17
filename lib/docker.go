@@ -41,7 +41,7 @@ import (
     "path/filepath"
     "strconv"
     "strings"
-    // "sync"
+    "sync"
     "text/template"
     "time"
 )
@@ -412,9 +412,14 @@ func (api *DockerApi) DeleteContainer(name string) ([]DeletedContainer, error) {
     }
 }
 
-func (api *DockerApi) BuildImage(buffer *bytes.Buffer, imageName string) ContainerChannel {
-    out := make(ContainerChannel) // channel to send back
-    go CaptureUserCancel(&out)
+func (api *DockerApi) BuildImage(
+    buffer *bytes.Buffer,
+    imageName string,
+    watch *ContainerChannel,
+    wg *sync.WaitGroup,
+) {
+    // out := make(ContainerChannel) // channel to send back
+    go CaptureUserCancel(watch, wg)
 
     go func() error {
         endpoint := api.configFile.DockerEndpoint
@@ -458,7 +463,7 @@ func (api *DockerApi) BuildImage(buffer *bytes.Buffer, imageName string) Contain
                 } else {
                     msg := "Error reading from stream on building image, error:" + err.Error()
                     Logger.Error(msg)
-                    close(out)
+                    *watch <- "ok"
                     return errors.New(msg)
                 }
             } else {
@@ -467,23 +472,20 @@ func (api *DockerApi) BuildImage(buffer *bytes.Buffer, imageName string) Contain
                 } else {
                     Logger.Console(strings.TrimSpace(jsonResult.Stream))
                 }
-
-                // Logger.Console(string(bytes.TrimSpace(line)[:]))
             }
         }
 
-        close(out)
+        *watch <- "ok"
+        wg.Done()
         return nil
     }()
-
-    return out
 }
 
 // We only want to attach to containers associated with a particular
 // Image name
 func (api *DockerApi) Attach(containerId string) ContainerChannel {
     out := make(ContainerChannel) // channel to send back
-    go CaptureUserCancel(&out)
+    go CaptureUserCancel(&out, nil)
 
     go func() {
         endpoint := api.configFile.DockerEndpoint
@@ -814,30 +816,33 @@ func (api *DockerApi) CreateDockerImage(fqImageName string, options *CommandOpti
     TarDirectory(tr, api.meta.Dir, api.buildFile.Ignore)
     tr.Close()
 
-    // opts := docker.BuildImageOptions{
-    //     Name:         fqImageName,
-    //     InputStream:  tarbuf,
-    //     OutputStream: outputbuf,
-    // }
-
-    // var wg sync.WaitGroup // used for channels
+    var wg sync.WaitGroup // used for channels
+    wg.Add(1)
     // buildChannel := api.Listen(outputbuf)
-    // wg.Add(1)
     // go watchContainerOn(buildChannel, &wg)
-
     // Logger.Trace("Building image...")
-    _ = api.BuildImage(tarbuf, fqImageName)
+    watch := make(ContainerChannel)
+    api.BuildImage(tarbuf, fqImageName, &watch, &wg)
+    // go CaptureUserCancel(&buildChannel)
 
-    // if err := api.client.Listen(tarbuf, fqImageName); err != nil {
-    //     Logger.Error("Error while building Docker image: "+fqImageName, err)
-    //     return "", err
-    // }
+    select {
+    case value := <-watch:
+        switch value {
+        case "ok":
+            Logger.Info("Successfully built Docker image: " + fqImageName)
+            return fqImageName, nil
+        case "canceled":
+            msg := "User Canceled docker creation."
+            Logger.Warn(msg, "User must manually stop last running container.")
+            return fqImageName, errors.New(msg)
+        }
+    }
 
+    wg.Wait()
     // Logger.Trace("Dockerfile buffer len", dockerfileBuffer.Len())
     // Logger.Trace("Dockerfile:", dockerfileBuffer.String())
     // Logger.Info("Created Dockerfile: " + fqImageName)
 
-    // wg.Wait()
     Logger.Info("Successfully built Docker image: " + fqImageName)
     return fqImageName, nil
 }
