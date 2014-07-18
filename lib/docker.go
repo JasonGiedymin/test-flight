@@ -226,22 +226,20 @@ func (api *DockerApi) getTemplateVar() *TemplateVar {
 
         // Helpers for common accessors
         // Keep names simple!
-        TestDir:           api.meta.Dir,
-        Owner:             api.buildFile.Owner,
-        ImageName:         api.buildFile.ImageName,
-        Tag:               api.buildFile.Tag,
-        From:              api.buildFile.From,
-        Version:           api.buildFile.Version,
-        RequiresDocker:    api.buildFile.RequiresDocker,
-        RequiresDockerUrl: api.buildFile.RequiresDockerUrl,
-        WorkDir:           api.configFile.WorkDir,
-        Env:               api.buildFile.Env,
-        Expose:            api.buildFile.Expose,
-        Cmd:               api.buildFile.Cmd,
-        AddSimple:         api.configFile.DockerAdd.Simple,
-        AddComplex:        api.configFile.DockerAdd.Complex,
-        AddUser:           api.buildFile.Add,
-        RunTests:          api.buildFile.RunTests,
+        TestDir:    api.meta.Dir,
+        Owner:      api.buildFile.Owner,
+        ImageName:  api.buildFile.ImageName,
+        Tag:        api.buildFile.Tag,
+        From:       api.buildFile.From,
+        Version:    api.buildFile.Version,
+        WorkDir:    api.configFile.WorkDir,
+        Env:        api.buildFile.Env,
+        Expose:     api.buildFile.Expose,
+        Cmd:        api.buildFile.Cmd,
+        AddSimple:  api.configFile.DockerAdd.Simple,
+        AddComplex: api.configFile.DockerAdd.Complex,
+        AddUser:    api.buildFile.Add,
+        RunTests:   api.buildFile.RunTests,
     }
 }
 
@@ -470,7 +468,7 @@ func (api *DockerApi) BuildImage(
                 if err := json.Unmarshal(line, &jsonResult); err != nil {
                     Logger.Error(err)
                 } else {
-                    Logger.Console(strings.TrimSpace(jsonResult.Stream))
+                    Logger.ConsoleChannel(strings.TrimSpace(jsonResult.Stream))
                 }
             }
         }
@@ -533,7 +531,7 @@ func (api *DockerApi) Attach(containerId string) ContainerChannel {
                     // return error.New(msg)
                 }
             } else {
-                Logger.Console(string(bytes.TrimSpace(line)[:]))
+                Logger.ConsoleChannel(string(bytes.TrimSpace(line)[:]))
             }
         }
 
@@ -732,7 +730,7 @@ func (api *DockerApi) GetImageDetails(fqImageName string) (*ApiDockerImage, erro
     } else {
         switch resp.Status() {
         case 200:
-            Logger.Info(result)
+            Logger.Trace(result)
             return &result, nil
         case 404:
             Logger.Debug("Image not found")

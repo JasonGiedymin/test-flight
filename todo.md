@@ -314,6 +314,14 @@ Version todos:
       - [x] allow user cancel which grounds build => but user must manually
             delete intermediate container.
   - [x] Allow launch of existing container but with a warning (`launchcommand todo`)
+  - [x] Remove `build.json` `requiresDocker` and `requiresDockerUrl`
+  - [x] Convert config file `Warn`ings to `Debug` when app cannot find config file.
+  - [x] Modify logger `Info` methods for commands to `Console`
+  - [x] Fix console logging to be lowest level
+  - [x] Fix console usage
+  - [x] Modify console logging colors
+  - [x] Add `ConsoleChannel` method for use with channel messages that will be
+        shown on the console. Prefer color as well (use green).
   - [ ] Remove app.Init()
   - [ ] Unit Tests
   - [ ] Tests ~~and refactor~~

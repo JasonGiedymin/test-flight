@@ -1,19 +1,19 @@
 package lib
 
 import (
-  Logger "github.com/JasonGiedymin/test-flight/lib/logging"
+    Logger "github.com/JasonGiedymin/test-flight/lib/logging"
 )
-
 
 // == Version Command ==
 type VersionCommand struct {
-  Controls *FlightControls
-  Options  *CommandOptions
-  App      *TestFlight
+    Controls *FlightControls
+    Options  *CommandOptions
+    App      *TestFlight
 }
 
 func (cmd *VersionCommand) Execute(args []string) error {
-  Logger.Info("Test-Flight Version:", cmd.App.AppState.Meta.Version)
+    msg := "Test-Flight Version: " + cmd.App.AppState.Meta.Version
+    Logger.Console(msg)
 
-  return nil
+    return nil
 }
