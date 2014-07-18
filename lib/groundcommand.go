@@ -43,7 +43,7 @@ func (cmd *GroundCommand) Execute(args []string) error {
         }
     }
 
-    Logger.Console("Complete.")
+    Logger.Console("Grounded.")
 
     return nil
 }

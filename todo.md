@@ -317,6 +317,8 @@ Version todos:
   - [x] Remove `build.json` `requiresDocker` and `requiresDockerUrl`
   - [x] Convert config file `Warn`ings to `Debug` when app cannot find config file.
   - [x] Modify logger `Info` methods for commands to `Console`
+  - [x] Fix console logging to be lowest level
+  - [x] Fix console usage
   - [ ] Remove app.Init()
   - [ ] Unit Tests
   - [ ] Tests ~~and refactor~~

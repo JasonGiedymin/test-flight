@@ -41,7 +41,8 @@ func (cmd *DestroyCommand) Execute(args []string) error {
         return err
     }
 
-    Logger.Console("Destroyed all known containers and images associated with:", fqImageName)
+    msg := "Destroyed all known containers and images associated with: " + fqImageName
+    Logger.Console(msg)
 
     // Nothing to do
     return nil

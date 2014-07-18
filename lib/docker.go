@@ -730,7 +730,7 @@ func (api *DockerApi) GetImageDetails(fqImageName string) (*ApiDockerImage, erro
     } else {
         switch resp.Status() {
         case 200:
-            Logger.Info(result)
+            Logger.Trace(result)
             return &result, nil
         case 404:
             Logger.Debug("Image not found")

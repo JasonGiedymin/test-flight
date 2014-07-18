@@ -21,10 +21,11 @@ const stdLogFormat = `%{Color "red" "ERROR"}%{Color "yellow" "WARN"}%{Color "gre
 const fileLogFormat = `[%{Date} %{Time}] [%{SEVERITY}] - %{Message}%{Color "reset"}`
 
 var levels = map[int]factorlog.Severity{
-    0:  factorlog.INFO,
-    1:  factorlog.DEBUG,
-    2:  factorlog.TRACE,
-    3:  factorlog.TRACE, // 3 is Trace + file logging
+    0:  factorlog.WARN,
+    1:  factorlog.INFO,
+    2:  factorlog.DEBUG,
+    3:  factorlog.TRACE,
+    // 3:  factorlog.TRACE, // 3 is Trace + file logging
 }
 
 var maxVerbosity = len(levels)
@@ -60,10 +61,11 @@ func Setup() {
         os.Stdout,
         factorlog.NewStdFormatter(consoleLogFormat))
 
-    // TODO: set log level here
     Log.SetMinMaxSeverity(levels[maxLevel(verbosity)], factorlog.ERROR)
+
+    // Do not set logdebug and logconsole
     // LogDebug.SetMinMaxSeverity(levels[maxLevel(verbosity)], factorlog.ERROR)
-    LogConsole.SetMinMaxSeverity(levels[maxLevel(verbosity)], factorlog.ERROR)
+    // LogConsole.SetMinMaxSeverity(levels[maxLevel(verbosity)], factorlog.ERROR)
 
     if verbosity >= maxVerbosity {
         File = factorlog.New(
