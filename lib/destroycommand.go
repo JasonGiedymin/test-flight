@@ -41,7 +41,7 @@ func (cmd *DestroyCommand) Execute(args []string) error {
         return err
     }
 
-    Logger.Info("Complete.")
+    Logger.Console("Destroyed all known containers and images associated with:", fqImageName)
 
     // Nothing to do
     return nil

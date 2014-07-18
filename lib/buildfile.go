@@ -9,34 +9,30 @@ import (
 )
 
 type BuildFile struct {
-    Location          string
-    Owner             string
-    ImageName         string
-    Tag               string
-    From              string
-    Version           string
-    RequiresDocker    string
-    RequiresDockerUrl string
-    Env               map[string]string
-    Expose            []int
-    Ignore            []string
-    Add               []DockerAddComplexEntry
-    Cmd               string
-    RunTests          bool
-    ResourceShare     ResourceShare
+    Location      string
+    Owner         string
+    ImageName     string
+    Tag           string
+    From          string
+    Version       string
+    Env           map[string]string
+    Expose        []int
+    Ignore        []string
+    Add           []DockerAddComplexEntry
+    Cmd           string
+    RunTests      bool
+    ResourceShare ResourceShare
 }
 
 // For specific defaults
 func NewBuildFile() *BuildFile {
     return &BuildFile{
-        Owner:             "Test-Flight-User",
-        ImageName:         "Test-Flight-Test-Image",
-        Tag:               "latest",
-        From:              "",
-        Version:           "0.0.1",
-        RequiresDocker:    "",
-        RequiresDockerUrl: "",
-        RunTests:          false,
+        Owner:     "Test-Flight-User",
+        ImageName: "Test-Flight-Test-Image",
+        Tag:       "latest",
+        From:      "",
+        Version:   "0.0.1",
+        RunTests:  false,
     }
 }
 

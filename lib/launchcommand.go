@@ -87,10 +87,9 @@ func (cmd *LaunchCommand) Execute(args []string) error {
     if imageId, err := getImageId(); err != nil {
         return err
     } else {
+        Logger.Console("Launching docker container:")
         return createAndStartContainerFrom(imageId)
     }
-
-    Logger.Info("Complete.")
 
     return nil
 }

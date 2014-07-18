@@ -35,7 +35,7 @@ func (cmd *GroundCommand) Execute(args []string) error {
 
     fqImageName := cmd.App.AppState.BuildFile.ImageName + ":" + cmd.App.AppState.BuildFile.Tag
     if running, err := dc.ListContainers(fqImageName); err != nil {
-        Logger.Trace("Error while trying to get a list of containers for ", fqImageName)
+        Logger.Error("Error while trying to get a list of containers for ", fqImageName)
         return err
     } else {
         for _, container := range running {
@@ -43,7 +43,7 @@ func (cmd *GroundCommand) Execute(args []string) error {
         }
     }
 
-    Logger.Info("Complete.")
+    Logger.Console("Complete.")
 
     return nil
 }

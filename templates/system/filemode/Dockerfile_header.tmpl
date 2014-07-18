@@ -3,15 +3,13 @@
 # ------------------------------------------------------
 #                       Dockerfile
 # ------------------------------------------------------
-# image:   {{.ImageName}}
-# tag:     {{.Tag}}
-# name:    {{.Owner}}/{{.ImageName}}
-# version: v{{.Version}}
-# how-to:  docker build -t {{.Owner}}/{{.ImageName}} .
-# {{if .RequiresDocker}}Requires:
-# {{.RequiresDocker}}
-#   {{.RequiresDockerUrl}}
-# {{end}}
+# image:    {{.ImageName}}
+# tag:      {{.Tag}}
+# name:     {{.Owner}}/{{.ImageName}}
+# version:  v{{.Version}}
+# how-to:   docker build -t {{.Owner}}/{{.ImageName}} .
+# Requires: {{.From}}
+#
 #       Test-Flight v{{.Meta.Version}} Generated Dockerfile
 # ------------------------------------------------------
 

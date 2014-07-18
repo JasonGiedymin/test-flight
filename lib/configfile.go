@@ -113,7 +113,7 @@ func findConfig(dir string) (*ConfigFile, error) {
     configFile, err := getConfig(localConfigPath)
     if err != nil {
         msg := "Config: " + localConfigPath + " may not exist or cannot be read. " + err.Error()
-        Logger.Warn(msg)
+        Logger.Debug(msg)
     } else {
         logConfigFile(configFile)
         return configFile, nil
@@ -129,7 +129,7 @@ func findConfig(dir string) (*ConfigFile, error) {
     configFile, err = getConfig(pwdConfigPath)
     if err != nil {
         msg := "Config: " + localConfigPath + " may not exist or cannot be read. " + err.Error()
-        Logger.Warn(msg)
+        Logger.Debug(msg)
     } else {
         logConfigFile(configFile)
         return configFile, nil
@@ -149,7 +149,7 @@ func findConfig(dir string) (*ConfigFile, error) {
     configFile, err = getConfig(homeConfigPath)
     if err != nil {
         msg := "Config: " + localConfigPath + " may not exist or cannot be read. " + err.Error()
-        Logger.Warn(msg)
+        Logger.Debug(msg)
     } else {
         logConfigFile(configFile)
         return configFile, nil

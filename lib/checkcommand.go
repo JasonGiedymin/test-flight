@@ -21,7 +21,7 @@ func (cmd *CheckCommand) Execute(args []string) error {
     if err != nil {
         Logger.Error("Could not verify config files. " + err.Error())
     } else {
-        Logger.Info("All checks passed! Files found!")
+        Logger.Console("All checks passed! Files found!")
     }
 
     return nil

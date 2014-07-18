@@ -226,22 +226,20 @@ func (api *DockerApi) getTemplateVar() *TemplateVar {
 
         // Helpers for common accessors
         // Keep names simple!
-        TestDir:           api.meta.Dir,
-        Owner:             api.buildFile.Owner,
-        ImageName:         api.buildFile.ImageName,
-        Tag:               api.buildFile.Tag,
-        From:              api.buildFile.From,
-        Version:           api.buildFile.Version,
-        RequiresDocker:    api.buildFile.RequiresDocker,
-        RequiresDockerUrl: api.buildFile.RequiresDockerUrl,
-        WorkDir:           api.configFile.WorkDir,
-        Env:               api.buildFile.Env,
-        Expose:            api.buildFile.Expose,
-        Cmd:               api.buildFile.Cmd,
-        AddSimple:         api.configFile.DockerAdd.Simple,
-        AddComplex:        api.configFile.DockerAdd.Complex,
-        AddUser:           api.buildFile.Add,
-        RunTests:          api.buildFile.RunTests,
+        TestDir:    api.meta.Dir,
+        Owner:      api.buildFile.Owner,
+        ImageName:  api.buildFile.ImageName,
+        Tag:        api.buildFile.Tag,
+        From:       api.buildFile.From,
+        Version:    api.buildFile.Version,
+        WorkDir:    api.configFile.WorkDir,
+        Env:        api.buildFile.Env,
+        Expose:     api.buildFile.Expose,
+        Cmd:        api.buildFile.Cmd,
+        AddSimple:  api.configFile.DockerAdd.Simple,
+        AddComplex: api.configFile.DockerAdd.Complex,
+        AddUser:    api.buildFile.Add,
+        RunTests:   api.buildFile.RunTests,
     }
 }
 
