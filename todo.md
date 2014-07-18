@@ -322,7 +322,11 @@ Version todos:
   - [x] Modify console logging colors
   - [x] Add `ConsoleChannel` method for use with channel messages that will be
         shown on the console. Prefer color as well (use green).
+  - [x] Fix `launch` command where creation of image api calls succeed and app 
+        tries to launch a container from that image. => While the api call 
+        succeeds, call GetImageDetails to verify the image didn't succeed.
   - [ ] Remove app.Init()
+  - [ ] RC this release
   - [ ] Unit Tests
   - [ ] Tests ~~and refactor~~
   - [ ] Improve show info display

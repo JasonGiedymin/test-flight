@@ -744,6 +744,8 @@ func (api *DockerApi) GetImageDetails(fqImageName string) (*ApiDockerImage, erro
 // CreateDockerImage creates a docker image by first creating the Dockerfile
 // in memory and then tars it, prior to sending it along to the docker
 // endpoint.
+// Note: once the image creation starts the only way to know if it succeeded
+//       is to query for it again.
 func (api *DockerApi) CreateDockerImage(fqImageName string, options *CommandOptions) (string, error) {
     Logger.Debug("Creating Docker image by attempting to build Dockerfile: " + fqImageName)
 
@@ -827,8 +829,15 @@ func (api *DockerApi) CreateDockerImage(fqImageName string, options *CommandOpti
     case value := <-watch:
         switch value {
         case "ok":
-            Logger.Info("Successfully built Docker image: " + fqImageName)
-            return fqImageName, nil
+            failMsg := "Docker Image [" + fqImageName + "] failed to build."
+            // We got an ok but don't know if it is legit. Possible to get no error
+            // but image will be nil (successful api call but image doesn't exist)
+            if image, err := api.GetImageDetails(fqImageName); err != nil || image == nil {
+                return "", errors.New(failMsg)
+            } else {
+                Logger.Info("Successfully built Docker image: " + fqImageName)
+                return image.Id, nil
+            }
         case "canceled":
             msg := "User Canceled docker creation."
             Logger.Warn(msg, "User must manually stop last running container.")
