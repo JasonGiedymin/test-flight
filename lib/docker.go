@@ -468,7 +468,7 @@ func (api *DockerApi) BuildImage(
                 if err := json.Unmarshal(line, &jsonResult); err != nil {
                     Logger.Error(err)
                 } else {
-                    Logger.Console(strings.TrimSpace(jsonResult.Stream))
+                    Logger.ConsoleChannel(strings.TrimSpace(jsonResult.Stream))
                 }
             }
         }
@@ -531,7 +531,7 @@ func (api *DockerApi) Attach(containerId string) ContainerChannel {
                     // return error.New(msg)
                 }
             } else {
-                Logger.Console(string(bytes.TrimSpace(line)[:]))
+                Logger.ConsoleChannel(string(bytes.TrimSpace(line)[:]))
             }
         }
 

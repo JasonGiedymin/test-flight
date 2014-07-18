@@ -16,7 +16,7 @@ var (
 )
 
 const debugLogFormat = `%{Color "red" "ERROR"}%{Color "yellow" "WARN"}%{Color "green" "INFO"}%{Color "cyan" "DEBUG"}%{Color "white+b" "TRACE"}[%{Date} %{Time}] [%{SEVERITY}] - %{Message}%{Color "reset"}`
-const consoleLogFormat = `%{Color "red" "ERROR"}%{Color "yellow" "WARN"}%{Color "green+bh" "INFO"}%{Color "cyan" "DEBUG"}%{Color "white+b" "TRACE"}%{Message}%{Color "reset"}`
+const consoleLogFormat = `%{Color "red" "ERROR"}%{Color "yellow" "WARN"}%{Color "green" "INFO"}%{Color "green+bh" "DEBUG"}%{Color "white+b" "TRACE"}%{Message}%{Color "reset"}`
 const stdLogFormat = `%{Color "red" "ERROR"}%{Color "yellow" "WARN"}%{Color "green" "INFO"}%{Color "cyan" "DEBUG"}%{Color "white+b" "TRACE"}[%{Date} %{Time}] [%{SEVERITY}] - %{Message}%{Color "reset"}`
 const fileLogFormat = `[%{Date} %{Time}] [%{SEVERITY}] - %{Message}%{Color "reset"}`
 
@@ -145,4 +145,12 @@ func Console(v ...interface{}) {
     }
 
     LogConsole.Info(v[0])
+}
+
+func ConsoleChannel(v ...interface{}) {
+    if Log == nil {
+        Setup()
+    }
+
+    LogConsole.Debug(v[0])
 }

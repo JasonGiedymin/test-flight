@@ -319,6 +319,9 @@ Version todos:
   - [x] Modify logger `Info` methods for commands to `Console`
   - [x] Fix console logging to be lowest level
   - [x] Fix console usage
+  - [x] Modify console logging colors
+  - [x] Add `ConsoleChannel` method for use with channel messages that will be
+        shown on the console. Prefer color as well (use green).
   - [ ] Remove app.Init()
   - [ ] Unit Tests
   - [ ] Tests ~~and refactor~~
