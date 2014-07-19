@@ -108,6 +108,11 @@ func HasRequiredFile(dir string, requiredFile RequiredFile) (bool, error) {
 func TarDirectory(tw *tar.Writer, dir string, ignoreList []string) error {
     Logger.Trace("Taring: ", dir)
 
+    // Add Dockerfile to the ignore list
+    // This can also help prevent existing Dockerfiles from being used
+    // and accidently shipped in the context.
+    ignoreList = append(ignoreList, "Dockerfile")
+
     shouldIgnore := func(file string) bool {
         for _, entry := range ignoreList {
             if entry == file {

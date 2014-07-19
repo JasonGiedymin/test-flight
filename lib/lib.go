@@ -15,7 +15,7 @@ var (
     BadDir        = errors.NewClass("Can't read the current directory")
     FileCheckFail = errors.NewClass("File Check Failed")
     mainYaml      = RequiredFile{Name: "main yaml", FileName: "main.yml", FileType: "f"}
-    buildFile     = RequiredFile{Name: "build.json", FileName: "build.json", FileType: "f"}
+    buildFile     = RequiredFile{Name: Constants().buildFileName, FileName: Constants().buildFileName, FileType: "f"}
     AnsibleFiles  = []RequiredFile{mainYaml}
 )
 
@@ -46,7 +46,7 @@ func generateRequiredFilesFrom(buildfile *BuildFile) ([]RequiredFile, error) {
     // Treat Complex as fully qualified paths and as OS Files
     for _, file := range buildfile.Add.Complex {
         if file.Name == "" || file.Location == "" {
-            msg := "Found empty values for build.json Complex entry. Check syntax, try again."
+            msg := "Found empty values for " + Constants().buildFileName + " Complex entry. Check syntax, try again."
             Logger.Error(msg)
             return nil, errors.New(msg)
         }
@@ -61,7 +61,7 @@ func generateRequiredFilesFrom(buildfile *BuildFile) ([]RequiredFile, error) {
 }
 
 var RequiredFiles = []RequiredFile{
-    {Name: "Test-Flight json build file", FileName: "build.json", FileType: "f"},
+    {Name: "Test-Flight json build file", FileName: Constants().buildFileName, FileType: "f"},
 
     {Name: "Ansible handlers dir", FileName: "handlers", FileType: "d", RequiredFiles: AnsibleFiles},
     {Name: "Ansible meta dir", FileName: "meta", FileType: "d", RequiredFiles: AnsibleFiles},

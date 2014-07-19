@@ -83,7 +83,7 @@ func (fc *FlightControls) CheckBuild(dir string) (*BuildFile, error) {
         return nil, errors.New(msg)
     }
 
-    buildFilePath := FilePath(dir, "build.json")
+    buildFilePath := FilePath(dir, Constants().buildFileName)
     if buildFile, err := ReadBuildFile(buildFilePath); err != nil {
         msg := "Error parsing buildfile: [" + buildFilePath + "]. Error: " + err.Error()
         return nil, errors.New(msg)

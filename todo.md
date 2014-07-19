@@ -334,6 +334,8 @@ Version todos:
   - [x] Dockerfile needs galaxy role lookup added to template. => add requires
         to buildfile.
   - [x] Add galaxy role adding in filemode docker add templates
+  - [x] Rename `build.json` to `test-flight-build.json`
+  - [x] Add test-flight build and config files to constants struct
   - [ ] when fail to build or launch cleanup dockers <none>
   - [ ] Remove app.Init()
   - [ ] RC this release

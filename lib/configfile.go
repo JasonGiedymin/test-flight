@@ -93,7 +93,7 @@ func getConfig(file string) (*ConfigFile, error) {
 // tries to find config file in user home, then if it cannot find one there
 // will try to find a config file in the local running directory
 func findConfig(dir string) (*ConfigFile, error) {
-    configFileName := "test-flight-config.json"
+    configFileName := Constants().configFileName
     configFile := NewConfigFile()
     logConfigFile := func(configFile *ConfigFile) {
         Logger.Debug("Found config file.")
@@ -135,7 +135,7 @@ func findConfig(dir string) (*ConfigFile, error) {
         return nil, errors.New("Can't read user home.")
     }
 
-    homeConfigPath := FilePath(usr.HomeDir, ".test-flight", "test-flight-config.json")
+    homeConfigPath := FilePath(usr.HomeDir, ".test-flight", configFileName)
     Logger.Debug("Checking for config file in user HOME: ", homeConfigPath)
 
     configFile, err = getConfig(homeConfigPath)

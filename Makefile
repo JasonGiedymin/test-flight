@@ -28,6 +28,12 @@ help:
 	@echo "$(TEXT_COLOR) test:       tests code $(NO_COLOR)"
 	@echo "$(TEXT_COLOR) lint:       lints code $(NO_COLOR)"
 	@echo ""
+	@echo ""
+	@echo "$(TEXT_COLOR) Docker Helper Commands: $(NO_COLOR)"
+	@echo ""
+	@echo "$(TEXT_COLOR) docker-clean: removes all stopped containers and untagged images $(NO_COLOR)"
+	@echo ""
+	@echo ""
 	@echo "$(TEXT_COLOR) Commands requiring docker endpoint: $(NO_COLOR)"
 	@echo ""
 	@echo "$(TEXT_COLOR) test-version: tests the version command $(NO_COLOR)"
@@ -105,6 +111,12 @@ test: deps
 lint:
 	@echo "$(OK_COLOR)==> Linting $(NO_COLOR)"
 	golint .
+
+docker-clean:
+	@echo "$(OK_COLOR)==> Removes all stopped docker containers $(NO_COLOR)"
+	@echo "docker ps -a | grep 'Exited' |  awk '{print $1}' | xargs docker rm"
+	@echo "$(OK_COLOR)==> Removes all untagged docker images $(NO_COLOR)"
+	@echo "docker images | grep '<none>' |  awk '{print $3}' | xargs docker rmi"
 
 test-version:
 	@echo "$(OK_COLOR)==> Testing Version $(NO_COLOR)"
