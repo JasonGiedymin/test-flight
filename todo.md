@@ -336,7 +336,19 @@ Version todos:
   - [x] Add galaxy role adding in filemode docker add templates
   - [x] Rename `build.json` to `test-flight-build.json`
   - [x] Add test-flight build and config files to constants struct
-  - [ ] when fail to build or launch cleanup dockers <none>
+  - [x] Add `.git` to ignore list by default, user can override entire list by
+        supplying `ignore` list in buildfile.
+  - [~] when fail to build or launch cleanup dockers <none>? => point out the
+        last built container so user could manually run it.
+    - [~] Use regex for detecting container creation:
+      - `(--->)(\s)(\w{12})` - detects container commits
+      - ~~`(--->)(\s)(\S{12})` - detects container commits~~
+      - `(--->)(\s)\w* in\s(\w{12})` - detects running
+      - [ ] bug in not adding command to new containers => create new dockerfile
+            which will be used to start container
+      - [ ] use regex to detect last state for messaging user
+  - [ ] Write out Dockerfile to `.test-flight` so users can see it
+  - [ ] consider non ansible cmd script mode
   - [ ] Remove app.Init()
   - [ ] RC this release
   - [ ] Unit Tests

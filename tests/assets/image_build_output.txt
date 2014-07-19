@@ -1,0 +1,31 @@
+Step 0 : FROM jasongiedymin/ansible-base-ubuntu
+---> 3611fca1eae4
+Step 1 : MAINTAINER JasonGiedymin
+---> Using cache
+---> 44c75be9bab7
+Step 2 : ENV WORKDIR /tmp/build/ansible-nodejs
+---> Using cache
+---> 5da6478365d7
+Step 3 : ADD .//meta $WORKDIR/meta
+---> 6ed32383eca9
+Removing intermediate container 67463afa5c96
+Step 4 : ADD .//tasks $WORKDIR/tasks
+---> 150877d1f627
+Removing intermediate container f69b146bd73c
+Step 5 : ADD .//tests $WORKDIR/tests
+---> 30cb581b7ce0
+Removing intermediate container 69116c3dae4d
+Step 6 : ADD .//vars $WORKDIR/vars
+---> 0f6fff2bcf7b
+Removing intermediate container bc4f763dae40
+Step 7 : ADD .//.test-flight $WORKDIR/.test-flight
+---> 23a9188c8df0
+Removing intermediate container 6d7f8958de0d
+Step 8 : ADD .//.test-flight/inventory /etc/ansible/hosts
+---> 6d89682e9365
+Removing intermediate container 124558b352c8
+Step 9 : ADD .//.test-flight/playbook.yml $WORKDIR/playbook.yml
+---> 60192ac7a7a5
+Removing intermediate container 3b8a17d4b117
+Step 10 : RUN ansible-playbook $WORKDIR/playbook.yml -c local -vvvv
+---> Running in fb989e39d088

@@ -59,7 +59,7 @@ func (cmd *LaunchCommand) Execute(args []string) error {
                         return newImage, nil
                     }
                 } else { // warn user
-                    Logger.Warn("Will be starting a container that already exists.")
+                    Logger.Warn("Will be starting a container from an image which already exists.")
                     return image.Id, nil
                 }
             }
