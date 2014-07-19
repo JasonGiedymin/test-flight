@@ -333,6 +333,8 @@ Version todos:
         - [x] Tie into requiredfiles (simple, complex tbd)
   - [x] Dockerfile needs galaxy role lookup added to template. => add requires
         to buildfile.
+  - [x] Add galaxy role adding in filemode docker add templates
+  - [ ] when fail to build or launch cleanup dockers <none>
   - [ ] Remove app.Init()
   - [ ] RC this release
   - [ ] Unit Tests

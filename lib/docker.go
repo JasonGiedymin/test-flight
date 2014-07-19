@@ -798,6 +798,10 @@ func (api *DockerApi) CreateDockerImage(fqImageName string, options *CommandOpti
 
     dockerfile.Flush()
 
+    // Logger.Trace("Dockerfile buffer len", dockerfileBuffer.Len())
+    Logger.Trace("Dockerfile:", dockerfileBuffer.String())
+    // Logger.Info("Created Dockerfile: " + fqImageName)
+
     currTime := time.Now()
 
     // Add Dockerfile to archive, break out
@@ -846,9 +850,6 @@ func (api *DockerApi) CreateDockerImage(fqImageName string, options *CommandOpti
     }
 
     wg.Wait()
-    // Logger.Trace("Dockerfile buffer len", dockerfileBuffer.Len())
-    // Logger.Trace("Dockerfile:", dockerfileBuffer.String())
-    // Logger.Info("Created Dockerfile: " + fqImageName)
 
     Logger.Info("Successfully built Docker image: " + fqImageName)
     return fqImageName, nil

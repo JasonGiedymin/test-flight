@@ -1,4 +1,14 @@
 {{define "Dockerfile_run"}}
+
+{{if .Requires}}
+# -----> Install Galaxy Dependencies
+{{range $item := .Requires}}
+RUN ansible-galaxy install {{$item}}
+{{end}}
+# <----- end Install Galaxy Dependencies
+{{end}}
+
+
 # Execute Test-Flight Playbook
 RUN ansible-playbook $WORKDIR/playbook.yml -c local -vvvv
 {{end}}
