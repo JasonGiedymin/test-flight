@@ -54,22 +54,21 @@ type TemplateVar struct {
     ConfigFile *ConfigFile
     BuildFile  *BuildFile
 
-    TestDir           string
-    Owner             string
-    ImageName         string
-    Tag               string
-    From              string
-    Version           string
-    RequiresDocker    string
-    RequiresDockerUrl string
-    WorkDir           string
-    Env               map[string]string
-    Expose            []int
-    Cmd               string
-    AddSimple         []string
-    AddComplex        []DockerAddComplexEntry
-    AddUser           []DockerAddComplexEntry
-    RunTests          bool
+    TestDir    string
+    Owner      string
+    ImageName  string
+    Tag        string
+    From       string
+    Version    string
+    Requires   []string
+    WorkDir    string
+    Env        map[string]string
+    Expose     []int
+    Cmd        string
+    AddSimple  []string
+    AddComplex []DockerAddComplexEntry
+    // AddUser           []DockerAddComplexEntry
+    RunTests bool
 }
 
 // Proxy Client
@@ -231,15 +230,16 @@ func (api *DockerApi) getTemplateVar() *TemplateVar {
         ImageName:  api.buildFile.ImageName,
         Tag:        api.buildFile.Tag,
         From:       api.buildFile.From,
+        Requires:   api.buildFile.Requires,
         Version:    api.buildFile.Version,
-        WorkDir:    api.configFile.WorkDir,
+        WorkDir:    api.buildFile.WorkDir,
         Env:        api.buildFile.Env,
         Expose:     api.buildFile.Expose,
         Cmd:        api.buildFile.Cmd,
-        AddSimple:  api.configFile.DockerAdd.Simple,
-        AddComplex: api.configFile.DockerAdd.Complex,
-        AddUser:    api.buildFile.Add,
-        RunTests:   api.buildFile.RunTests,
+        AddSimple:  api.buildFile.Add.Simple,
+        AddComplex: api.buildFile.Add.Complex,
+        // AddUser:    api.buildFile.Add,
+        RunTests: api.buildFile.RunTests,
     }
 }
 

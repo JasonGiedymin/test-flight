@@ -22,15 +22,7 @@ type ConfigFile struct {
     TestFlightAssets         string // $HOME/.test-flight
     UseSystemDockerTemplates bool   // to use DockerTemplatesDir/{system|user}
     DockerEndpoint           string
-    WorkDir                  string
-    DockerAdd                ConfigFileDockerAdd
     OverwriteTemplates       bool
-}
-
-type ConfigFileDockerAdd struct {
-    Simple []string
-    // User   []map[string]string
-    Complex []DockerAddComplexEntry
 }
 
 // Used for defaults

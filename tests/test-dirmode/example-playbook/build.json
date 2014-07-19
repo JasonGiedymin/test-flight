@@ -1,7 +1,11 @@
 {
+  "runTests": true,
   "owner": "testflight",
   "imageName": "test-docker-name1",
   "from": "jasongiedymin/ansible-nodejs",
+  "requires": [
+    "JasonGiedymin.ark-nodejs"
+  ],
   "version": "0.1.0",
   "env": {
     "ENV_MODE": "dev"
@@ -9,10 +13,17 @@
   "ignore": [
     "ignoreme"
   ],
-  "add": [],
+  "workDir": "/tmp/build",
+  "add": {
+    "simple": [
+      "tasks",
+      "tests",
+      "vars",
+      "handlers"
+    ]
+  },
   "expose": [3000, 3001],
   "cmd": "sleep 5 && echo 'Hello World'",
-  "runTests": true,
   "resourceShare": {
     "mem": 1024,
     "cpu": 2

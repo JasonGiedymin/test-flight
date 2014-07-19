@@ -1,4 +1,5 @@
 {
+  "runTests": true,
   "owner": "testflight",
   "imageName": "test-docker-name1",
   "from": "jasongiedymin/ansible-nodejs",
@@ -9,7 +10,6 @@
   "add": [],
   "expose": [3000, 3001],
   "cmd": "sleep 15 && apt-cache search apache2",
-  "runTests": true,
   "resourceShare": {
     "mem": 1024,
     "cpu": 2

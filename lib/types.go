@@ -1,125 +1,120 @@
 package lib
 
 import (
-  Logger "github.com/JasonGiedymin/test-flight/lib/logging"
-  "encoding/json"
+    "encoding/json"
+    Logger "github.com/JasonGiedymin/test-flight/lib/logging"
 )
 
 func toBytes(data interface{}) ([]byte, error) {
-  bytes, err := json.Marshal(data)
-  if err != nil {
-    return nil, err
-  }
-  return bytes, nil
+    bytes, err := json.Marshal(data)
+    if err != nil {
+        return nil, err
+    }
+    return bytes, nil
 }
 
 // Internal -------------------------------------------------------------------
 type DeletedContainer struct {
-  Name string
-  Id   string
+    Name string
+    Id   string
 }
 
 // end Internal ---------------------------------------------------------------
 
 type ApiPostRequest struct {
-  Image        string
-  OpenStdin    bool
-  AttachStdin  bool
-  AttachStdout bool
+    Image        string
+    OpenStdin    bool
+    AttachStdin  bool
+    AttachStdout bool
 }
 
 func (post *ApiPostRequest) Bytes() ([]byte, error) {
-  bytes, err := json.Marshal(post)
-  if err != nil {
-    return nil, err
-  }
-  return bytes, nil
+    bytes, err := json.Marshal(post)
+    if err != nil {
+        return nil, err
+    }
+    return bytes, nil
 }
 
 type ApiPostResponse struct {
-  Id       string
-  Warnings []string
+    Id       string
+    Warnings []string
 }
 
 type DockerHostConfig struct {
-  Binds           []string
-  Links           []string
-  LxcConf         []string
-  PortBindings    map[string][]map[string]string
-  PublishAllPorts bool
-  Privileged      bool
-  Dns             []string
-  VolumesFrom     []string
+    Binds           []string
+    Links           []string
+    LxcConf         []string
+    PortBindings    map[string][]map[string]string
+    PublishAllPorts bool
+    Privileged      bool
+    Dns             []string
+    VolumesFrom     []string
 }
 
 func (post *DockerHostConfig) Bytes() ([]byte, error) {
-  return toBytes(post)
+    return toBytes(post)
 }
 
 type ApiContainerPortDetails struct {
-  PrivatePort int
-  PublicPort  int
-  Type        string
+    PrivatePort int
+    PublicPort  int
+    Type        string
 }
 
 type ApiContainer struct {
-  Id         string
-  Image      string
-  Command    string
-  Created    int64
-  Status     string
-  Ports      []ApiContainerPortDetails
-  SizeRw     int
-  SizeRootFs int
+    Id         string
+    Image      string
+    Command    string
+    Created    int64
+    Status     string
+    Ports      []ApiContainerPortDetails
+    SizeRw     int
+    SizeRootFs int
 }
 
 type ApiDockerConfig struct {
-  CpuShares    int
-  ExposedPorts map[string]interface{} // empty interface, for future use
-  Hostname     string
-  Image        string
-  Memory       int
-  MemorySwap   int
+    CpuShares    int
+    ExposedPorts map[string]interface{} // empty interface, for future use
+    Hostname     string
+    Image        string
+    Memory       int
+    MemorySwap   int
 }
 
 type ResourceShare struct {
-  Mem int
-  Cpu int
-}
-
-type DockerAddComplexEntry struct {
-  Name     string
-  Location string
+    Mem int
+    Cpu int
 }
 
 //TODO: Merge with config
 type ApplicationMeta struct {
-  Version     string
-  LastCommand string
-  CurrentMode string
-  ExecPath    string
-  Pwd         string
-  Dir         string
+    Version     string
+    LastCommand string
+    CurrentMode string
+    ExecPath    string
+    Pwd         string
+    Dir         string
 }
 
 type ApplicationState struct {
-  Meta       *ApplicationMeta
-  // Options    CommandOptions
-  ConfigFile *ConfigFile
-  BuildFile  *BuildFile
+    Meta *ApplicationMeta
+    // Options    CommandOptions
+    ConfigFile *ConfigFile
+    BuildFile  *BuildFile
 }
 
 func (appState *ApplicationState) SetState(newState string) string {
-  appState.Meta.CurrentMode = newState
-  Logger.Trace("STATE changed to", appState.Meta.CurrentMode)
-  return appState.Meta.CurrentMode
+    appState.Meta.CurrentMode = newState
+    Logger.Trace("STATE changed to", appState.Meta.CurrentMode)
+    return appState.Meta.CurrentMode
 }
 
 type RequiredFile struct {
-  Name          string
-  FileName      string
-  FileType      string // [f]ile, [d]ir
-  RequiredFiles []RequiredFile
+    Name          string
+    FileName      string
+    FileType      string // [f]ile, [d]ir
+    RequiredFiles []RequiredFile
 }
 
 // type MapLike interface {
@@ -130,6 +125,6 @@ type requiredFileMapFunc func(in RequiredFile) RequiredFile
 
 // requiredFile.Map(MapLike)
 func (req *RequiredFile) Map(fx requiredFileMapFunc) []RequiredFile {
-  returnSlice := make([]RequiredFile, len(req.RequiredFiles))
-  return returnSlice
+    returnSlice := make([]RequiredFile, len(req.RequiredFiles))
+    return returnSlice
 }

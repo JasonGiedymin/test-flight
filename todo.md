@@ -325,10 +325,27 @@ Version todos:
   - [x] Fix `launch` command where creation of image api calls succeed and app 
         tries to launch a container from that image. => While the api call 
         succeeds, call GetImageDetails to verify the image didn't succeed.
+  - [x] Move config file add to build.json (more intuitive). Then use that as
+        basis for required dirs.
+        - [x] Move DockerAdd
+        - [x] Move WorkingDir
+        - [x] Prescriptive defaults
+        - [x] Tie into requiredfiles (simple, complex tbd)
+  - [x] Dockerfile needs galaxy role lookup added to template. => add requires
+        to buildfile.
   - [ ] Remove app.Init()
   - [ ] RC this release
   - [ ] Unit Tests
   - [ ] Tests ~~and refactor~~
+  - [ ] Tie complex files into requiredFiles, by first fixing path matching
+        between the fully qualified name and the current dir name. 
+        See `lib.findFile()` TODO comments. Use the below config sample.
+        ```json
+          "complex": [
+            {"name": "testname", "location": "testlocation/test/file.md"}
+          ]
+        ```
+  - [ ] Rename DockerAdd.Simple to DockerAdd.Dirs, Complex to FQFileDir.
   - [ ] Improve show info display
   - [ ] Update README with make commands
   - [ ] Readme
@@ -349,6 +366,7 @@ Version todos:
 
 #### v0.9.8 - Alpha
 
+  - [ ] Wizard mode for `buildfile` `Add`.
   - [ ] Refactor Logging code (struct, no globals etc...)
   - [ ] Info logger to raw stdout
   - [ ] Config banner to use when things go wrong

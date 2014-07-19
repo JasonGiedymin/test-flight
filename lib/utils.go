@@ -27,7 +27,13 @@ func ConvertFiles(files []os.FileInfo) []string {
 
 func findFile(filesFound []string, requiredFile RequiredFile, currDir string) (bool, error) {
     for _, file := range filesFound {
+        // TODO: inspect complex types here by splitting and taking [0]
+        //       will also have to save name[:len(name)] as next
+        //       as the below tries to match "file" == "file/path" which will
+        //       fail as it is explicit, but should pass. Need unit tests now
+
         if file == requiredFile.FileName {
+            // Logger.What("->", file)
             if len(requiredFile.RequiredFiles) > 0 && requiredFile.FileType == "d" {
                 nextDir := currDir + "/" + requiredFile.FileName
                 _, err := HasRequiredFiles(nextDir, requiredFile.RequiredFiles)

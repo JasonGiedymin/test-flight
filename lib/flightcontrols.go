@@ -33,11 +33,9 @@ func (fc *FlightControls) CheckConfigs(app *TestFlight, options *CommandOptions)
     app.SetConfigFile(configFile)
     Logger.Info("Using configfile:", configFile.Location)
 
-    requiredFiles := getRequiredFiles(options.SingleFileMode)
-
     // Get the buildfile
     // TODO: as more Control funcs get created refactor this below
-    buildFile, err := fc.CheckBuild(options.Dir, requiredFiles)
+    buildFile, err := fc.CheckBuild(options.Dir)
     if err != nil {
         return nil, nil, err
     }
@@ -45,10 +43,40 @@ func (fc *FlightControls) CheckConfigs(app *TestFlight, options *CommandOptions)
     Logger.Info("Using buildfile:", buildFile.Location)
     Logger.Debug("buildfile - contents:", *buildFile)
 
+    if err := fc.CheckRequiredFiles(options.Dir, options.SingleFileMode, buildFile); err != nil {
+        return nil, nil, err
+    }
+
     return configFile, buildFile, nil
 }
 
-func (fc *FlightControls) CheckBuild(dir string, requiredFiles []RequiredFile) (*BuildFile, error) {
+func (fc *FlightControls) CheckRequiredFiles(
+    dir string,
+    singleFileMode bool,
+    buildFile *BuildFile,
+) error {
+    var requiredFiles []RequiredFile
+
+    if singleFileMode {
+        requiredFiles = AnsibleFiles
+    } else {
+        if files, err := generateRequiredFilesFrom(buildFile); err != nil {
+            return err
+        } else {
+            requiredFiles = files
+        }
+    }
+
+    if _, err := HasRequiredFiles(dir, requiredFiles); err != nil {
+        msg := "Error reading user specified required file. Error: " + err.Error()
+        return errors.New(msg)
+    }
+
+    return nil
+}
+
+func (fc *FlightControls) CheckBuild(dir string) (*BuildFile, error) {
+    requiredFiles := []RequiredFile{buildFile}
     // Check for required files as specified by the user
     if _, err := HasRequiredFiles(dir, requiredFiles); err != nil {
         msg := "Error reading user specified required file. Error: " + err.Error()

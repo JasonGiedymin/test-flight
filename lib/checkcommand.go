@@ -17,10 +17,12 @@ func (cmd *CheckCommand) Execute(args []string) error {
     Logger.Info("Running Pre-Flight Check... in dir:", cmd.Options.Dir)
 
     // Check Config and Buildfiles
-    _, _, err := cmd.Controls.CheckConfigs(cmd.App, cmd.Options)
+    _, b, err := cmd.Controls.CheckConfigs(cmd.App, cmd.Options)
     if err != nil {
         Logger.Error("Could not verify config files. " + err.Error())
     } else {
+        generateRequiredFilesFrom(b)
+
         Logger.Console("All checks passed! Files found!")
     }
 
