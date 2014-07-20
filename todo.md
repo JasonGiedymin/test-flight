@@ -346,6 +346,9 @@ Version todos:
       - `(--->)(\s)\w* in\s(\w{12})` - detects running
       - [ ] bug in not adding command to new containers => create new dockerfile
             which will be used to start container
+        - [ ] distinguish between image cmd and container cmd =>
+              still allow container to run with cmd set in image, or
+              yet add cmd to the container
       - [ ] use regex to detect last state for messaging user
   - [ ] Write out Dockerfile to `.test-flight` so users can see it
   - [ ] consider non ansible cmd script mode
