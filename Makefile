@@ -40,7 +40,7 @@ help:
 	@echo "$(TEXT_COLOR) test-check: tests the check command $(NO_COLOR)"
 	@echo "$(TEXT_COLOR) test-check-s: tests the check command using filemode in test dir $(NO_COLOR)"
 	@echo "$(TEXT_COLOR) test-build: tests the build command using test dir $(NO_COLOR)"
-	@echo "$(TEXT_COLOR) test-build-f-s: tests the build command using filemode in test dir $(NO_COLOR)"
+	@echo "$(TEXT_COLOR) test-build-s: tests the build command using filemode in test dir $(NO_COLOR)"
 	@echo "$(TEXT_COLOR) test-template: tests the template command using test dir $(NO_COLOR)"
 	@echo "$(TEXT_COLOR) test-template-f-s: tests the template command using filemode in test dir $(NO_COLOR)"
 	@echo "$(TEXT_COLOR) test-launch: tests the launch command using test dir $(NO_COLOR)"
@@ -134,7 +134,7 @@ test-build:
 	@echo "$(OK_COLOR)==> Testing Build $(NO_COLOR)"
 	go run $(COMMON_OPTS) test-flight.go $(COMMON_FLIGHT_OPTS) build -d $(TEST_DIR)
 
-test-build-f-s:
+test-build-s:
 	@echo "$(OK_COLOR)==> Testing Build with FileMode set $(NO_COLOR)"
 	go run $(COMMON_OPTS) test-flight.go $(COMMON_FLIGHT_OPTS) -c $(FILE_MODE_CONFIG) -s -d $(FILE_MODE_TEST_DIR) build
 

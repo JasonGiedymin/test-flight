@@ -871,6 +871,8 @@ func (api *DockerApi) CreateContainer(fqImageName string) (*ApiPostResponse, err
         OpenStdin:    true,
         AttachStdin:  false,
         AttachStdout: true,
+        AttachStderr: true,
+        Cmd:          api.buildFile.LaunchCmd,
     }
 
     url := FilePath(endpoint, "containers", "create")
@@ -972,7 +974,6 @@ func (api *DockerApi) StartContainer(id string) (*string, error) {
     )
     Logger.Trace("StartContainer() - Api call to:", url)
 
-    // jsonResult := ApiPostResponse{}
     var jsonResult string
     bytesReader, _ := postBody.Bytes()
     resp, _ := http.Post(url, "text/json", bytes.NewReader(bytesReader))

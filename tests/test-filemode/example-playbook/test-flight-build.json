@@ -7,9 +7,12 @@
   "env": {
     "ENV_MODE": "dev"
   },
-  "add": [],
   "expose": [3000, 3001],
   "cmd": "sleep 15 && apt-cache search apache2",
+  "launchCmd": [
+    "/bin/echo",
+    "Hello Launch!"
+  ],
   "resourceShare": {
     "mem": 1024,
     "cpu": 2

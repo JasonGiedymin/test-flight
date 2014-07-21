@@ -31,6 +31,7 @@ type BuildFile struct {
     Ignore        []string
     Add           DockerAdd
     Cmd           string
+    LaunchCmd     []string
     WorkDir       string
     RunTests      bool
     ResourceShare ResourceShare
@@ -64,14 +65,14 @@ var wizardAdd = DockerAdd{
 func NewBuildFile() *BuildFile {
     return &BuildFile{
         RunTests:  false,
-        Owner:     "Test-Flight-User", // must have something!
+        Owner:     "Test-Flight-User",       // must have something!
         ImageName: "Test-Flight-Test-Image", // must have an image name!
-        Tag:       "latest", // implies latest, else you tell it
-        From:      "", // from nothing
-        Version:   "0.0.1", // must have a version!
-        WorkDir:   "/tmp/build", // default working dir
-        Add:       DockerAdd{}, // add nothing
-        Ignore:    []string{".git"} // by default if user does not specify anything we will ignore git
+        Tag:       "latest",                 // implies latest, else you tell it
+        From:      "",                       // from nothing
+        Version:   "0.0.1",                  // must have a version!
+        WorkDir:   "/tmp/build",             // default working dir
+        Add:       DockerAdd{},              // add nothing
+        Ignore:    []string{".git"},         // by default if user does not specify anything we will ignore git
     }
 }
 

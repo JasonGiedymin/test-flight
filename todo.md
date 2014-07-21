@@ -344,11 +344,13 @@ Version todos:
       - `(--->)(\s)(\w{12})` - detects container commits
       - ~~`(--->)(\s)(\S{12})` - detects container commits~~
       - `(--->)(\s)\w* in\s(\w{12})` - detects running
-      - [ ] bug in not adding command to new containers => create new dockerfile
+      - [x] bug in not adding command to new containers => create new dockerfile
             which will be used to start container
-        - [ ] distinguish between image cmd and container cmd =>
-              still allow container to run with cmd set in image, or
-              yet add cmd to the container
+        - [x] distinguish between image cmd and container cmd =>
+              `cmd` in buildfile will be used while building. Can be overriden
+              via `launchCmd` when running creating and running a container.
+      - [x] Change some of the make commands which don't use `-f` but have it
+            as part of the make command name
       - [ ] use regex to detect last state for messaging user
   - [ ] Write out Dockerfile to `.test-flight` so users can see it
   - [ ] consider non ansible cmd script mode

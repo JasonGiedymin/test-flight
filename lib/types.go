@@ -21,67 +21,6 @@ type DeletedContainer struct {
 
 // end Internal ---------------------------------------------------------------
 
-type ApiPostRequest struct {
-    Image        string
-    OpenStdin    bool
-    AttachStdin  bool
-    AttachStdout bool
-}
-
-func (post *ApiPostRequest) Bytes() ([]byte, error) {
-    bytes, err := json.Marshal(post)
-    if err != nil {
-        return nil, err
-    }
-    return bytes, nil
-}
-
-type ApiPostResponse struct {
-    Id       string
-    Warnings []string
-}
-
-type DockerHostConfig struct {
-    Binds           []string
-    Links           []string
-    LxcConf         []string
-    PortBindings    map[string][]map[string]string
-    PublishAllPorts bool
-    Privileged      bool
-    Dns             []string
-    VolumesFrom     []string
-}
-
-func (post *DockerHostConfig) Bytes() ([]byte, error) {
-    return toBytes(post)
-}
-
-type ApiContainerPortDetails struct {
-    PrivatePort int
-    PublicPort  int
-    Type        string
-}
-
-type ApiContainer struct {
-    Id         string
-    Image      string
-    Command    string
-    Created    int64
-    Status     string
-    Ports      []ApiContainerPortDetails
-    SizeRw     int
-    SizeRootFs int
-}
-
-type ApiDockerConfig struct {
-    CpuShares    int
-    ExposedPorts map[string]interface{} // empty interface, for future use
-    Hostname     string
-    Image        string
-    Memory       int
-    MemorySwap   int
-}
-
 type ResourceShare struct {
     Mem int
     Cpu int
