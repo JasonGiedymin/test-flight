@@ -362,8 +362,12 @@ Version todos:
   - [x] consider non ansible cmd script mode => use ansible! Or use can just
         specify script via current dir as entire context already gets tar'd and
         sent up.
-  - [ ] Remove app.Init()
-  - [ ] RC this release
+  - [x] Remove app.Init() => cannot just yet, using meta info such as working
+        dir, etc.
+  - [x] RC this release, merge
+
+#### v0.9.8.1 - Alpha
+
   - [ ] Unit Tests
   - [ ] Tests ~~and refactor~~
   - [ ] Tie complex files into requiredFiles, by first fixing path matching
@@ -393,7 +397,7 @@ Version todos:
     - [ ] `templates/filemode`
   - [ ] Use `FilePath()` everywhere where doing `strings.Join()`
 
-#### v0.9.8 - Alpha
+#### v0.9.8.2 - Alpha
 
   - [ ] use regex to detect last state for messaging user
   - [ ] Wizard mode for `buildfile` `Add`.
