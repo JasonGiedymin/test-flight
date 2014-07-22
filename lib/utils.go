@@ -8,6 +8,7 @@ import (
     "os"
     "os/signal"
     "strings"
+    "sync"
     "syscall"
 )
 
@@ -26,7 +27,13 @@ func ConvertFiles(files []os.FileInfo) []string {
 
 func findFile(filesFound []string, requiredFile RequiredFile, currDir string) (bool, error) {
     for _, file := range filesFound {
+        // TODO: inspect complex types here by splitting and taking [0]
+        //       will also have to save name[:len(name)] as next
+        //       as the below tries to match "file" == "file/path" which will
+        //       fail as it is explicit, but should pass. Need unit tests now
+
         if file == requiredFile.FileName {
+            // Logger.What("->", file)
             if len(requiredFile.RequiredFiles) > 0 && requiredFile.FileType == "d" {
                 nextDir := currDir + "/" + requiredFile.FileName
                 _, err := HasRequiredFiles(nextDir, requiredFile.RequiredFiles)
@@ -98,17 +105,36 @@ func HasRequiredFile(dir string, requiredFile RequiredFile) (bool, error) {
     return HasRequiredFiles(dir, []RequiredFile{requiredFile})
 }
 
-func TarDirectory(tw *tar.Writer, dir string) error {
+func TarDirectory(tw *tar.Writer, dir string, ignoreList []string) error {
     Logger.Trace("Taring: ", dir)
+
+    // Add Dockerfile to the ignore list
+    // This can also help prevent existing Dockerfiles from being used
+    // and accidently shipped in the context.
+    ignoreList = append(ignoreList, "Dockerfile")
+
+    shouldIgnore := func(file string) bool {
+        for _, entry := range ignoreList {
+            if entry == file {
+                return true
+            }
+        }
+        return false
+    }
 
     var archive = func(files []os.FileInfo) error {
         Logger.Trace("Found files to archive into context: ", len(files))
 
         for _, file := range files {
+            if shouldIgnore(file.Name()) {
+                Logger.Debug("Ignoring:", file.Name())
+                continue
+            }
+
             fullFilePath := strings.Join([]string{dir, file.Name()}, "/")
 
             if file.IsDir() {
-                TarDirectory(tw, fullFilePath)
+                TarDirectory(tw, fullFilePath, ignoreList)
                 continue
             }
 
@@ -146,14 +172,20 @@ func TarDirectory(tw *tar.Writer, dir string) error {
     }
 }
 
-func CaptureUserCancel(containerChannel *ContainerChannel) {
+// listens for ctrl-c from the user
+func CaptureUserCancel(containerChannel *ContainerChannel, wg *sync.WaitGroup) {
     syschan := make(chan os.Signal, 1)
     signal.Notify(syschan, os.Interrupt)
     signal.Notify(syschan, syscall.SIGTERM)
     go func() {
         <-syschan
-        Logger.Info("User canceling, closing stream...")
-        close(*containerChannel)
+        Logger.Debug("Canceling user operation...")
+        if wg != nil {
+            *containerChannel <- "canceled"
+            wg.Done()
+        }
+        defer close(*containerChannel)
+        return
     }()
 }
 

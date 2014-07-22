@@ -1,5 +1,10 @@
 ## Dev Todo
 
+Legend:
+    - [x] done
+    - [~] current
+    - [-] not doing
+
 Version todos:
 
 ### v0.9.0 - Alpha
@@ -295,10 +300,85 @@ Version todos:
 
 #### v0.9.7 - Alpha
 
-  - [ ] version 0.9.7
-  - [ ] Remove app.Init()
+  - [x] version 0.9.7
+  - [x] retest all commands
+  - [x] check that only files specified are tar'd => create ignore entry in
+        buildfile
+  - [~] test with ansible-nodejs
+  - [x] refactor docker.CreateDockerImage() to not use docker client
+    - [x] stream stdout from image building not working =>
+          `make install` and `cd github/AnsibleShipyard/ansible-galaxy-roles/roles/ansible-nodejs` using `test-flight -f -vvvv launch` as the command. Listen()
+          seems to work but output buffer from client not filling, suggest
+          custom call to build image.
+      - [x] Add custom `BuildImage()` method with streaming output
+      - [x] Modify console to putput bright green to distinguish INFO and 
+            content streaming from Docker
+    - [x] defer immediately after call in `attach` method
+    - [x] `make install` should cleanup `$GOPATH/pkg/<test-flight>`
+    - [x] monitor output stream from `attach` channel and `listen` for errors
+      - [x] allow user cancel which grounds build => but user must manually
+            delete intermediate container.
+  - [x] Allow launch of existing container but with a warning (`launchcommand todo`)
+  - [x] Remove `build.json` `requiresDocker` and `requiresDockerUrl`
+  - [x] Convert config file `Warn`ings to `Debug` when app cannot find config file.
+  - [x] Modify logger `Info` methods for commands to `Console`
+  - [x] Fix console logging to be lowest level
+  - [x] Fix console usage
+  - [x] Modify console logging colors
+  - [x] Add `ConsoleChannel` method for use with channel messages that will be
+        shown on the console. Prefer color as well (use green).
+  - [x] Fix `launch` command where creation of image api calls succeed and app 
+        tries to launch a container from that image. => While the api call 
+        succeeds, call GetImageDetails to verify the image didn't succeed.
+  - [x] Move config file add to build.json (more intuitive). Then use that as
+        basis for required dirs.
+        - [x] Move DockerAdd
+        - [x] Move WorkingDir
+        - [x] Prescriptive defaults
+        - [x] Tie into requiredfiles (simple, complex tbd)
+  - [x] Dockerfile needs galaxy role lookup added to template. => add requires
+        to buildfile.
+  - [x] Add galaxy role adding in filemode docker add templates
+  - [x] Rename `build.json` to `test-flight-build.json`
+  - [x] Add test-flight build and config files to constants struct
+  - [x] Add `.git` to ignore list by default, user can override entire list by
+        supplying `ignore` list in buildfile.
+  - [x] when fail to build or launch cleanup dockers <none>? => point out the
+        last built container so user could manually run it.
+        => remedy with temporary make command
+    - [x] Use regex for detecting container creation:
+      - `(--->)(\s)(\w{12})` - detects container commits
+      - ~~`(--->)(\s)(\S{12})` - detects container commits~~
+      - `(--->)(\s)\w* in\s(\w{12})` - detects running
+      - [x] bug in not adding command to new containers => create new dockerfile
+            which will be used to start container
+        - [x] distinguish between image cmd and container cmd =>
+              `cmd` in buildfile will be used while building. Can be overriden
+              via `launchCmd` when running creating and running a container.
+      - [x] Change some of the make commands which don't use `-f` but have it
+            as part of the make command name
+  - [x] Write out Dockerfile to `.test-flight` so users can see it
+  - [x] Fix makefile using double dollar `$$` for awk commands
+  - [x] consider non ansible cmd script mode => use ansible! Or use can just
+        specify script via current dir as entire context already gets tar'd and
+        sent up.
+  - [x] Remove app.Init() => cannot just yet, using meta info such as working
+        dir, etc.
+  - [x] RC this release, merge
+
+#### v0.9.8.1 - Alpha
+
   - [ ] Unit Tests
   - [ ] Tests ~~and refactor~~
+  - [ ] Tie complex files into requiredFiles, by first fixing path matching
+        between the fully qualified name and the current dir name. 
+        See `lib.findFile()` TODO comments. Use the below config sample.
+        ```json
+          "complex": [
+            {"name": "testname", "location": "testlocation/test/file.md"}
+          ]
+        ```
+  - [ ] Rename DockerAdd.Simple to DockerAdd.Dirs, Complex to FQFileDir.
   - [ ] Improve show info display
   - [ ] Update README with make commands
   - [ ] Readme
@@ -317,8 +397,10 @@ Version todos:
     - [ ] `templates/filemode`
   - [ ] Use `FilePath()` everywhere where doing `strings.Join()`
 
-#### v0.9.8 - Alpha
+#### v0.9.8.2 - Alpha
 
+  - [ ] use regex to detect last state for messaging user
+  - [ ] Wizard mode for `buildfile` `Add`.
   - [ ] Refactor Logging code (struct, no globals etc...)
   - [ ] Info logger to raw stdout
   - [ ] Config banner to use when things go wrong
@@ -340,6 +422,10 @@ Version todos:
   - [ ] create/show test-flight specific images?
   - [ ] create simple map for docker hasFiles (I need functional programming!)
   - [ ] test-flight cleanup
+  - [ ] Add channel to log timing information asynchronously:
+    - [ ] how long things are taking?
+    - [ ] if docker is downloading?
+    - [ ] tick/tock while waiting?
 
 ### v0.9.9 - Beta release
 

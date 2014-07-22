@@ -16,19 +16,22 @@ var (
 )
 
 const debugLogFormat = `%{Color "red" "ERROR"}%{Color "yellow" "WARN"}%{Color "green" "INFO"}%{Color "cyan" "DEBUG"}%{Color "white+b" "TRACE"}[%{Date} %{Time}] [%{SEVERITY}] - %{Message}%{Color "reset"}`
-const consoleLogFormat = `%{Color "red" "ERROR"}%{Color "yellow" "WARN"}%{Color "green" "INFO"}%{Color "cyan" "DEBUG"}%{Color "white+b" "TRACE"}%{Message}%{Color "reset"}`
+const consoleLogFormat = `%{Color "red" "ERROR"}%{Color "yellow" "WARN"}%{Color "green" "INFO"}%{Color "green+bh" "DEBUG"}%{Color "white+b" "TRACE"}%{Message}%{Color "reset"}`
 const stdLogFormat = `%{Color "red" "ERROR"}%{Color "yellow" "WARN"}%{Color "green" "INFO"}%{Color "cyan" "DEBUG"}%{Color "white+b" "TRACE"}[%{Date} %{Time}] [%{SEVERITY}] - %{Message}%{Color "reset"}`
 const fileLogFormat = `[%{Date} %{Time}] [%{SEVERITY}] - %{Message}%{Color "reset"}`
 
 var levels = map[int]factorlog.Severity{
+    0:  factorlog.WARN,
     1:  factorlog.INFO,
     2:  factorlog.DEBUG,
     3:  factorlog.TRACE,
-    4:  factorlog.TRACE, // 4 is Trace + file logging
+    // 3:  factorlog.TRACE, // 3 is Trace + file logging
 }
 
+var maxVerbosity = len(levels)
+
 func getDebugFile() *os.File {
-    if verbosity >= 4 {
+    if verbosity >= maxVerbosity {
         newFile, _ := os.Create("debug.log")
         return newFile
     }
@@ -58,12 +61,13 @@ func Setup() {
         os.Stdout,
         factorlog.NewStdFormatter(consoleLogFormat))
 
-    // TODO: set log level here
     Log.SetMinMaxSeverity(levels[maxLevel(verbosity)], factorlog.ERROR)
-    // LogDebug.SetMinMaxSeverity(levels[maxLevel(verbosity)], factorlog.ERROR)
-    LogConsole.SetMinMaxSeverity(levels[maxLevel(verbosity)], factorlog.ERROR)
 
-    if verbosity >= 4 {
+    // Do not set logdebug and logconsole
+    // LogDebug.SetMinMaxSeverity(levels[maxLevel(verbosity)], factorlog.ERROR)
+    // LogConsole.SetMinMaxSeverity(levels[maxLevel(verbosity)], factorlog.ERROR)
+
+    if verbosity >= maxVerbosity {
         File = factorlog.New(
             debugFile,
             factorlog.NewStdFormatter(fileLogFormat))
@@ -86,7 +90,7 @@ func Error(v ...interface{}) {
 
     Log.Error(v)
 
-    if verbosity >= 4 {
+    if verbosity >= maxVerbosity {
         File.Println(v)
     }
 }
@@ -141,4 +145,12 @@ func Console(v ...interface{}) {
     }
 
     LogConsole.Info(v[0])
+}
+
+func ConsoleChannel(v ...interface{}) {
+    if Log == nil {
+        Setup()
+    }
+
+    LogConsole.Debug(v[0])
 }

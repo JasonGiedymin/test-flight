@@ -1,17 +1,18 @@
 {
+  "runTests": true,
   "owner": "testflight",
   "imageName": "test-docker-name1",
   "from": "jasongiedymin/ansible-nodejs",
   "version": "0.1.0",
-  "requiresDocker": "",
-  "requiresDockerUrl": "",
   "env": {
     "ENV_MODE": "dev"
   },
-  "add": [],
   "expose": [3000, 3001],
   "cmd": "sleep 15 && apt-cache search apache2",
-  "runTests": true,
+  "launchCmd": [
+    "/bin/echo",
+    "Hello Launch!"
+  ],
   "resourceShare": {
     "mem": 1024,
     "cpu": 2

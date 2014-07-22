@@ -44,6 +44,7 @@ func (cmd *BuildCommand) Execute(args []string) error {
         return err
     }
 
-    Logger.Trace("Created Docker Image:", image)
+    msg := "Created Docker Image: " + image
+    Logger.Console(msg)
     return nil
 }

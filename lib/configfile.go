@@ -22,28 +22,21 @@ type ConfigFile struct {
     TestFlightAssets         string // $HOME/.test-flight
     UseSystemDockerTemplates bool   // to use DockerTemplatesDir/{system|user}
     DockerEndpoint           string
-    WorkDir                  string
-    DockerAdd                ConfigFileDockerAdd
     OverwriteTemplates       bool
-}
-
-type ConfigFileDockerAdd struct {
-    Simple []string
-    // User   []map[string]string
-    Complex []DockerAddComplexEntry
 }
 
 // Used for defaults
 func NewConfigFile() *ConfigFile {
-    pwd, err := os.Getwd() // use working dir
+    usr, _ := user.Current() // to get user home, get user first
+    pwd, err := os.Getwd()   // use working dir
     if err != nil {
-        pwd = "~" // else use home dir by default
+        pwd = usr.HomeDir // else use home dir by default
     }
 
     return &ConfigFile{ // optional values:
         DockerEndpoint:           "http://localhost:4243",
-        AnsibleTemplatesDir:      ".test-flight",
-        TestFlightAssets:         FilePath(pwd, ".test-flight"),
+        AnsibleTemplatesDir:      FilePath(pwd, ".test-flight"),
+        TestFlightAssets:         FilePath(usr.HomeDir, ".test-flight"),
         UseSystemDockerTemplates: true,
     }
 }
@@ -100,7 +93,7 @@ func getConfig(file string) (*ConfigFile, error) {
 // tries to find config file in user home, then if it cannot find one there
 // will try to find a config file in the local running directory
 func findConfig(dir string) (*ConfigFile, error) {
-    configFileName := "test-flight-config.json"
+    configFileName := Constants().configFileName
     configFile := NewConfigFile()
     logConfigFile := func(configFile *ConfigFile) {
         Logger.Debug("Found config file.")
@@ -112,7 +105,7 @@ func findConfig(dir string) (*ConfigFile, error) {
     configFile, err := getConfig(localConfigPath)
     if err != nil {
         msg := "Config: " + localConfigPath + " may not exist or cannot be read. " + err.Error()
-        Logger.Warn(msg)
+        Logger.Debug(msg)
     } else {
         logConfigFile(configFile)
         return configFile, nil
@@ -128,7 +121,7 @@ func findConfig(dir string) (*ConfigFile, error) {
     configFile, err = getConfig(pwdConfigPath)
     if err != nil {
         msg := "Config: " + localConfigPath + " may not exist or cannot be read. " + err.Error()
-        Logger.Warn(msg)
+        Logger.Debug(msg)
     } else {
         logConfigFile(configFile)
         return configFile, nil
@@ -142,13 +135,13 @@ func findConfig(dir string) (*ConfigFile, error) {
         return nil, errors.New("Can't read user home.")
     }
 
-    homeConfigPath := FilePath(usr.HomeDir, ".test-flight", "test-flight-config.json")
+    homeConfigPath := FilePath(usr.HomeDir, ".test-flight", configFileName)
     Logger.Debug("Checking for config file in user HOME: ", homeConfigPath)
 
     configFile, err = getConfig(homeConfigPath)
     if err != nil {
         msg := "Config: " + localConfigPath + " may not exist or cannot be read. " + err.Error()
-        Logger.Warn(msg)
+        Logger.Debug(msg)
     } else {
         logConfigFile(configFile)
         return configFile, nil

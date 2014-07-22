@@ -5,18 +5,5 @@
 
   "dockerEndPoint": "http://192.168.59.103:2375",
 
-  "workDir": "/tmp/build",
-
-  "dockerAdd": {
-    "simple": [
-      "tasks",
-      "tests",
-      "vars",
-      "templates",
-      "handlers"
-    ],
-    "complex": []
-  },
-
   "dockerRun": "RUN ansible-playbook $WORKDIR/playbook.yml -c local"
 }
