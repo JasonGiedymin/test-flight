@@ -114,9 +114,9 @@ lint:
 
 docker-clean:
 	@echo "$(OK_COLOR)==> Removes all stopped docker containers $(NO_COLOR)"
-	@echo "docker ps -a | grep 'Exited' |  awk '{print $1}' | xargs docker rm"
+	docker ps -a | grep 'Exited' |  awk '{print $$1}' | xargs docker rm
 	@echo "$(OK_COLOR)==> Removes all untagged docker images $(NO_COLOR)"
-	@echo "docker images | grep '<none>' |  awk '{print $3}' | xargs docker rmi"
+	docker images | grep '<none>' |  awk '{print $$3}' | xargs docker rmi
 
 test-version:
 	@echo "$(OK_COLOR)==> Testing Version $(NO_COLOR)"

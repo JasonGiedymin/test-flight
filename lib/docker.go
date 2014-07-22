@@ -167,7 +167,7 @@ func (api *DockerApi) createTestTemplates(options CommandOptions) error {
         hasFiles, _ := HasRequiredFile(templateOutputDir, requiredFile)
 
         if hasFiles && api.configFile.OverwriteTemplates || !hasFiles {
-            fileToCreate := strings.Join([]string{templateOutputDir, requiredFile.FileName}, "/")
+            fileToCreate := FilePath(templateOutputDir, requiredFile.FileName)
             var err error
             file, err := os.Create(fileToCreate)
             if err != nil {
@@ -749,10 +749,6 @@ func (api *DockerApi) GetImageDetails(fqImageName string) (*ApiDockerImage, erro
 func (api *DockerApi) CreateDockerImage(fqImageName string, options *CommandOptions) (string, error) {
     Logger.Debug("Creating Docker image by attempting to build Dockerfile: " + fqImageName)
 
-    dockerfileBuffer := bytes.NewBuffer(nil)
-    tarbuf := bytes.NewBuffer(nil)
-    // outputbuf := bytes.NewBuffer(nil)
-    dockerfile := bufio.NewWriter(dockerfileBuffer)
     tmplName := "Dockerfile" // file ext of `.tmpl` is implicit, see below
 
     var requiredDockerFile = RequiredFile{
@@ -767,8 +763,22 @@ func (api *DockerApi) CreateDockerImage(fqImageName string, options *CommandOpti
         }
     }()
 
-    // --HERE MUST KNOW ABOUT SUB DIR dirmode/filemode of templates
-    // -- needs to work for input and output dir
+    dockerfileBuffer := bytes.NewBuffer(nil)
+    tarbuf := bytes.NewBuffer(nil)
+
+    // Dockerfile mem
+    dockerfile := bufio.NewWriter(dockerfileBuffer)
+    // Or create file
+    templateOutputDir := getTemplateDir(api.configFile)
+    Logger.Trace(templateOutputDir, requiredDockerFile.FileName)
+    fileToCreate := FilePath(templateOutputDir.FileName, requiredDockerFile.FileName)
+    Logger.Debug("Trying to build:", fileToCreate)
+    dockerfileOut, err := os.Create(fileToCreate)
+    if err != nil {
+        Logger.Error("Could not write Dockerfile", err)
+        return "", err
+    }
+    defer dockerfileOut.Close()
 
     // The directory where the templates used to create inventory and playbook
     templates := func() string {
@@ -791,11 +801,19 @@ func (api *DockerApi) CreateDockerImage(fqImageName string, options *CommandOpti
     pattern := filepath.Join(templateInputDir, requiredDockerFile.FileName+"*.tmpl")
     tmpl := template.Must(template.ParseGlob(pattern))
 
+    // In Mem
     if err := tmpl.ExecuteTemplate(dockerfile, requiredDockerFile.FileName, *api.getTemplateVar()); err != nil {
         Logger.Error("template execution: %s", err)
         return "", err
     }
 
+    // File
+    if err := tmpl.ExecuteTemplate(dockerfileOut, requiredDockerFile.FileName, *api.getTemplateVar()); err != nil {
+        Logger.Error("template execution: %s", err)
+        return "", err
+    }
+
+    // For in-mem flush buffer here
     dockerfile.Flush()
 
     // Logger.Trace("Dockerfile buffer len", dockerfileBuffer.Len())
@@ -822,15 +840,15 @@ func (api *DockerApi) CreateDockerImage(fqImageName string, options *CommandOpti
 
     var wg sync.WaitGroup // used for channels
     wg.Add(1)
-    // buildChannel := api.Listen(outputbuf)
+
+    Logger.Trace("Building image...")
+    buildChannel := make(ContainerChannel)
     // go watchContainerOn(buildChannel, &wg)
-    // Logger.Trace("Building image...")
-    watch := make(ContainerChannel)
-    api.BuildImage(tarbuf, fqImageName, &watch, &wg)
+    api.BuildImage(tarbuf, fqImageName, &buildChannel, &wg)
     // go CaptureUserCancel(&buildChannel)
 
     select {
-    case value := <-watch:
+    case value := <-buildChannel:
         switch value {
         case "ok":
             failMsg := "Docker Image [" + fqImageName + "] failed to build."

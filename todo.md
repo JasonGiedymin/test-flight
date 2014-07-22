@@ -1,5 +1,10 @@
 ## Dev Todo
 
+Legend:
+    - [x] done
+    - [~] current
+    - [-] not doing
+
 Version todos:
 
 ### v0.9.0 - Alpha
@@ -338,9 +343,10 @@ Version todos:
   - [x] Add test-flight build and config files to constants struct
   - [x] Add `.git` to ignore list by default, user can override entire list by
         supplying `ignore` list in buildfile.
-  - [~] when fail to build or launch cleanup dockers <none>? => point out the
+  - [x] when fail to build or launch cleanup dockers <none>? => point out the
         last built container so user could manually run it.
-    - [~] Use regex for detecting container creation:
+        => remedy with temporary make command
+    - [x] Use regex for detecting container creation:
       - `(--->)(\s)(\w{12})` - detects container commits
       - ~~`(--->)(\s)(\S{12})` - detects container commits~~
       - `(--->)(\s)\w* in\s(\w{12})` - detects running
@@ -351,9 +357,11 @@ Version todos:
               via `launchCmd` when running creating and running a container.
       - [x] Change some of the make commands which don't use `-f` but have it
             as part of the make command name
-      - [ ] use regex to detect last state for messaging user
-  - [ ] Write out Dockerfile to `.test-flight` so users can see it
-  - [ ] consider non ansible cmd script mode
+  - [x] Write out Dockerfile to `.test-flight` so users can see it
+  - [x] Fix makefile using double dollar `$$` for awk commands
+  - [x] consider non ansible cmd script mode => use ansible! Or use can just
+        specify script via current dir as entire context already gets tar'd and
+        sent up.
   - [ ] Remove app.Init()
   - [ ] RC this release
   - [ ] Unit Tests
@@ -387,6 +395,7 @@ Version todos:
 
 #### v0.9.8 - Alpha
 
+  - [ ] use regex to detect last state for messaging user
   - [ ] Wizard mode for `buildfile` `Add`.
   - [ ] Refactor Logging code (struct, no globals etc...)
   - [ ] Info logger to raw stdout
