@@ -370,7 +370,11 @@ Version todos:
 #### v0.9.8.1 - Alpha
 
   - [x] Version
-  - [ ] Unit Tests
+  - [~] Unit Tests
+    - [x] `utils.go`
+      - [x] Add verbosity to `make test` command in `Mailefile`
+      - [x] Add testing lib `lib/testing/testing.go`
+      - [x] `TestConvertFiles` complete
   - [ ] bug, output contains newlines `\n`, improve stream reader. May not be
         reading bytes at correct delimiter.
   - [ ] Tests ~~and refactor~~

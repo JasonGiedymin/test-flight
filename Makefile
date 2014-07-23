@@ -102,7 +102,7 @@ format:
 
 test: deps
 	@echo "$(OK_COLOR)==> Testing $(NO_COLOR)"
-	go test $(COMMON_OPTS) ./...
+	go test -v $(COMMON_OPTS) ./...
 
 lint:
 	@echo "$(OK_COLOR)==> Linting $(NO_COLOR)"
