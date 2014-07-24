@@ -376,6 +376,9 @@ Version todos:
       - [x] Add testing lib `lib/testing/testing.go`
       - [x] `TestConvertFiles` complete
   - [~] yaml reader for buildfile
+    - [x] Add Yaml Test table
+      - [~] Add all buildfile entries to test yaml parser
+    - [ ] Add Json Test table
   - [ ] enhance, output contains newlines `\n`, improve stream reader. May not be
         reading bytes at correct delimiter.
   - [ ] Tests ~~and refactor~~
