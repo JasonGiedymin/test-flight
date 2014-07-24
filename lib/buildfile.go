@@ -6,6 +6,7 @@ import (
     "io/ioutil"
     // "strings"
     // "errors"
+    "gopkg.in/yaml.v1"
 )
 
 type DockerAddComplexEntry struct {
@@ -33,8 +34,26 @@ type BuildFile struct {
     Cmd           string
     LaunchCmd     []string
     WorkDir       string
-    RunTests      bool
+    RunTests      bool `yaml:"runTests"`
     ResourceShare ResourceShare
+}
+
+func (bf *BuildFile) ParseYaml(data []byte) error {
+    if err := yaml.Unmarshal(data, &bf); err != nil {
+        Logger.Error("Could not parse yaml build file.", err)
+        return err
+    }
+
+    return nil
+}
+
+func (bf *BuildFile) ParseJson(data []byte) error {
+    if err := json.Unmarshal(data, &bf); err != nil {
+        Logger.Error("Could not parse json build file file.", err)
+        return err
+    }
+
+    return nil
 }
 
 // most basic non prescriptive layout = nothing
