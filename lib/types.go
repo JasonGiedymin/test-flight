@@ -21,11 +21,6 @@ type DeletedContainer struct {
 
 // end Internal ---------------------------------------------------------------
 
-type ResourceShare struct {
-    Mem int
-    Cpu int
-}
-
 //TODO: Merge with config
 type ApplicationMeta struct {
     Version     string

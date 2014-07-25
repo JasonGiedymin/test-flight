@@ -6,8 +6,14 @@ import (
     "io/ioutil"
     // "strings"
     // "errors"
+    "fmt"
     "gopkg.in/yaml.v1"
 )
+
+type ResourceShare struct {
+    Mem int
+    Cpu int
+}
 
 type DockerAddComplexEntry struct {
     Name     string
@@ -43,6 +49,8 @@ func (bf *BuildFile) ParseYaml(data []byte) error {
         Logger.Error("Could not parse yaml build file.", err)
         return err
     }
+
+    fmt.Println("**", bf)
 
     return nil
 }

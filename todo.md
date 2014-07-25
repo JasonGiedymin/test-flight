@@ -377,7 +377,8 @@ Version todos:
       - [x] `TestConvertFiles` complete
   - [~] yaml reader for buildfile
     - [x] Add Yaml Test table
-      - [~] Add all buildfile entries to test yaml parser
+      - [x] Add all buildfile entries to test yaml parser
+      - [~] Modify buildfile entries with pattern
     - [ ] Add Json Test table
   - [ ] enhance, output contains newlines `\n`, improve stream reader. May not be
         reading bytes at correct delimiter.
