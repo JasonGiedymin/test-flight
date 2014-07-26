@@ -30,11 +30,11 @@ var standardBuildFile = BuildFile{
             DockerAddComplexEntry{Name: "ComplexName1", Location: "ComplexLocation1"},
         },
     },
-    Cmd:           "run to the beach",
-    LaunchCmd:     []string{"run faster", "to the beach"},
-    WorkDir:       "/tmp/beach",
-    RunTests:      true,
-    ResourceShare: ResourceShare{Mem: 256, Cpu: 1},
+    Cmd:       "run to the beach",
+    LaunchCmd: []string{"run faster", "to the beach"},
+    WorkDir:   "/tmp/beach",
+    RunTests:  true,
+    Resources: ResourceShare{Mem: 256, Cpu: 1},
 }
 
 // This slice is a test data table.
@@ -52,7 +52,7 @@ var YamlTestData = []struct {
     {`
       location: "{{.Location}}"
       owner: "{{.Owner}}"
-      imagename: "{{.ImageName}}"
+      imageName: "{{.ImageName}}"
       tag: {{.Tag}}
       from: {{.From}}
       requires: {{range $key, $value := .Requires}}
@@ -71,14 +71,61 @@ var YamlTestData = []struct {
           - name: {{$value.Name}}
             location: {{$value.Location}}{{end}}
       cmd: "{{.Cmd}}"
-      launchcmd: {{range $key, $value := .LaunchCmd}}
+      launchCmd: {{range $key, $value := .LaunchCmd}}
         - {{$value}}{{end}}
-      workdir: "{{.WorkDir}}"
+      workDir: "{{.WorkDir}}"
       runTests: {{.RunTests}}
-      resourceshare:
-        mem : {{.ResourceShare.Mem}}
-        cpu: {{.ResourceShare.Cpu}}
+      resources:
+        cpu: {{.Resources.Cpu}}
+        mem: {{.Resources.Mem}}
       `,
+        standardBuildFile,
+    },
+}
+
+var JsonTestData = []struct {
+    fileDataTemplate  string
+    expectedBuildFile BuildFile
+}{
+    {`{
+      "location": "{{.Location}}",
+      "owner": "{{.Owner}}",
+      "imageName": "{{.ImageName}}",
+      "tag": "{{.Tag}}",
+      "from": "{{.From}}",
+      "requires":[ {{range $key, $value := .Requires}}
+        "{{$value}}"{{if $key != len(.Requires)}},{{end}},{{end}}
+      ],
+      "version": "{{.Version}}",
+      "env": { {{range $key, $value := .Env}}
+        "{{$key}}": "{{$value}}", {{end}}
+      },
+      "expose": [{{range $key, $value := .Expose}}
+        {{$value}},{{end}}
+      ],
+      "ignore": [{{range $key, $value := .Ignore}}
+        "{{$value}}",{{end}}
+      ],
+      "add": {
+        "simple": [{{range $key, $value := .Add.Simple}}
+        "{{$value}}",{{end}}
+        ],
+        "complex": { {{range $key, $value := .Add.Complex}}
+          { "name": "{{$value.Name}}",
+            "location": "{{$value.Location}}" },{{end}}
+        }
+      },
+      "cmd": "{{.Cmd}}",
+      "launchCmd": [ {{range $key, $value := .LaunchCmd}}
+        "{{$value}}",{{end}}
+      ],
+      "workDir": "{{.WorkDir}}",
+      "runTests": {{.RunTests}},
+      "resources": {
+        "cpu": {{.Resources.Cpu}},
+        "mem": {{.Resources.Mem}}
+      }
+    }`,
         standardBuildFile,
     },
 }
@@ -120,6 +167,45 @@ func TestParseYaml(t *testing.T) {
     }
 }
 
+func TestParseJson(t *testing.T) {
+
+    // Loop through test data and generate templates.
+    // Templates help write better tests.
+    for i, testData := range JsonTestData {
+        var buildFile BuildFile
+        mockFileBuffer := bytes.NewBuffer(nil)      // backing buffer
+        mockFile := bufio.NewWriter(mockFileBuffer) // soon to be realized template
+
+        // Template the file data
+        tmpl := template.Must(template.New("json-" + string(i)).Parse(testData.fileDataTemplate))
+        err := tmpl.Execute(mockFile, testData.expectedBuildFile)
+        if err != nil {
+            t.Error("Test failed, could not execute template.", err)
+        }
+
+        mockFile.Flush()
+
+        t.Log(mockFileBuffer.String())
+
+        if err := buildFile.ParseJson(mockFileBuffer.Bytes()); err != nil {
+            t.Log(buildFile)
+            t.Error("Failed json parsing!")
+        } else {
+            if !reflect.DeepEqual(buildFile, testData.expectedBuildFile) {
+                t.Error("Failed json parsing!")
+                t.Log("*********buildfile*********")
+                t.Log(buildFile)
+                t.Log("*********expected*********")
+                t.Log(testData.expectedBuildFile)
+            } else { // if equals, output the templated file that was parsed
+                t.Log("******************")
+                t.Log(mockFileBuffer.String())
+                t.Log("******************")
+            }
+        }
+    }
+}
+
 // func TestParseJson(t *testing.T) {
 //     file := `{
 //       "runTests": true,
@@ -131,3 +217,8 @@ func TestParseYaml(t *testing.T) {
 
 //     t.Log(buildFile)
 // }
+
+// Test the default build file values
+func TestDefaultBuildFile(t *testing.T) {
+    t.SkipNow()
+}

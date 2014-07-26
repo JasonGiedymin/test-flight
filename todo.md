@@ -375,12 +375,17 @@ Version todos:
       - [x] Add verbosity to `make test` command in `Mailefile`
       - [x] Add testing lib `lib/testing/testing.go`
       - [x] `TestConvertFiles` complete
-  - [~] yaml reader for buildfile
+  - [x] Yaml reader for buildfile
     - [x] Add Yaml Test table
       - [x] Add all buildfile entries to test yaml parser
-      - [~] Modify buildfile entries with pattern
-    - [ ] Add Json Test table
-  - [ ] enhance, output contains newlines `\n`, improve stream reader. May not be
+      - [x] Modify buildfile entries with pattern
+  - [~] Json reader for buildfile
+    - [x] Add Json Test table
+    - [~] Complete unit tests
+  
+#### v0.9.8.2 - Alpha
+
+- [ ] enhance, output contains newlines `\n`, improve stream reader. May not be
         reading bytes at correct delimiter.
   - [ ] Tests ~~and refactor~~
   - [ ] Tie complex files into requiredFiles, by first fixing path matching
@@ -410,7 +415,7 @@ Version todos:
     - [ ] `templates/filemode`
   - [ ] Use `FilePath()` everywhere where doing `strings.Join()`
 
-#### v0.9.8.2 - Alpha
+#### v0.9.8.3 - Alpha
 
   - [ ] use regex to detect last state for messaging user
   - [ ] Wizard mode for `buildfile` `Add`.

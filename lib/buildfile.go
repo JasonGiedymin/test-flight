@@ -26,22 +26,22 @@ type DockerAdd struct {
 }
 
 type BuildFile struct {
-    Location      string
-    Owner         string
-    ImageName     string
-    Tag           string
-    From          string
-    Requires      []string
-    Version       string
-    Env           map[string]string
-    Expose        []int
-    Ignore        []string
-    Add           DockerAdd
-    Cmd           string
-    LaunchCmd     []string
-    WorkDir       string
-    RunTests      bool `yaml:"runTests"`
-    ResourceShare ResourceShare
+    Location  string
+    Owner     string
+    ImageName string `yaml:"imageName"`
+    Tag       string
+    From      string
+    Requires  []string
+    Version   string
+    Env       map[string]string
+    Expose    []int
+    Ignore    []string
+    Add       DockerAdd
+    Cmd       string
+    LaunchCmd []string      `yaml:"launchCmd"`
+    WorkDir   string        `yaml:"workDir"`
+    RunTests  bool          `yaml:"runTests"`
+    Resources ResourceShare `yaml:"resources"`
 }
 
 func (bf *BuildFile) ParseYaml(data []byte) error {
