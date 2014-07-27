@@ -25,6 +25,11 @@ type DockerAdd struct {
     Complex []DockerAddComplexEntry // complex free form entries added by Docker template
 }
 
+type DockerEnv struct {
+    Variable string
+    Value    string
+}
+
 type BuildFile struct {
     Location  string
     Owner     string
@@ -33,7 +38,7 @@ type BuildFile struct {
     From      string
     Requires  []string
     Version   string
-    Env       map[string]string
+    Env       []DockerEnv
     Expose    []int
     Ignore    []string
     Add       DockerAdd

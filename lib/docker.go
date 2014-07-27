@@ -62,7 +62,7 @@ type TemplateVar struct {
     Version    string
     Requires   []string
     WorkDir    string
-    Env        map[string]string
+    Env        []DockerEnv
     Expose     []int
     Cmd        string
     AddSimple  []string

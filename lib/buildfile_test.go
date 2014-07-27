@@ -5,10 +5,23 @@ import (
     // "os"
     "bufio"
     "bytes"
+    "fmt"
     "reflect"
     "testing"
     "text/template"
 )
+
+func comma(index int, obj interface{}) bool {
+    return index == reflect.ValueOf(obj).Len()-1
+}
+
+var funcMap = template.FuncMap{
+    "comma": comma,
+    "add": func(a int, b int) int {
+        fmt.Println(a)
+        return a + b
+    },
+}
 
 var standardBuildFile = BuildFile{
     Location:  "/at/the/beach",
@@ -18,9 +31,9 @@ var standardBuildFile = BuildFile{
     From:      "FromTheBeach",
     Requires:  []string{"ABeach", "BBeach"},
     Version:   "WhiteSands",
-    Env: map[string]string{
-        "BeachName": "LovelySands",
-        "BeachSize": "AwesomeEnough",
+    Env: []DockerEnv{
+        DockerEnv{Variable: "BeachName", Value: "LovelySands"},
+        DockerEnv{Variable: "BeachSize", Value: "AwesomeEnough"},
     },
     Expose: []int{3000, 3001},
     Ignore: []string{".git"},
@@ -28,6 +41,7 @@ var standardBuildFile = BuildFile{
         Simple: []string{"simpleAdd1", "simpleAdd2"},
         Complex: []DockerAddComplexEntry{
             DockerAddComplexEntry{Name: "ComplexName1", Location: "ComplexLocation1"},
+            DockerAddComplexEntry{Name: "ComplexName2", Location: "ComplexLocation2"},
         },
     },
     Cmd:       "run to the beach",
@@ -50,16 +64,17 @@ var YamlTestData = []struct {
     expectedBuildFile BuildFile
 }{
     {`
-      location: "{{.Location}}"
-      owner: "{{.Owner}}"
-      imageName: "{{.ImageName}}"
+      location: {{.Location}}
+      owner: {{.Owner}}
+      imageName: {{.ImageName}}
       tag: {{.Tag}}
       from: {{.From}}
       requires: {{range $key, $value := .Requires}}
         - {{$value}}{{end}}
       version: {{.Version}}
-      env: {{range $key, $value := .Env}}
-        {{$key}}: {{$value}}{{end}}
+      env: {{range $i, $entry := .Env}}
+        - variable: {{$entry.Variable}}
+          value: {{$entry.Value}}{{end}}
       expose: {{range $key, $value := .Expose}}
         - {{$value}}{{end}}
       ignore: {{range $key, $value := .Ignore}}
@@ -70,10 +85,10 @@ var YamlTestData = []struct {
         complex: {{range $key, $value := .Add.Complex}}
           - name: {{$value.Name}}
             location: {{$value.Location}}{{end}}
-      cmd: "{{.Cmd}}"
+      cmd: {{.Cmd}}
       launchCmd: {{range $key, $value := .LaunchCmd}}
         - {{$value}}{{end}}
-      workDir: "{{.WorkDir}}"
+      workDir: {{.WorkDir}}
       runTests: {{.RunTests}}
       resources:
         cpu: {{.Resources.Cpu}}
@@ -93,31 +108,31 @@ var JsonTestData = []struct {
       "imageName": "{{.ImageName}}",
       "tag": "{{.Tag}}",
       "from": "{{.From}}",
-      "requires":[ {{range $key, $value := .Requires}}
-        "{{$value}}"{{if $key != len(.Requires)}},{{end}},{{end}}
+      "requires":[ {{range $i, $value := .Requires}}
+        "{{$value}}"{{if comma $i $.Requires | not}},{{end}}{{end}}
       ],
       "version": "{{.Version}}",
-      "env": { {{range $key, $value := .Env}}
-        "{{$key}}": "{{$value}}", {{end}}
-      },
+      "env":[ {{range $i, $entry := .Env}}
+        {"variable": "{{$entry.Variable}}", "value":"{{$entry.Value}}"}{{if comma $i $.Env | not}},{{end}}{{end}}
+      ],
       "expose": [{{range $key, $value := .Expose}}
-        {{$value}},{{end}}
+        {{$value}}{{if comma $key $.Expose | not}},{{end}}{{end}}
       ],
       "ignore": [{{range $key, $value := .Ignore}}
-        "{{$value}}",{{end}}
+        "{{$value}}"{{if comma $key $.Ignore | not}},{{end}}{{end}}
       ],
       "add": {
         "simple": [{{range $key, $value := .Add.Simple}}
-        "{{$value}}",{{end}}
+          "{{$value}}"{{if comma $key $.Add.Simple | not}},{{end}}{{end}}
         ],
-        "complex": { {{range $key, $value := .Add.Complex}}
+        "complex": [ {{range $key, $value := .Add.Complex}}
           { "name": "{{$value.Name}}",
-            "location": "{{$value.Location}}" },{{end}}
-        }
+            "location": "{{$value.Location}}" }{{if comma $key $.Add.Complex | not}},{{end}}{{end}}
+        ]
       },
       "cmd": "{{.Cmd}}",
       "launchCmd": [ {{range $key, $value := .LaunchCmd}}
-        "{{$value}}",{{end}}
+        "{{$value}}"{{if comma $key $.Add.Simple | not}},{{end}}{{end}}
       ],
       "workDir": "{{.WorkDir}}",
       "runTests": {{.RunTests}},
@@ -140,7 +155,9 @@ func TestParseYaml(t *testing.T) {
         mockFile := bufio.NewWriter(mockFileBuffer) // soon to be realized template
 
         // Template the file data
-        tmpl := template.Must(template.New("yaml-" + string(i)).Parse(testData.fileDataTemplate))
+        tmpl := template.Must(template.New("yaml-" + string(i)).
+            Funcs(funcMap).
+            Parse(testData.fileDataTemplate))
         err := tmpl.Execute(mockFile, testData.expectedBuildFile)
         if err != nil {
             t.Error("Test failed, could not execute template.", err)
@@ -149,19 +166,19 @@ func TestParseYaml(t *testing.T) {
         mockFile.Flush()
 
         if err := buildFile.ParseYaml(mockFileBuffer.Bytes()); err != nil {
-            t.Log(buildFile)
-            t.Error("Failed yaml parsing!")
+            t.Error("Could not parse yaml file!")
+            t.Log(mockFileBuffer.String())
         } else {
             if !reflect.DeepEqual(buildFile, testData.expectedBuildFile) {
-                t.Error("Failed yaml parsing!")
+                t.Error("Parsed yaml but values not what was expected!")
                 t.Log("*********buildfile*********")
                 t.Log(buildFile)
                 t.Log("*********expected*********")
                 t.Log(testData.expectedBuildFile)
             } else { // if equals, output the templated file that was parsed
-                t.Log("******************")
+                t.Log("*******Successfully Parsed Reference File***********")
                 t.Log(mockFileBuffer.String())
-                t.Log("******************")
+                t.Log("****************************************************")
             }
         }
     }
@@ -177,7 +194,9 @@ func TestParseJson(t *testing.T) {
         mockFile := bufio.NewWriter(mockFileBuffer) // soon to be realized template
 
         // Template the file data
-        tmpl := template.Must(template.New("json-" + string(i)).Parse(testData.fileDataTemplate))
+        tmpl := template.Must(template.New("json-" + string(i)).
+            Funcs(funcMap).
+            Parse(testData.fileDataTemplate))
         err := tmpl.Execute(mockFile, testData.expectedBuildFile)
         if err != nil {
             t.Error("Test failed, could not execute template.", err)
@@ -185,22 +204,20 @@ func TestParseJson(t *testing.T) {
 
         mockFile.Flush()
 
-        t.Log(mockFileBuffer.String())
-
         if err := buildFile.ParseJson(mockFileBuffer.Bytes()); err != nil {
-            t.Log(buildFile)
-            t.Error("Failed json parsing!")
+            t.Error("Could not parse json file!")
+            t.Log(mockFileBuffer.String())
         } else {
             if !reflect.DeepEqual(buildFile, testData.expectedBuildFile) {
-                t.Error("Failed json parsing!")
+                t.Error("Parsed json but values not what was expected!")
                 t.Log("*********buildfile*********")
                 t.Log(buildFile)
                 t.Log("*********expected*********")
                 t.Log(testData.expectedBuildFile)
             } else { // if equals, output the templated file that was parsed
-                t.Log("******************")
+                t.Log("*******Successfully Parsed Reference File***********")
                 t.Log(mockFileBuffer.String())
-                t.Log("******************")
+                t.Log("****************************************************")
             }
         }
     }

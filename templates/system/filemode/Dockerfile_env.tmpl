@@ -5,8 +5,8 @@ ENV WORKDIR {{.WorkDir}}/{{.ImageName}}
 
 {{if .Env}}
 # -----> Env entries
-{{range $key, $value := .Env}}
-ENV {{$key}} {{$value}}
+{{range $key, $entry := .Env}}
+ENV {{$entry.Variable}} {{$entry.Value}}
 {{end}}
 # <----- end Env
 {{end}}

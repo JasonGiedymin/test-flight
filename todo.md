@@ -379,9 +379,17 @@ Version todos:
     - [x] Add Yaml Test table
       - [x] Add all buildfile entries to test yaml parser
       - [x] Modify buildfile entries with pattern
-  - [~] Json reader for buildfile
+  - [x] Json reader for buildfile
     - [x] Add Json Test table
-    - [~] Complete unit tests
+    - [x] Complete unit tests
+    - [x] convert BuildFile.Env to list instead of map[string]string
+  - [ ] Test for default buildfile values
+  - [ ] Add Travis file reader
+    - [ ] Add struct
+    - [ ] Add parser
+      - [ ] Add Test
+      - [ ] Add parser
+  - [ ] Add Travis to buildfile converter
   
 #### v0.9.8.2 - Alpha
 

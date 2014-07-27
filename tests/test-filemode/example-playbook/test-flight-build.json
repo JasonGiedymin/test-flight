@@ -4,9 +4,9 @@
   "imageName": "test-docker-name1",
   "from": "jasongiedymin/ansible-nodejs",
   "version": "0.1.0",
-  "env": {
-    "ENV_MODE": "dev"
-  },
+  "env": [
+    {"variable": "ENV_MODE", "value": "dev"}
+  ],
   "expose": [3000, 3001],
   "cmd": "sleep 15 && apt-cache search apache2",
   "launchCmd": [
