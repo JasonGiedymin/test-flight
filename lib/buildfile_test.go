@@ -5,7 +5,6 @@ import (
     // "os"
     "bufio"
     "bytes"
-    "fmt"
     "reflect"
     "testing"
     "text/template"
@@ -18,7 +17,6 @@ func comma(index int, obj interface{}) bool {
 var funcMap = template.FuncMap{
     "comma": comma,
     "add": func(a int, b int) int {
-        fmt.Println(a)
         return a + b
     },
 }
