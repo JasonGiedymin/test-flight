@@ -383,15 +383,24 @@ Version todos:
     - [x] Add Json Test table
     - [x] Complete unit tests
     - [x] convert BuildFile.Env to list instead of map[string]string
-  - [ ] Test for default buildfile values
+  - [x] Test for default buildfile values
+
+#### v0.9.8.2 - Alpha, Travis file reader and functionality
+
   - [ ] Add Travis file reader
-    - [ ] Add struct
-    - [ ] Add parser
-      - [ ] Add Test
+      - [ ] Add struct
       - [ ] Add parser
-  - [ ] Add Travis to buildfile converter
+        - [ ] Add Test
+        - [ ] Add parser
+    - [ ] Add Travis to buildfile converter
+
+#### v0.9.8.3 - Alpha, Multi-run
+
+  - [ ] fork runs with each from
+  - [ ] encorporate env per run (see travis file runtime struct), add env to 
+        global env list
   
-#### v0.9.8.2 - Alpha
+#### v0.9.8.x - Alpha
 
 - [ ] enhance, output contains newlines `\n`, improve stream reader. May not be
         reading bytes at correct delimiter.
@@ -423,7 +432,7 @@ Version todos:
     - [ ] `templates/filemode`
   - [ ] Use `FilePath()` everywhere where doing `strings.Join()`
 
-#### v0.9.8.3 - Alpha
+#### v0.9.8.x - Alpha
 
   - [ ] use regex to detect last state for messaging user
   - [ ] Wizard mode for `buildfile` `Add`.

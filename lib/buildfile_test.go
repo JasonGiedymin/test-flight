@@ -221,19 +221,25 @@ func TestParseJson(t *testing.T) {
     }
 }
 
-// func TestParseJson(t *testing.T) {
-//     file := `{
-//       "runTests": true,
-//       "owner": "123456789"
-//     }`
-
-//     var buildFile BuildFile
-//     buildFile.ParseJson([]byte(file))
-
-//     t.Log(buildFile)
-// }
-
 // Test the default build file values
 func TestDefaultBuildFile(t *testing.T) {
-    t.SkipNow()
+    actual := NewBuildFile()
+    expected := &BuildFile{
+        RunTests:  false,
+        Owner:     "Test-Flight-User",
+        ImageName: "Test-Flight-Test-Image",
+        Tag:       "latest",
+        Version:   "0.0.1",
+        WorkDir:   "/tmp/build",
+        Add:       DockerAdd{},
+        Ignore:    []string{".git"},
+    }
+
+    if !reflect.DeepEqual(actual, expected) {
+        t.Error("Default buildfile incorrect, values not expected!")
+        t.Log("*********buildfile*********")
+        t.Log(actual)
+        t.Log("*********expected*********")
+        t.Log(expected)
+    }
 }
