@@ -7,9 +7,9 @@
     "JasonGiedymin.ark-nodejs"
   ],
   "version": "0.1.0",
-  "env": {
-    "ENV_MODE": "dev"
-  },
+  "env": [
+    {"variable": "ENV_MODE", "value": "dev"}
+  ],
   "ignore": [
     "ignoreme"
   ],

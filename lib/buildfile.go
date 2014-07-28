@@ -6,7 +6,14 @@ import (
     "io/ioutil"
     // "strings"
     // "errors"
+    "fmt"
+    "gopkg.in/yaml.v1"
 )
+
+type ResourceShare struct {
+    Mem int
+    Cpu int
+}
 
 type DockerAddComplexEntry struct {
     Name     string
@@ -18,23 +25,48 @@ type DockerAdd struct {
     Complex []DockerAddComplexEntry // complex free form entries added by Docker template
 }
 
+type DockerEnv struct {
+    Variable string
+    Value    string
+}
+
 type BuildFile struct {
-    Location      string
-    Owner         string
-    ImageName     string
-    Tag           string
-    From          string
-    Requires      []string
-    Version       string
-    Env           map[string]string
-    Expose        []int
-    Ignore        []string
-    Add           DockerAdd
-    Cmd           string
-    LaunchCmd     []string
-    WorkDir       string
-    RunTests      bool
-    ResourceShare ResourceShare
+    Location  string
+    Owner     string
+    ImageName string `yaml:"imageName"`
+    Tag       string
+    From      string
+    Requires  []string
+    Version   string
+    Env       []DockerEnv
+    Expose    []int
+    Ignore    []string
+    Add       DockerAdd
+    Cmd       string
+    LaunchCmd []string      `yaml:"launchCmd"`
+    WorkDir   string        `yaml:"workDir"`
+    RunTests  bool          `yaml:"runTests"`
+    Resources ResourceShare `yaml:"resources"`
+}
+
+func (bf *BuildFile) ParseYaml(data []byte) error {
+    if err := yaml.Unmarshal(data, &bf); err != nil {
+        Logger.Error("Could not parse yaml build file.", err)
+        return err
+    }
+
+    fmt.Println("**", bf)
+
+    return nil
+}
+
+func (bf *BuildFile) ParseJson(data []byte) error {
+    if err := json.Unmarshal(data, &bf); err != nil {
+        Logger.Error("Could not parse json build file file.", err)
+        return err
+    }
+
+    return nil
 }
 
 // most basic non prescriptive layout = nothing

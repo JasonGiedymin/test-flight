@@ -62,7 +62,7 @@ type TemplateVar struct {
     Version    string
     Requires   []string
     WorkDir    string
-    Env        map[string]string
+    Env        []DockerEnv
     Expose     []int
     Cmd        string
     AddSimple  []string
@@ -994,6 +994,7 @@ func (api *DockerApi) StartContainer(id string) (*string, error) {
 
     var jsonResult string
     bytesReader, _ := postBody.Bytes()
+
     resp, _ := http.Post(url, "text/json", bytes.NewReader(bytesReader))
     defer resp.Body.Close()
 

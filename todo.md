@@ -370,8 +370,39 @@ Version todos:
 #### v0.9.8.1 - Alpha
 
   - [x] Version
-  - [ ] Unit Tests
-  - [ ] bug, output contains newlines `\n`, improve stream reader. May not be
+  - [x] Unit Tests
+    - [x] `utils.go`
+      - [x] Add verbosity to `make test` command in `Mailefile`
+      - [x] Add testing lib `lib/testing/testing.go`
+      - [x] `TestConvertFiles` complete
+  - [x] Yaml reader for buildfile
+    - [x] Add Yaml Test table
+      - [x] Add all buildfile entries to test yaml parser
+      - [x] Modify buildfile entries with pattern
+  - [x] Json reader for buildfile
+    - [x] Add Json Test table
+    - [x] Complete unit tests
+    - [x] convert BuildFile.Env to list instead of map[string]string
+  - [x] Test for default buildfile values
+
+#### v0.9.8.2 - Alpha, Travis file reader and functionality
+
+  - [ ] Add Travis file reader
+      - [ ] Add struct
+      - [ ] Add parser
+        - [ ] Add Test
+        - [ ] Add parser
+    - [ ] Add Travis to buildfile converter
+
+#### v0.9.8.3 - Alpha, Multi-run
+
+  - [ ] fork runs with each from
+  - [ ] encorporate env per run (see travis file runtime struct), add env to 
+        global env list
+  
+#### v0.9.8.x - Alpha
+
+- [ ] enhance, output contains newlines `\n`, improve stream reader. May not be
         reading bytes at correct delimiter.
   - [ ] Tests ~~and refactor~~
   - [ ] Tie complex files into requiredFiles, by first fixing path matching
@@ -401,7 +432,7 @@ Version todos:
     - [ ] `templates/filemode`
   - [ ] Use `FilePath()` everywhere where doing `strings.Join()`
 
-#### v0.9.8.2 - Alpha
+#### v0.9.8.x - Alpha
 
   - [ ] use regex to detect last state for messaging user
   - [ ] Wizard mode for `buildfile` `Add`.
