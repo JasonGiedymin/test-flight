@@ -15,7 +15,7 @@ var (
 )
 
 var meta = lib.ApplicationMeta{
-    Version: "0.9.7",
+    Version: "0.9.8.1",
 }
 
 // == App ==

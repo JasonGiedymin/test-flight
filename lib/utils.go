@@ -33,7 +33,6 @@ func findFile(filesFound []string, requiredFile RequiredFile, currDir string) (b
         //       fail as it is explicit, but should pass. Need unit tests now
 
         if file == requiredFile.FileName {
-            // Logger.What("->", file)
             if len(requiredFile.RequiredFiles) > 0 && requiredFile.FileType == "d" {
                 nextDir := currDir + "/" + requiredFile.FileName
                 _, err := HasRequiredFiles(nextDir, requiredFile.RequiredFiles)

@@ -1,6 +1,7 @@
 ## Dev Todo
 
 Legend:
+
     - [x] done
     - [~] current
     - [-] not doing
@@ -368,7 +369,10 @@ Version todos:
 
 #### v0.9.8.1 - Alpha
 
+  - [x] Version
   - [ ] Unit Tests
+  - [ ] bug, output contains newlines `\n`, improve stream reader. May not be
+        reading bytes at correct delimiter.
   - [ ] Tests ~~and refactor~~
   - [ ] Tie complex files into requiredFiles, by first fixing path matching
         between the fully qualified name and the current dir name. 
