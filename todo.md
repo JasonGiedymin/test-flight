@@ -387,15 +387,18 @@ Version todos:
 
 #### v0.9.8.2 - Alpha, Travis file reader and functionality
 
+  - [x] version
   - [ ] Add Travis file reader
       - [ ] Add struct
       - [ ] Add parser
         - [ ] Add Test
         - [ ] Add parser
-    - [ ] Add Travis to buildfile converter
+    - [ ] Add Travis vars to buildfile via a converter
+  - [ ] Allow yaml buildfile then json
 
 #### v0.9.8.3 - Alpha, Multi-run
 
+  - [ ] version
   - [ ] fork runs with each from
   - [ ] encorporate env per run (see travis file runtime struct), add env to 
         global env list
