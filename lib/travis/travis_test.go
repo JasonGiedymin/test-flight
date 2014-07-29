@@ -21,6 +21,19 @@ var standardTravisFile = TravisFile{
             "stable",
         },
     },
+    Env: []string{
+        "FOO=foo BAR=bar",
+        "FOO=bar BAR=foo",
+    },
+    Before_script: []string{
+        "before_command_1",
+        "before_command_2",
+    },
+    After_script: []string{
+        "after_command_1",
+        "after_command_2",
+    },
+    Script: "./script/ci/run_build.sh",
 }
 
 var YamlTestData = []struct {
@@ -33,6 +46,13 @@ var YamlTestData = []struct {
           - {{$value}}{{end}}
         only: {{range $key, $value := .Branches.Only}}
           - {{$value}}{{end}}
+      env: {{range $key, $value := .Env}}
+        - {{$value}}{{end}}
+      before_script: {{range $key, $value := .Before_script}}
+        - {{$value}}{{end}}
+      after_script: {{range $key, $value := .After_script}}
+        - {{$value}}{{end}}
+      script: {{.Script}}
     `,
         standardTravisFile,
     },

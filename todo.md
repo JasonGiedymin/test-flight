@@ -390,7 +390,8 @@ Version todos:
   - [x] version
   - [x] Correct error logging messages when parsing yaml or json build files.
   - [x] Move function map helper to testing lib
-  - [ ] Add Travis file reader
+  - [~] Add Travis file reader
+      - [x] Go through language spec and add all
       - [~] Add struct
       - [ ] Add parser
         - [ ] Add Test
@@ -441,7 +442,8 @@ Version todos:
 
 #### v0.9.8.x - Alpha
 
-  - [ ] use regex to detect last state for messaging user
+  - [ ] consider https://github.com/docopt/docopt.go
+  - [ ] consider using regex to detect last state for messaging user
   - [ ] Wizard mode for `buildfile` `Add`.
   - [ ] Refactor Logging code (struct, no globals etc...)
   - [ ] Info logger to raw stdout

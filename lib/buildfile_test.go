@@ -165,7 +165,7 @@ func TestParseYaml(t *testing.T) {
             } else { // if equals, output the templated file that was parsed
                 // t.Log("*******Successfully Parsed Reference File***********")
                 // t.Log(mockFileBuffer.String())
-                // t.Log("****************************************************")
+                // t.Log("************End proper parsed yaml file*************")
             }
         }
     }
@@ -204,7 +204,7 @@ func TestParseJson(t *testing.T) {
             } else { // if equals, output the templated file that was parsed
                 // t.Log("*******Successfully Parsed Reference File***********")
                 // t.Log(mockFileBuffer.String())
-                // t.Log("****************************************************")
+                // t.Log("************End proper parsed yaml file*************")
             }
         }
     }
