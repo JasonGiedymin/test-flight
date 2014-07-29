@@ -388,11 +388,15 @@ Version todos:
 #### v0.9.8.2 - Alpha, Travis file reader and functionality
 
   - [x] version
+  - [x] Correct error logging messages when parsing yaml or json build files.
+  - [x] Move function map helper to testing lib
   - [ ] Add Travis file reader
-      - [ ] Add struct
+      - [~] Add struct
       - [ ] Add parser
         - [ ] Add Test
-        - [ ] Add parser
+        - [~] Add parser
+          - [ ] Raw parser within test
+          - [ ] Add to type as parser method like buildfile
     - [ ] Add Travis vars to buildfile via a converter
   - [ ] Allow yaml buildfile then json
 

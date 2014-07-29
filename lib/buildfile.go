@@ -6,7 +6,6 @@ import (
     "io/ioutil"
     // "strings"
     // "errors"
-    "fmt"
     "gopkg.in/yaml.v1"
 )
 
@@ -55,14 +54,12 @@ func (bf *BuildFile) ParseYaml(data []byte) error {
         return err
     }
 
-    fmt.Println("**", bf)
-
     return nil
 }
 
 func (bf *BuildFile) ParseJson(data []byte) error {
     if err := json.Unmarshal(data, &bf); err != nil {
-        Logger.Error("Could not parse json build file file.", err)
+        Logger.Error("Could not parse json build file.", err)
         return err
     }
 

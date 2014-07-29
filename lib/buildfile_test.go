@@ -1,7 +1,7 @@
 package lib
 
 import (
-    // libtesting "github.com/JasonGiedymin/test-flight/lib/testing"
+    libtesting "github.com/JasonGiedymin/test-flight/lib/testing"
     // "os"
     "bufio"
     "bytes"
@@ -9,17 +9,6 @@ import (
     "testing"
     "text/template"
 )
-
-func comma(index int, obj interface{}) bool {
-    return index == reflect.ValueOf(obj).Len()-1
-}
-
-var funcMap = template.FuncMap{
-    "comma": comma,
-    "add": func(a int, b int) int {
-        return a + b
-    },
-}
 
 var standardBuildFile = BuildFile{
     Location:  "/at/the/beach",
@@ -154,7 +143,7 @@ func TestParseYaml(t *testing.T) {
 
         // Template the file data
         tmpl := template.Must(template.New("yaml-" + string(i)).
-            Funcs(funcMap).
+            Funcs(libtesting.FuncMap).
             Parse(testData.fileDataTemplate))
         err := tmpl.Execute(mockFile, testData.expectedBuildFile)
         if err != nil {
@@ -174,9 +163,9 @@ func TestParseYaml(t *testing.T) {
                 t.Log("*********expected*********")
                 t.Log(testData.expectedBuildFile)
             } else { // if equals, output the templated file that was parsed
-                t.Log("*******Successfully Parsed Reference File***********")
-                t.Log(mockFileBuffer.String())
-                t.Log("****************************************************")
+                // t.Log("*******Successfully Parsed Reference File***********")
+                // t.Log(mockFileBuffer.String())
+                // t.Log("****************************************************")
             }
         }
     }
@@ -193,7 +182,7 @@ func TestParseJson(t *testing.T) {
 
         // Template the file data
         tmpl := template.Must(template.New("json-" + string(i)).
-            Funcs(funcMap).
+            Funcs(libtesting.FuncMap).
             Parse(testData.fileDataTemplate))
         err := tmpl.Execute(mockFile, testData.expectedBuildFile)
         if err != nil {
@@ -213,9 +202,9 @@ func TestParseJson(t *testing.T) {
                 t.Log("*********expected*********")
                 t.Log(testData.expectedBuildFile)
             } else { // if equals, output the templated file that was parsed
-                t.Log("*******Successfully Parsed Reference File***********")
-                t.Log(mockFileBuffer.String())
-                t.Log("****************************************************")
+                // t.Log("*******Successfully Parsed Reference File***********")
+                // t.Log(mockFileBuffer.String())
+                // t.Log("****************************************************")
             }
         }
     }

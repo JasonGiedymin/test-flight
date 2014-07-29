@@ -3,8 +3,21 @@ package testing
 import (
     "io"
     "os"
+    "reflect"
+    "text/template"
     "time"
 )
+
+func comma(index int, obj interface{}) bool {
+    return index == reflect.ValueOf(obj).Len()-1
+}
+
+var FuncMap = template.FuncMap{
+    "comma": comma,
+    "add": func(a int, b int) int {
+        return a + b
+    },
+}
 
 type fileSystem interface {
     Open(name string) (file, error)
