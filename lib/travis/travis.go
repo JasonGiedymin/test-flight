@@ -1,5 +1,9 @@
 package travis
 
+import (
+    "gopkg.in/yaml.v1"
+)
+
 // Travis Build Matrix
 //  matrix:
 //  exclude:
@@ -76,4 +80,13 @@ type TravisFile struct {
 
     // Android
     Android TravisRuntimeAndroid // Specific for android
+}
+
+func (tf *TravisFile) ParseYaml(data []byte) error {
+    if err := yaml.Unmarshal(data, &tf); err != nil {
+        Logger.Error("Could not parse yaml build file.", err)
+        return err
+    }
+
+    return nil
 }
