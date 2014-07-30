@@ -66,7 +66,7 @@ type TravisFile struct {
     Ruby         []string //ruby versions
     Rvm          []string //ruby versions via rvm
     Gemfile      []string // gemfile
-    bundler_args string   // bundler
+    Bundler_args string   // bundler
 
     // Objective-c
     Xcode_project   string // instead of workspace

@@ -34,6 +34,91 @@ var standardTravisFile = TravisFile{
         "after_command_2",
     },
     Script: "./script/ci/run_build.sh",
+    Compiler: []string{
+        "clang",
+        "gcc",
+    },
+    Services: []string{
+        "riak",
+        "rabbitmq",
+    },
+    Language: "cpp",
+    Jdk: []string{
+        "oraclejdk7",
+        "openjdk6",
+    },
+    Ghc: []string{
+        "7.6",
+        "7.4",
+    },
+    Otp_release: []string{
+        "17.0",
+        "R16B03-1",
+        "R16B03",
+        "R16B02",
+        "R16B01",
+        "R15B03",
+        "R15B02",
+        "R15B01",
+        "R14B04",
+        "R14B03",
+        "R14B02",
+    },
+    Lein: "lein2",
+    Scala: []string{
+        "2.9.3",
+        "2.10.4",
+        "2.11.0",
+    },
+    Perl: []string{
+        "5.16",
+        "5.14",
+        "5.12",
+        "5.10",
+        "5.8",
+    },
+    Php: []string{
+        "5.5",
+        "5.4",
+        "hhvm",
+    },
+    Python: []string{
+        "2.6",
+        "2.7",
+        "3.2",
+        "3.3",
+    },
+    Go: []string{
+        "1.0",
+        "1.1",
+        "1.2",
+        "1.3",
+        "tip",
+    },
+    Nodejs: []string{
+        "0.11",
+        "0.10",
+        "0.8",
+        "0.6",
+    },
+    Rvm: []string{
+        "2.1.0",
+        "jruby-18mode",
+        "jruby-19mode",
+        "rbx-2",
+        "ruby-head",
+        "jruby-head",
+        "ree",
+    },
+    Gemfile: []string{
+        "Gemfile",
+        "gemfiles/eventmachine-pre",
+    },
+    Bundler_args:    "--without production",
+    Xcode_project:   "MyNewProject.xcodeproj",
+    Xcode_workspace: "MyNewProject.workspace",
+    Xcode_scheme:    "MyNewProjectTests",
+    Xcode_sdk:       "iphonesimulatorX.Y",
 }
 
 var YamlTestData = []struct {
@@ -53,37 +138,42 @@ var YamlTestData = []struct {
       after_script: {{range $key, $value := .After_script}}
         - {{$value}}{{end}}
       script: {{.Script}}
+      compiler: {{range $key, $value := .Compiler}}
+        - {{$value}}{{end}}
+      services: {{range $key, $value := .Services}}
+        - {{$value}}{{end}}
+      language: {{.Language}}
+      jdk: {{range $key, $value := .Jdk}}
+        - {{$value}}{{end}}
+      ghc: {{range $key, $value := .Ghc}}
+        - {{$value}}{{end}}
+      otp_release: {{range $key, $value := .Otp_release}}
+        - {{$value}}{{end}}
+      lein: {{.Lein}}
+      scala: {{range $key, $value := .Scala}}
+        - {{$value}}{{end}}
+      perl: {{range $key, $value := .Perl}}
+        - {{$value}}{{end}}
+      php: {{range $key, $value := .Php}}
+        - {{$value}}{{end}}
+      python: {{range $key, $value := .Python}}
+        - {{$value}}{{end}}
+      go: {{range $key, $value := .Go}}
+        - {{$value}}{{end}}
+      nodejs: {{range $key, $value := .Nodejs}}
+        - {{$value}}{{end}}
+      rvm: {{range $key, $value := .Rvm}}
+        - {{$value}}{{end}}
+      gemfile: {{range $key, $value := .Gemfile}}
+        - {{$value}}{{end}}
+      bundler_args: {{.Bundler_args}}
+      xcode_project: {{.Xcode_project}}
+      xcode_workspace: {{.Xcode_workspace}}
+      xcode_scheme: {{.Xcode_scheme}}
+      xcode_sdk: {{.Xcode_sdk}}
     `,
         standardTravisFile,
     },
-    //   owner: {{.Owner}}
-    //   imageName: {{.ImageName}}
-    //   tag: {{.Tag}}
-    //   from: {{.From}}
-    //   requires: {{range $key, $value := .Requires}}
-    //     - {{$value}}{{end}}
-    //   version: {{.Version}}
-    //   env: {{range $i, $entry := .Env}}
-    //     - variable: {{$entry.Variable}}
-    //       value: {{$entry.Value}}{{end}}
-    //   expose: {{range $key, $value := .Expose}}
-    //     - {{$value}}{{end}}
-    //   ignore: {{range $key, $value := .Ignore}}
-    //     - {{$value}}{{end}}
-    //   add:
-    //     simple: {{range $key, $value := .Add.Simple}}
-    //     - {{$value}}{{end}}
-    //     complex: {{range $key, $value := .Add.Complex}}
-    //       - name: {{$value.Name}}
-    //         location: {{$value.Location}}{{end}}
-    //   cmd: {{.Cmd}}
-    //   launchCmd: {{range $key, $value := .LaunchCmd}}
-    //     - {{$value}}{{end}}
-    //   workDir: {{.WorkDir}}
-    //   runTests: {{.RunTests}}
-    //   resources:
-    //     cpu: {{.Resources.Cpu}}
-    //     mem: {{.Resources.Mem}}
 }
 
 func TestTravisJson(t *testing.T) {

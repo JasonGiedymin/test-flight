@@ -391,14 +391,12 @@ Version todos:
   - [x] Correct error logging messages when parsing yaml or json build files.
   - [x] Move function map helper to testing lib
   - [~] Add Travis file reader
-      - [x] Go through language spec and add all
-      - [~] Add struct
-      - [ ] Add parser
-        - [ ] Add Test
-        - [~] Add parser
-          - [ ] Raw parser within test
-          - [ ] Add to type as parser method like buildfile
-    - [ ] Add Travis vars to buildfile via a converter
+    - [x] Go through language spec and add all
+    - [x] Add struct
+    - [x] Add parser
+    - [x] Add Test
+      - [ ] Add to type as parser method like buildfile
+    - [ ] Add Travis vars to buildfile via a converter (from, env, etc...)
   - [ ] Allow yaml buildfile then json
 
 #### v0.9.8.3 - Alpha, Multi-run
