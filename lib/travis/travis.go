@@ -1,6 +1,7 @@
 package travis
 
 import (
+    "errors"
     "gopkg.in/yaml.v1"
 )
 
@@ -84,8 +85,8 @@ type TravisFile struct {
 
 func (tf *TravisFile) ParseYaml(data []byte) error {
     if err := yaml.Unmarshal(data, &tf); err != nil {
-        Logger.Error("Could not parse yaml build file.", err)
-        return err
+        msg := "Could not parse yaml build file." + err.Error()
+        return errors.New(msg)
     }
 
     return nil

@@ -11,7 +11,6 @@ import ()
 
 // Aim to create a string based matrix
 type BuildMatrix [][]string
-type BuildSet BuildMatrix
 
 // Basic Build Matrix in Type form
 type BuildMatrixVectors struct {
@@ -26,14 +25,15 @@ type BuildMatrixVectors struct {
 
 // Normalize the struct to a basic set of strings
 // so that a generic cartesian product can be
-// constructed
-func (v *BuildMatrixVectors) Sets() *BuildMatrix {
-    return &BuildMatrix{
+// constructed. This is an implementation specific
+// set, and is not generic. Thus it implies all
+// data is unique :-O
+func (v *BuildMatrixVectors) Sets() BuildMatrix {
+    return BuildMatrix{
         []string{v.Language},
         v.Version,
         v.Env,
     }
-
 }
 
 // Cartesian Product
