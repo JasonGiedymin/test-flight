@@ -1,6 +1,8 @@
 package build
 
-import ()
+import (
+    "strings"
+)
 
 // Basic combination
 // Language x Version x Env
@@ -10,7 +12,21 @@ import ()
 // | ruby     |
 
 // Aim to create a string based matrix
-type BuildMatrix [][]string
+type BuildMatrix map[string]BuildMatrixEntry
+
+type BuildMatrixEntry struct {
+    Language string
+    Version  string
+    Env      string
+}
+
+func (e BuildMatrixEntry) Key() string {
+    return "(" + strings.Join([]string{
+        e.Language,
+        e.Version,
+        e.Env,
+    }, ",") + ")"
+}
 
 // Basic Build Matrix in Type form
 type BuildMatrixVectors struct {
@@ -20,24 +36,24 @@ type BuildMatrixVectors struct {
     Env      []string
 
     // custom
-
 }
 
-// Normalize the struct to a basic set of strings
-// so that a generic cartesian product can be
-// constructed. This is an implementation specific
-// set, and is not generic. Thus it implies all
-// data is unique :-O
-func (v *BuildMatrixVectors) Sets() BuildMatrix {
-    return BuildMatrix{
-        []string{v.Language},
-        v.Version,
-        v.Env,
-    }
-}
-
-// Cartesian Product
-//
 func (v *BuildMatrixVectors) Product() BuildMatrix {
-    return BuildMatrix{}
+    var matrix = make(BuildMatrix)
+
+    for _, version := range v.Version {
+        entry := BuildMatrixEntry{
+            Language: v.Language,
+        }
+
+        entry.Version = version
+
+        for _, env := range v.Env {
+            entry.Env = env
+            matrix[entry.Key()] = entry
+        }
+
+    }
+
+    return matrix
 }

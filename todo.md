@@ -396,11 +396,11 @@ Version todos:
     - [x] Add parser
     - [x] Add Test
       - [x] Add to type a parser method like buildfile
-    - [~] Multiple 'from' required before converting travis -> buildfile
-      - [~] A test-flight 'build-matrix' needed =>
+    - [x] Multiple 'from' required before converting travis -> buildfile
+      - [x] A test-flight 'build-matrix' needed =>
         - [x] Add `build.type BuildMatrix` type
-        - [x] Add `Set` method
-        - [~] Add `Product` method
+        - [x] ~~Add `Set` method~~
+        - [x] Add `Product` method
     - [ ] Add Travis vars to buildfile via a converter (from, env, etc...)
   - [ ] Allow yaml buildfile then json
 
