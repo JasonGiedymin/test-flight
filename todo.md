@@ -401,6 +401,13 @@ Version todos:
         - [x] Add `build.type BuildMatrix` type
         - [x] ~~Add `Set` method~~
         - [x] Add `Product` method
+    - [x] Extend build matrix with multiple From (OSes)
+    - [~] Use matrix entry to building =>
+      - [~] construct build matrix from buildfile
+      - [ ] FlightControl needs navigator to control builds
+      - [ ] extend build entry
+      - [ ] modify those needing buildfile to use new build entry =>
+            embed buildfile?
     - [ ] Add Travis vars to buildfile via a converter (from, env, etc...)
   - [ ] Allow yaml buildfile then json
 

@@ -10,6 +10,7 @@ type FlightControls struct{}
 
 func (fc *FlightControls) Init(app *TestFlight) {}
 
+// Checks if files are proper and can be parsed
 func (fc *FlightControls) CheckConfigs(app *TestFlight, options *CommandOptions) (*ConfigFile, *BuildFile, error) {
     // Setup Logging
     // TODO: Replace with only Load once app.Init() is gone

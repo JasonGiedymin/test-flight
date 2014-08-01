@@ -16,6 +16,7 @@ type BuildMatrix map[string]BuildMatrixEntry
 
 type BuildMatrixEntry struct {
     Language string
+    From     string // always ubuntu for travis
     Version  string
     Env      string
 }
@@ -23,6 +24,7 @@ type BuildMatrixEntry struct {
 func (e BuildMatrixEntry) Key() string {
     return "(" + strings.Join([]string{
         e.Language,
+        e.From,
         e.Version,
         e.Env,
     }, ",") + ")"
@@ -32,6 +34,7 @@ func (e BuildMatrixEntry) Key() string {
 type BuildMatrixVectors struct {
     // base
     Language string
+    From     []string
     Version  []string
     Env      []string
 
@@ -48,11 +51,13 @@ func (v *BuildMatrixVectors) Product() BuildMatrix {
 
         entry.Version = version
 
-        for _, env := range v.Env {
-            entry.Env = env
-            matrix[entry.Key()] = entry
+        for _, from := range v.From {
+            entry.From = from
+            for _, env := range v.Env {
+                entry.Env = env
+                matrix[entry.Key()] = entry
+            }
         }
-
     }
 
     return matrix

@@ -22,6 +22,9 @@ func (cmd *BuildCommand) Execute(args []string) error {
         return err
     }
 
+    // TODO: create build matrix from buildfile
+    // TODO: feed matrix entry to all needing buildfile
+
     // Api interaction here
     dc := NewDockerApi(cmd.App.AppState.Meta, configFile, buildFile)
     dc.ShowInfo()

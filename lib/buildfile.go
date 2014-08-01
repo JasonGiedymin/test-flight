@@ -34,6 +34,7 @@ type BuildFile struct {
     Owner     string
     ImageName string `yaml:"imageName"`
     Tag       string
+    // From      []string
     From      string
     Requires  []string
     Version   string
@@ -97,7 +98,6 @@ func NewBuildFile() *BuildFile {
         Owner:     "Test-Flight-User",       // must have something!
         ImageName: "Test-Flight-Test-Image", // must have an image name!
         Tag:       "latest",                 // implies latest, else you tell it
-        From:      "",                       // from nothing
         Version:   "0.0.1",                  // must have a version!
         WorkDir:   "/tmp/build",             // default working dir
         Add:       DockerAdd{},              // add nothing

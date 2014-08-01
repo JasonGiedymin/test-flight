@@ -15,9 +15,10 @@ var standardBuildFile = BuildFile{
     Owner:     "123456789",
     ImageName: "AtTheBeachOS",
     Tag:       "BeachTag",
-    From:      "FromTheBeach",
-    Requires:  []string{"ABeach", "BBeach"},
-    Version:   "WhiteSands",
+    // From:      []string{"FromTheBeach", "FromTheResort"},
+    From:     "FromTheBeach",
+    Requires: []string{"ABeach", "BBeach"},
+    Version:  "WhiteSands",
     Env: []DockerEnv{
         DockerEnv{Variable: "BeachName", Value: "LovelySands"},
         DockerEnv{Variable: "BeachSize", Value: "AwesomeEnough"},
@@ -50,6 +51,8 @@ var YamlTestData = []struct {
     fileDataTemplate  string
     expectedBuildFile BuildFile
 }{
+    //from: {{range $key, $value := .From}}
+    //      - {{$value}}{{end}}
     {`
       location: {{.Location}}
       owner: {{.Owner}}
@@ -94,7 +97,9 @@ var JsonTestData = []struct {
       "owner": "{{.Owner}}",
       "imageName": "{{.ImageName}}",
       "tag": "{{.Tag}}",
-      "from": "{{.From}}",
+      "from": [ {{range $i, $value := .From}}
+        "{{$value}}"{{if comma $i $.From | not}},{{end}}{{end}}
+      ],
       "requires":[ {{range $i, $value := .Requires}}
         "{{$value}}"{{if comma $i $.Requires | not}},{{end}}{{end}}
       ],
