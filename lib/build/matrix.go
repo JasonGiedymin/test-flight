@@ -1,6 +1,7 @@
 package build
 
 import (
+    "sort"
     "strings"
 )
 
@@ -13,6 +14,15 @@ import (
 
 // Aim to create a string based matrix
 type BuildMatrix map[string]BuildMatrixEntry
+
+func (m BuildMatrix) Keys() []string {
+    var out []string
+    for key, _ := range m { // interestingly enough one could also call value.Key()
+        out = append(out, key)
+    }
+    sort.Strings(out)
+    return out
+}
 
 type BuildMatrixEntry struct {
     Language string

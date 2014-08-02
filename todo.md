@@ -403,6 +403,12 @@ Version todos:
         - [x] Add `Product` method
     - [x] Extend build matrix with multiple From (OSes)
     - [~] Use matrix entry to building =>
+      - [~] convert buildfile to matrix as-is now
+      - [ ] use matrix in commands
+      - [ ] Add code to create `From` with  language + version. Maintaining 
+            `From` allows continued use of existing code. `From` if supplied
+            (length(x.From) > 0) will prevent call to `product` and create a
+            single entry set.
       - [~] construct build matrix from buildfile
       - [ ] FlightControl needs navigator to control builds
       - [ ] extend build entry

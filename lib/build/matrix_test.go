@@ -8,9 +8,9 @@ import (
 )
 
 var testData = []struct {
-    Vectors         BuildMatrixVectors
-    ExpectedMatrix  []string
-    SampleBuildFile lib.BuildFile
+    Vectors            BuildMatrixVectors
+    ExpectedMatrixKeys []string
+    SampleBuildFile    lib.BuildFile
 }{
     {
         BuildMatrixVectors{
@@ -68,15 +68,8 @@ var testData = []struct {
 
 func TestMatrixConstruction(t *testing.T) {
     for _, data := range testData {
-        expected := data.ExpectedMatrix
-        actual := func() []string {
-            var out []string
-            for key, _ := range data.Vectors.Product() {
-                out = append(out, key)
-            }
-            sort.Strings(out)
-            return out
-        }()
+        expected := data.ExpectedMatrixKeys
+        actual := data.Vectors.Product().Keys()
 
         sort.Strings(expected)
 
@@ -84,14 +77,4 @@ func TestMatrixConstruction(t *testing.T) {
             t.Errorf("Sets() failed, \nactual: \n%s\n\nexpected: \n%s", actual, expected)
         }
     }
-}
-
-func TestCreateBuildMatrixFromBuildFile(t *testing.T) {
-    for _, data := range testData {
-        buildFile := data.SampleBuildFile
-        buildFile.From = "Ya"
-
-    }
-
-    t.Error("PENDING")
 }
