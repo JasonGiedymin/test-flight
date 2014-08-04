@@ -92,14 +92,15 @@ var JsonTestData = []struct {
     fileDataTemplate  string
     expectedBuildFile BuildFile
 }{
+    //"from": [ {{range $i, $value := .From}}
+    //   "{{$value}}"{{if comma $i $.From | not}},{{end}}{{end}}
+    //],
     {`{
       "location": "{{.Location}}",
       "owner": "{{.Owner}}",
       "imageName": "{{.ImageName}}",
       "tag": "{{.Tag}}",
-      "from": [ {{range $i, $value := .From}}
-        "{{$value}}"{{if comma $i $.From | not}},{{end}}{{end}}
-      ],
+      "from": "{{.From}}",
       "requires":[ {{range $i, $value := .Requires}}
         "{{$value}}"{{if comma $i $.Requires | not}},{{end}}{{end}}
       ],

@@ -1,11 +1,9 @@
 package testing
 
 import (
-    "github.com/JasonGiedymin/test-flight/lib/build"
     "io"
     "os"
     "reflect"
-    "sort"
     "text/template"
     "time"
 )

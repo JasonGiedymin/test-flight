@@ -401,9 +401,14 @@ Version todos:
         - [x] Add `build.type BuildMatrix` type
         - [x] ~~Add `Set` method~~
         - [x] Add `Product` method
-    - [x] Extend build matrix with multiple From (OSes)
     - [~] Use matrix entry to building =>
-      - [~] convert buildfile to matrix as-is now
+      - [~] convert buildfile to matrix as-is now via `BuildMatrixEntry` =>
+            Note that From should take precedence over language and version
+            vectors as this is a legacy feature. From 'should' be created
+            by the Lang + Ver vectors but I want to allow people the ability
+            to override.
+        - [ ] mismatch in Env var attribute, vector is string where buildfile
+              uses []DockerEnv. Update matrix to use DockerEnv.
       - [ ] use matrix in commands
       - [ ] Add code to create `From` with  language + version. Maintaining 
             `From` allows continued use of existing code. `From` if supplied
@@ -414,6 +419,7 @@ Version todos:
       - [ ] extend build entry
       - [ ] modify those needing buildfile to use new build entry =>
             embed buildfile?
+    - [ ] Extend build matrix with multiple From (OSes)
     - [ ] Add Travis vars to buildfile via a converter (from, env, etc...)
   - [ ] Allow yaml buildfile then json
 
@@ -428,7 +434,7 @@ Version todos:
 
 - [ ] enhance, output contains newlines `\n`, improve stream reader. May not be
         reading bytes at correct delimiter.
-  - [ ] Tests ~~and refactor~~
+  - [ ] Acceptance Tests ~~and refactor~~
   - [ ] Tie complex files into requiredFiles, by first fixing path matching
         between the fully qualified name and the current dir name. 
         See `lib.findFile()` TODO comments. Use the below config sample.

@@ -29,6 +29,10 @@ type DockerEnv struct {
     Value    string
 }
 
+func (de DockerEnv) String() string {
+    return de.Variable + "=" + de.Value
+}
+
 type BuildFile struct {
     Location  string
     Owner     string

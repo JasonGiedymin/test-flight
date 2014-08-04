@@ -3,7 +3,7 @@ package converter
 import (
     "github.com/JasonGiedymin/test-flight/lib"
     // "github.com/JasonGiedymin/test-flight/lib/build"
-    // "reflect"
+    "reflect"
     // "sort"
     "testing"
 )
@@ -15,8 +15,11 @@ var testData = []struct {
     {   // n1
         lib.BuildFile{
             From: "c++",
-            Env: []string{
-                "TMPDIR=/tmp/trash",
+            Env: []lib.DockerEnv{
+                lib.DockerEnv{
+                    Variable: "TMPDIR",
+                    Value:    "/tmp/trash",
+                },
             },
         },
         []string{

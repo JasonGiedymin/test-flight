@@ -11,7 +11,7 @@
 # how-to:   docker build -t testflight/test-docker-name1 .
 # Requires: jasongiedymin/ansible-nodejs
 #
-#       Test-Flight v0.9.8.1 Generated Dockerfile
+#       Test-Flight v0.9.8.2 Generated Dockerfile
 # ------------------------------------------------------
 
 FROM jasongiedymin/ansible-nodejs

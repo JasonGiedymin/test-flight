@@ -1,6 +1,7 @@
 package build
 
 import (
+    "github.com/JasonGiedymin/test-flight/lib"
     "sort"
     "strings"
 )
@@ -26,9 +27,9 @@ func (m BuildMatrix) Keys() []string {
 
 type BuildMatrixEntry struct {
     Language string
-    From     string // always ubuntu for travis
     Version  string
-    Env      string
+    From     string // always ubuntu for travis
+    Env      lib.DockerEnv
 }
 
 func (e BuildMatrixEntry) Key() string {
@@ -36,7 +37,7 @@ func (e BuildMatrixEntry) Key() string {
         e.Language,
         e.From,
         e.Version,
-        e.Env,
+        e.Env.String(),
     }, ",") + ")"
 }
 
@@ -44,9 +45,9 @@ func (e BuildMatrixEntry) Key() string {
 type BuildMatrixVectors struct {
     // base
     Language string
-    From     []string
     Version  []string
-    Env      []string
+    From     []string // can take precedence over Lang + Version, Legacy override
+    Env      []lib.DockerEnv
 
     // custom
 }
