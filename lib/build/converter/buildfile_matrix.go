@@ -1,7 +1,6 @@
 package converter
 
 import (
-    // "fmt"
     "github.com/JasonGiedymin/test-flight/lib"
     "github.com/JasonGiedymin/test-flight/lib/build"
 )
@@ -14,6 +13,7 @@ func ConvertBuildFileToMatrix(buildfile lib.BuildFile) build.BuildMatrix {
         // Language: // would have to take from buildfile
         // Version:
         From: []string{buildfile.From},
+        Env:  buildfile.Env,
     }
 
     return vectors.Product()

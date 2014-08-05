@@ -402,21 +402,22 @@ Version todos:
         - [x] ~~Add `Set` method~~
         - [x] Add `Product` method
     - [~] Use matrix entry to building =>
-      - [~] convert buildfile to matrix as-is now via `BuildMatrixEntry` =>
+      - [x] mismatch in Env var attribute, vector is string where buildfile
+              uses []DockerEnv. Update matrix to use DockerEnv.
+      - [x] convert buildfile to matrix as-is now via `BuildMatrixEntry` =>
             Note that From should take precedence over language and version
             vectors as this is a legacy feature. From 'should' be created
             by the Lang + Ver vectors but I want to allow people the ability
             to override. (OS + Lang + Ver = From)
-            - [~] Add OS to the buildfile and tests => last at buildfile_test
+            - [x] Add OS to the buildfile and tests => last at buildfile_test
                   and need to make it work as well as fix yaml tests
-            - [ ] Modify Json and Yaml parser to include OS
-            - [ ] Modify `Product ()` to include OS rather than FROM (from is an 
+            - [x] Modify Json and Yaml parser to include OS
+            - [x] Modify `Product ()` to include OS rather than FROM (from is an 
                   override)
-            - [ ] Verify Product() produces matrix
-            - [ ] Use matrix entry rather than buildfile for each run
-        - [ ] mismatch in Env var attribute, vector is string where buildfile
-              uses []DockerEnv. Update matrix to use DockerEnv.
-        - [ ] add OS to the buildfile
+            - [x] Verify Product() produces matrix
+            - [x] Include From as the override
+      - [ ] Use matrix entry rather than buildfile for each run or something
+            of the sort
       - [ ] use matrix in commands
       - [ ] Add code to create `From` with  language + version. Maintaining 
             `From` allows continued use of existing code. `From` if supplied
@@ -434,6 +435,7 @@ Version todos:
 #### v0.9.8.3 - Alpha, Multi-run
 
   - [ ] version
+  - [ ] move into `$GOPATH`
   - [ ] fork runs with each from
   - [ ] encorporate env per run (see travis file runtime struct), add env to 
         global env list

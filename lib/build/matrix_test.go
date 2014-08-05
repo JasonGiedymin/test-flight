@@ -7,6 +7,31 @@ import (
     "testing"
 )
 
+var keyTestData = []struct {
+    entry    BuildMatrixEntry
+    expected string
+}{
+    {
+        BuildMatrixEntry{
+            Language: "c++",
+            Version:  "4.6.1",
+            OS:       "ubuntu",
+            Env:      lib.DockerEnv{"TMPDIR", "/tmp/trash"},
+        },
+        "(c++,ubuntu,4.6.1,TMPDIR=/tmp/trash)",
+    },
+    {
+        BuildMatrixEntry{
+            Language: "c++",
+            Version:  "4.6.1",
+            OS:       "ubuntu",
+            Env:      lib.DockerEnv{"TMPDIR", "/tmp/trash"},
+            From:     "override-ansible-ubuntu",
+        },
+        "(override-ansible-ubuntu,TMPDIR=/tmp/trash)",
+    },
+}
+
 var testData = []struct {
     Vectors            BuildMatrixVectors
     ExpectedMatrixKeys []string
@@ -15,7 +40,7 @@ var testData = []struct {
     {
         BuildMatrixVectors{
             Language: "golang",
-            From:     []string{"ubuntu"},
+            OS:       []string{"ubuntu"},
             Version: []string{
                 "1",
                 "2",
@@ -43,7 +68,7 @@ var testData = []struct {
     {
         BuildMatrixVectors{
             Language: "c++",
-            From:     []string{"ubuntu"},
+            OS:       []string{"ubuntu"},
             Version: []string{
                 "4.6.0",
                 "4.6.1",
@@ -64,6 +89,41 @@ var testData = []struct {
         },
         *lib.NewBuildFile(),
     },
+    {
+        BuildMatrixVectors{
+            Language: "c++",
+            OS:       []string{"ubuntu"},
+            Version: []string{
+                "4.6.0",
+                "4.6.1",
+                "4.6.2",
+            },
+            Env: []lib.DockerEnv{
+                lib.DockerEnv{"TMPDIR", "/tmp/trash"},
+                lib.DockerEnv{"LIBRARY_PATH", "/usr/lib/my.lib.path/"},
+            },
+            From: []string{
+                "override-docker-ansible",
+                "override-docker-ansible-centos",
+            },
+        },
+        []string{
+            "(override-docker-ansible,TMPDIR=/tmp/trash)",
+            "(override-docker-ansible,LIBRARY_PATH=/usr/lib/my.lib.path/)",
+            "(override-docker-ansible-centos,TMPDIR=/tmp/trash)",
+            "(override-docker-ansible-centos,LIBRARY_PATH=/usr/lib/my.lib.path/)",
+        },
+        *lib.NewBuildFile(),
+    },
+}
+
+func TestBuildMatrixKey(t *testing.T) {
+    for _, data := range keyTestData {
+        actual := data.entry.Key()
+        if actual != data.expected {
+            t.Errorf("entry.Key() method failed to create key properly!\nexpected:\n%s\nactual:\n%s\n", data.expected, actual)
+        }
+    }
 }
 
 func TestMatrixConstruction(t *testing.T) {

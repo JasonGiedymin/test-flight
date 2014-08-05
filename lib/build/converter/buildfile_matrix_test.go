@@ -22,9 +22,7 @@ var testData = []struct {
                 },
             },
         },
-        []string{
-            "(c++,,TMPDIR=/tmp/trash)",
-        },
+        []string{"(c++,TMPDIR=/tmp/trash)"},
     },
     // { // n2
     //     lib.BuildFile{
@@ -44,14 +42,11 @@ func TestCreateBuildMatrixFromBuildFile(t *testing.T) {
     for _, data := range testData {
         buildFile := data.sampleBuildFile
         expected := data.expectedMatrixKeys
-        actual := ConvertBuildFileToMatrix(buildFile)
+        actual := ConvertBuildFileToMatrix(buildFile).Keys()
 
         if !reflect.DeepEqual(expected, actual) {
             t.Errorf("Conversion of Buildfile to Matrix failed, \nactual: \n%s\n\nexpected: \n%s", actual, expected)
+            t.Logf("buildfile:\n%s\n", buildFile)
         }
-
-        t.Log(buildFile)
     }
-
-    t.Error("PENDING")
 }

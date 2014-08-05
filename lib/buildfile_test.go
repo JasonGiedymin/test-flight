@@ -62,6 +62,11 @@ var YamlTestData = []struct {
       imageName: {{.ImageName}}
       tag: {{.Tag}}
       from: {{.From}}
+      os: {{range $key, $value := .OS}}
+        - {{$value}}{{end}}
+      language: {{.Language}}
+      languageVersion: {{range $key, $value := .LanguageVersion}}
+        - {{$value}}{{end}}
       requires: {{range $key, $value := .Requires}}
         - {{$value}}{{end}}
       version: {{.Version}}
@@ -104,6 +109,13 @@ var JsonTestData = []struct {
       "imageName": "{{.ImageName}}",
       "tag": "{{.Tag}}",
       "from": "{{.From}}",
+      "os":[ {{range $i, $value := .OS}}
+        "{{$value}}"{{if comma $i $.OS | not}},{{end}}{{end}}
+      ],
+      "language": "{{.Language}}",
+      "languageVersion":[ {{range $i, $value := .LanguageVersion}}
+        "{{$value}}"{{if comma $i $.LanguageVersion | not}},{{end}}{{end}}
+      ],
       "requires":[ {{range $i, $value := .Requires}}
         "{{$value}}"{{if comma $i $.Requires | not}},{{end}}{{end}}
       ],

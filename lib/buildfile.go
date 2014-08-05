@@ -39,9 +39,9 @@ type BuildFile struct {
 
     // From      []string
     From            string      // overrides the below or is set from below
-    OS              []string    // operating system
-    Language        string      // language or runtime i.e. c++
-    LanguageVersion []string    // language version
+    OS              []string    `yaml:"os"`              // operating system
+    Language        string      `yaml:"language"`        // language or runtime i.e. c++
+    LanguageVersion []string    `yaml:"languageVersion"` // language version
     Env             []DockerEnv // environment variables to use
 
     Requires  []string // Ansible requires
