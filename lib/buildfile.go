@@ -34,15 +34,17 @@ func (de DockerEnv) String() string {
 }
 
 type BuildFile struct {
-    Location  string
-    Owner     string
     ImageName string `yaml:"imageName"`
     Tag       string
+
     // From      []string
-    From      string
-    Requires  []string
-    Version   string
-    Env       []DockerEnv
+    From            string      // overrides the below or is set from below
+    OS              []string    // operating system
+    Language        string      // language or runtime i.e. c++
+    LanguageVersion []string    // language version
+    Env             []DockerEnv // environment variables to use
+
+    Requires  []string // Ansible requires
     Expose    []int
     Ignore    []string
     Add       DockerAdd
@@ -51,6 +53,11 @@ type BuildFile struct {
     WorkDir   string        `yaml:"workDir"`
     RunTests  bool          `yaml:"runTests"`
     Resources ResourceShare `yaml:"resources"`
+
+    // House keeping
+    Owner    string // process owner
+    Location string // location of buildfile
+    Version  string // buildfile version
 }
 
 func (bf *BuildFile) ParseYaml(data []byte) error {

@@ -1,6 +1,7 @@
 package build
 
 import (
+    "fmt"
     "github.com/JasonGiedymin/test-flight/lib"
     "sort"
     "strings"
@@ -46,14 +47,16 @@ type BuildMatrixVectors struct {
     // base
     Language string
     Version  []string
-    From     []string // can take precedence over Lang + Version, Legacy override
     Env      []lib.DockerEnv
+    From     []string // can take precedence over Lang + Version, Legacy override
 
     // custom
 }
 
 func (v *BuildMatrixVectors) Product() BuildMatrix {
     var matrix = make(BuildMatrix)
+
+    fmt.Println(v)
 
     for _, version := range v.Version {
         entry := BuildMatrixEntry{
@@ -63,6 +66,7 @@ func (v *BuildMatrixVectors) Product() BuildMatrix {
         entry.Version = version
 
         for _, from := range v.From {
+            fmt.Printf("*** %s\n", from)
             entry.From = from
             for _, env := range v.Env {
                 entry.Env = env

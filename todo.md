@@ -406,9 +406,17 @@ Version todos:
             Note that From should take precedence over language and version
             vectors as this is a legacy feature. From 'should' be created
             by the Lang + Ver vectors but I want to allow people the ability
-            to override.
+            to override. (OS + Lang + Ver = From)
+            - [~] Add OS to the buildfile and tests => last at buildfile_test
+                  and need to make it work as well as fix yaml tests
+            - [ ] Modify Json and Yaml parser to include OS
+            - [ ] Modify `Product ()` to include OS rather than FROM (from is an 
+                  override)
+            - [ ] Verify Product() produces matrix
+            - [ ] Use matrix entry rather than buildfile for each run
         - [ ] mismatch in Env var attribute, vector is string where buildfile
               uses []DockerEnv. Update matrix to use DockerEnv.
+        - [ ] add OS to the buildfile
       - [ ] use matrix in commands
       - [ ] Add code to create `From` with  language + version. Maintaining 
             `From` allows continued use of existing code. `From` if supplied

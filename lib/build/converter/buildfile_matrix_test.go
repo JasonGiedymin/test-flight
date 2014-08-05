@@ -12,7 +12,7 @@ var testData = []struct {
     sampleBuildFile    lib.BuildFile
     expectedMatrixKeys []string
 }{
-    {   // n1
+    {   // n1 as-is buildfile
         lib.BuildFile{
             From: "c++",
             Env: []lib.DockerEnv{
