@@ -416,6 +416,10 @@ Version todos:
                   override)
             - [x] Verify Product() produces matrix
             - [x] Include From as the override
+      - [ ] Docker From Resolution =>
+        - Lang + Ver + OS = Matrix = n From, need service or map to resolve
+          the necessary dockers.
+
       - [ ] Use matrix entry rather than buildfile for each run or something
             of the sort
       - [ ] use matrix in commands
