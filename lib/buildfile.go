@@ -30,7 +30,11 @@ type DockerEnv struct {
 }
 
 func (de DockerEnv) String() string {
-    return de.Variable + "=" + de.Value
+    if de.Variable != "" && de.Value != "" {
+        return de.Variable + "=" + de.Value
+    } else {
+        return ""
+    }
 }
 
 type BuildFile struct {

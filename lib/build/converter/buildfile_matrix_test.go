@@ -24,25 +24,40 @@ var testData = []struct {
         },
         []string{"(c++,TMPDIR=/tmp/trash)"},
     },
-    // { // n2
-    //     lib.BuildFile{
-    //         From: "c++",
-    //     },
-    //     []string{
-    //         "(c++,ubuntu,4.6.0,TMPDIR=/tmp/trash)",
-    //     },
-    // },
-    // { // n3
+    {   // n2
+        lib.BuildFile{
+            OS:       []string{"ubuntu"},
+            Language: "c++",
+            Version:  "4.6.1",
+        },
+        []string{
+            "(c++,ubuntu,4.6.1)",
+        },
+    },
+    {   // n3
+        lib.BuildFile{
+            OS:       []string{"centos", "ubuntu"},
+            Language: "c++",
+            Version:  "4.6.1",
+        },
+        []string{
+            "(c++,centos,4.6.1)", "(c++,ubuntu,4.6.1)",
+        },
+    },
 }
 
 // take buildfile, construct build matrix out of it
 // for each matrix have a pointer to the original build
 // file
+// TODO: last here
 func TestCreateBuildMatrixFromBuildFile(t *testing.T) {
     for _, data := range testData {
         buildFile := data.sampleBuildFile
         expected := data.expectedMatrixKeys
         actual := ConvertBuildFileToMatrix(buildFile).Keys()
+
+        // t.Logf("bf -> %v", buildFile)
+        // t.Logf("conv -> %v", ConvertBuildFileToMatrix(buildFile))
 
         if !reflect.DeepEqual(expected, actual) {
             t.Errorf("Conversion of Buildfile to Matrix failed, \nactual: \n%s\n\nexpected: \n%s", actual, expected)

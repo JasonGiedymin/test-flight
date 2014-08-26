@@ -1,5 +1,8 @@
 ## Dev Todo
 
+Note: To find where I was last at, search for `TODO`, and or `last here`, which
+usually takes the form of `TODO: last here`.
+
 Legend:
 
     - [x] done
@@ -416,12 +419,17 @@ Version todos:
                   override)
             - [x] Verify Product() produces matrix
             - [x] Include From as the override
-      - [ ] Docker From Resolution =>
-        - Lang + Ver + OS = Matrix = n From, need service or map to resolve
-          the necessary dockers.
-
-      - [ ] Use matrix entry rather than buildfile for each run or something
-            of the sort
+      - [x] Docker From Resolution =>
+        - [x] Lang + Ver + OS = Matrix = n From, need service or map to resolve
+          the necessary dockers. => see [voom-registry](https://github.com/JasonGiedymin/voom-registry)
+      - [x] Use matrix entry rather than buildfile for each run or something
+            of the sort. See buildcommand.com line 25
+            - [x] also see build_matrix.go
+      - [-] add multiple Language in buildfile => Defer. Possible future for 
+            this with different dialects or compilers which work on a single 
+            lang text. I.E. OracleJDK vs OpenJDK. For now recommend projects
+            choose a recommended build Lang at first.
+      - [ ] add multiple Versions in buildfile
       - [ ] use matrix in commands
       - [ ] Add code to create `From` with  language + version. Maintaining 
             `From` allows continued use of existing code. `From` if supplied

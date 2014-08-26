@@ -37,27 +37,23 @@ type BuildMatrixEntry struct {
 }
 
 func (e BuildMatrixEntry) Key() string {
-    generate := func() string {
-        return "(" + strings.Join([]string{
+    var keys []string
+
+    if e.From != "" { // `From` overrides
+        keys = append(keys, e.From)
+    } else { // use `Lan`, `OS`, `Ver`, to construct `From`
+        keys = append(keys,
             e.Language,
             e.OS,
             e.Version,
-            e.Env.String(),
-        }, ",") + ")"
+        )
     }
 
-    override := func() string {
-        return "(" + strings.Join([]string{
-            e.From,
-            e.Env.String(),
-        }, ",") + ")"
+    if e.Env.String() != "" {
+        keys = append(keys, e.Env.String())
     }
 
-    if e.From != "" {
-        return override()
-    } else {
-        return generate()
-    }
+    return "(" + strings.Join(keys, ",") + ")"
 }
 
 // Basic Build Matrix in Type form
@@ -93,9 +89,13 @@ func (v *BuildMatrixVectors) Product() BuildMatrix {
 
             for _, os := range v.OS {
                 entry.OS = os
-                for _, env := range v.Env {
-                    entry.Env = env
-                    matrix[entry.Key()] = entry // add to matrix
+                if len(v.Env) > 0 {
+                    for _, env := range v.Env {
+                        entry.Env = env
+                        matrix[entry.Key()] = entry // add to matrix
+                    }
+                } else { // no env!
+                    matrix[entry.Key()] = entry
                 }
             }
         }
