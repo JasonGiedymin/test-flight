@@ -1,7 +1,6 @@
-package build
+package lib
 
 import (
-    "github.com/JasonGiedymin/test-flight/lib"
     "reflect"
     "sort"
     "testing"
@@ -16,7 +15,7 @@ var keyTestData = []struct {
             Language: "c++",
             Version:  "4.6.1",
             OS:       "ubuntu",
-            Env:      lib.DockerEnv{"TMPDIR", "/tmp/trash"},
+            Env:      DockerEnv{"TMPDIR", "/tmp/trash"},
         },
         "(c++,ubuntu,4.6.1,TMPDIR=/tmp/trash)",
     },
@@ -25,7 +24,7 @@ var keyTestData = []struct {
             Language: "c++",
             Version:  "4.6.1",
             OS:       "ubuntu",
-            Env:      lib.DockerEnv{"TMPDIR", "/tmp/trash"},
+            Env:      DockerEnv{"TMPDIR", "/tmp/trash"},
             From:     "override-ansible-ubuntu",
         },
         "(override-ansible-ubuntu,TMPDIR=/tmp/trash)",
@@ -35,7 +34,7 @@ var keyTestData = []struct {
 var testData = []struct {
     Vectors            BuildMatrixVectors
     ExpectedMatrixKeys []string
-    SampleBuildFile    lib.BuildFile
+    SampleBuildFile    BuildFile
 }{
     {
         BuildMatrixVectors{
@@ -46,10 +45,10 @@ var testData = []struct {
                 "2",
                 "3",
             },
-            Env: []lib.DockerEnv{
-                lib.DockerEnv{"trash", "can"},
-                lib.DockerEnv{"can", "fruit"},
-                lib.DockerEnv{"car", "go"},
+            Env: []DockerEnv{
+                DockerEnv{"trash", "can"},
+                DockerEnv{"can", "fruit"},
+                DockerEnv{"car", "go"},
             },
         },
         []string{
@@ -63,7 +62,7 @@ var testData = []struct {
             "(golang,ubuntu,3,can=fruit)",
             "(golang,ubuntu,3,car=go)",
         },
-        *lib.NewBuildFile(),
+        *NewBuildFile(),
     },
     {
         BuildMatrixVectors{
@@ -74,9 +73,9 @@ var testData = []struct {
                 "4.6.1",
                 "4.6.2",
             },
-            Env: []lib.DockerEnv{
-                lib.DockerEnv{"TMPDIR", "/tmp/trash"},
-                lib.DockerEnv{"LIBRARY_PATH", "/usr/lib/my.lib.path/"},
+            Env: []DockerEnv{
+                DockerEnv{"TMPDIR", "/tmp/trash"},
+                DockerEnv{"LIBRARY_PATH", "/usr/lib/my.lib.path/"},
             },
         },
         []string{
@@ -87,7 +86,7 @@ var testData = []struct {
             "(c++,ubuntu,4.6.2,TMPDIR=/tmp/trash)",
             "(c++,ubuntu,4.6.2,LIBRARY_PATH=/usr/lib/my.lib.path/)",
         },
-        *lib.NewBuildFile(),
+        *NewBuildFile(),
     },
     {
         BuildMatrixVectors{
@@ -98,9 +97,9 @@ var testData = []struct {
                 "4.6.1",
                 "4.6.2",
             },
-            Env: []lib.DockerEnv{
-                lib.DockerEnv{"TMPDIR", "/tmp/trash"},
-                lib.DockerEnv{"LIBRARY_PATH", "/usr/lib/my.lib.path/"},
+            Env: []DockerEnv{
+                DockerEnv{"TMPDIR", "/tmp/trash"},
+                DockerEnv{"LIBRARY_PATH", "/usr/lib/my.lib.path/"},
             },
             From: []string{
                 "override-docker-ansible",
@@ -113,7 +112,7 @@ var testData = []struct {
             "(override-docker-ansible-centos,TMPDIR=/tmp/trash)",
             "(override-docker-ansible-centos,LIBRARY_PATH=/usr/lib/my.lib.path/)",
         },
-        *lib.NewBuildFile(),
+        *NewBuildFile(),
     },
 }
 

@@ -11,6 +11,4 @@
     - role: ./
 
 
-- include: tests/main.yml
-
 

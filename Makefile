@@ -45,7 +45,7 @@ help:
 	@echo "$(TEXT_COLOR) test-ground: tests the ground command using test dir $(NO_COLOR)"
 	@echo "$(TEXT_COLOR) test-ground-f-s: tests the ground command using filemode in test dir $(NO_COLOR)"
 	@echo "$(TEXT_COLOR) test-destroy: tests the destroy command using test dir $(NO_COLOR)"
-	@echo "$(TEXT_COLOR) test-destroy-s: tests the destroy command using filemode in test dir $(NO_COLOR)"
+	@echo "$(TEXT_COLOR) test-destroy-f-s: tests the destroy command using filemode in test dir $(NO_COLOR)"
 	@echo "$(TEXT_COLOR) test-images: tests the images command using test dir $(NO_COLOR)"
 	@echo "$(TEXT_COLOR) test-images-s: tests the images command using filemode in test dir $(NO_COLOR)"
 	@echo "$(OK_COLOR)------------------------------------------------------$(NO_COLOR)"

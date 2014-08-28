@@ -7,6 +7,15 @@
   "env": [
     {"variable": "ENV_MODE", "value": "dev"}
   ],
+  "ignore": [
+    "ignoreme"
+  ],
+  "workDir": "/tmp/build",
+  "add": {
+    "simple": [
+      "tests"
+    ]
+  },
   "expose": [3000, 3001],
   "cmd": "sleep 15 && apt-cache search apache2",
   "launchCmd": [

@@ -429,13 +429,17 @@ Version todos:
             this with different dialects or compilers which work on a single 
             lang text. I.E. OracleJDK vs OpenJDK. For now recommend projects
             choose a recommended build Lang at first.
-      - [ ] add multiple Versions in buildfile
-      - [ ] use matrix in commands
-      - [ ] Add code to create `From` with  language + version. Maintaining 
+      - [~] use matrix in commands
+        - [x] fix templates not being created properly
+        - [x] fix version and use LangVersion instead as version in buildfile
+              is actually used for buildfile versioning.
+      - [x] Add code to create `From` with  language + version. Maintaining 
             `From` allows continued use of existing code. `From` if supplied
             (length(x.From) > 0) will prevent call to `product` and create a
             single entry set.
-      - [~] construct build matrix from buildfile
+      - [x] construct build matrix from buildfile
+      - [x] use registry client to search for 'from' docker name
+        - [x] add error handling
       - [ ] FlightControl needs navigator to control builds
       - [ ] extend build entry
       - [ ] modify those needing buildfile to use new build entry =>

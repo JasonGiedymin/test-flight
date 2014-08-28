@@ -26,12 +26,13 @@
 package lib
 
 import (
+    Logger "github.com/JasonGiedymin/test-flight/lib/logging"
+
     "archive/tar"
     "bufio"
     "bytes"
     "encoding/json"
     "errors"
-    Logger "github.com/JasonGiedymin/test-flight/lib/logging"
     "github.com/fsouza/go-dockerclient"
     "github.com/jmcvetta/napping"
     "io"
@@ -73,17 +74,24 @@ type TemplateVar struct {
 
 // Proxy Client
 type DockerApi struct {
-    meta       *ApplicationMeta
-    configFile *ConfigFile
-    buildFile  *BuildFile
-    client     *docker.Client
+    meta             *ApplicationMeta
+    configFile       *ConfigFile
+    buildFile        *BuildFile
+    buildMatrixEntry *BuildMatrixEntry
+    client           *docker.Client
 }
 
-func NewDockerApi(meta *ApplicationMeta, configFile *ConfigFile, buildFile *BuildFile) *DockerApi {
+func NewDockerApi(
+    meta *ApplicationMeta,
+    configFile *ConfigFile,
+    buildFile *BuildFile,
+    // buildMatrixEntry *BuildMatrixEntry,
+) *DockerApi {
     api := DockerApi{
         meta:       meta,
         configFile: configFile,
         buildFile:  buildFile,
+        // buildMatrixEntry: buildMatrixEntry,
     }
 
     client, err := docker.NewClient(configFile.DockerEndpoint)
@@ -156,7 +164,7 @@ func (api *DockerApi) createTestTemplates(options CommandOptions) error {
     Logger.Debug("Template dir used for generation of ansible files:", templateInputDir)
 
     // The directory where to put the generated files
-    templateOutputDir := FilePath(api.meta.Pwd /*api.meta.Dir,*/, templateDir.FileName)
+    templateOutputDir := FilePath(api.meta.Dir /*api.meta.Dir,*/, templateDir.FileName)
     Logger.Debug("Template dir used to put generated ansible test files:", templateOutputDir)
 
     createFilesFromTemplate := func(

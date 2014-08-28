@@ -2,7 +2,8 @@
   "runTests": true,
   "owner": "testflight",
   "imageName": "test-docker-name1",
-  "from": "jasongiedymin/ansible-nodejs",
+  "os": ["ubuntu"],
+  "language": "nodejs",
   "requires": [
     "JasonGiedymin.ark-nodejs"
   ],

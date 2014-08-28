@@ -1,8 +1,8 @@
-package build
+package lib
 
 import (
+    "errors"
     // "fmt"
-    "github.com/JasonGiedymin/test-flight/lib"
     "sort"
     "strings"
 )
@@ -26,12 +26,44 @@ func (m BuildMatrix) Keys() []string {
     return out
 }
 
+type BuildMatrixEntryResult struct {
+    Entry  BuildMatrixEntry
+    Stdout *string
+    Err    error
+}
+
+type BuildMatrixEntryResults struct {
+    Results []BuildMatrixEntryResult
+}
+
+func (r BuildMatrixEntryResults) Errors() []string {
+    var resultErrors []string
+    for _, v := range r.Results {
+        if v.Err != nil {
+            resultErrors = append(resultErrors, v.Err.Error())
+        }
+    }
+    return resultErrors
+}
+
+type BuildMatrixFunc func(buildMatrixEntry BuildMatrixEntry, result BuildMatrixEntryResult) BuildMatrixEntryResult
+
+func (m BuildMatrix) Map(fx BuildMatrixFunc) BuildMatrixEntryResults {
+    var results []BuildMatrixEntryResult
+    for _, e := range m {
+        result := BuildMatrixEntryResult{Entry: e}
+        results = append(results, fx(e, result))
+    }
+
+    return BuildMatrixEntryResults{results}
+}
+
 type BuildMatrixEntry struct {
     // base ----------------
     Language string
     OS       string
     Version  string
-    Env      lib.DockerEnv
+    Env      DockerEnv
     //----------------------
     From string // always ubuntu for travis
 }
@@ -62,7 +94,7 @@ type BuildMatrixVectors struct {
     Language string
     OS       []string
     Version  []string
-    Env      []lib.DockerEnv
+    Env      []DockerEnv
     //----------------------
     From []string // can take precedence over Lang + Version, Legacy override
 
@@ -119,4 +151,16 @@ func (v *BuildMatrixVectors) Product() BuildMatrix {
     }
 
     return matrix
+}
+
+func RunEntry(buildFile *BuildFile, handler BuildMatrixFunc, errorMessage string) error {
+    matrix := ConvertBuildFileToMatrix(*buildFile)
+
+    results := matrix.Map(handler)
+    resultErrors := results.Errors()
+    if len(resultErrors) > 0 {
+        return errors.New(errorMessage + " " + strings.Join(resultErrors, ","))
+    } else {
+        return nil
+    }
 }

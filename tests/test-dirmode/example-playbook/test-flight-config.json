@@ -1,11 +1,11 @@
 {
   "ansibleTemplatesDir": ".test-flight",
 
-  "testFlightAssets": "./",
-
   "overwriteTemplates": true,
 
   "dockerEndPoint": "http://192.168.59.103:2375",
+
+  "testFlightAssets": "./",
 
   "dockerRun": "RUN ansible-playbook $WORKDIR/playbook.yml -c local"
 }
