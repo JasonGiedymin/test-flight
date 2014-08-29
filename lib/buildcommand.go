@@ -30,25 +30,27 @@ func (cmd *BuildCommand) Execute(args []string) error {
 
     build := func(buildMatrixEntry BuildMatrixEntry, result BuildMatrixEntryResult) BuildMatrixEntryResult {
 
-        // registry service interaction
-        query := registry.SearchDataJSON{
-            Os:       buildMatrixEntry.OS,
-            Language: buildMatrixEntry.Language,
-            Version:  buildMatrixEntry.Version,
-        }
-        registryApi := registry.RegistryApi{"http://registry.amuxbit.com"}
-        fromDocker, err := registryApi.Search(query)
-        if err != nil {
-            result.Err = errors.New("Error connecting with registry. " + err.Error())
-            return result
-        } else {
-            if len(fromDocker.Results) > 1 {
-                msg := `Combination of OS, Language, and Language Version yielded 
-                multiple results. Please modify.`
-
-                result.Err = errors.New(msg)
+        if buildFile.From == "" { // Get the from if we don't have it
+            // registry service interaction
+            query := registry.SearchDataJSON{
+                Os:       buildMatrixEntry.OS,
+                Language: buildMatrixEntry.Language,
+                Version:  buildMatrixEntry.Version,
             }
-            buildFile.From = fromDocker.Results[0]
+            registryApi := registry.RegistryApi{"http://registry.amuxbit.com"}
+            fromDocker, err := registryApi.Search(query)
+            if err != nil {
+                result.Err = errors.New("Error connecting with registry. " + err.Error())
+                return result
+            } else {
+                if len(fromDocker.Results) > 1 {
+                    msg := `Combination of OS, Language, and Language Version yielded 
+                    multiple results. Please modify.`
+
+                    result.Err = errors.New(msg)
+                }
+                buildFile.From = fromDocker.Results[0]
+            }
         }
 
         // Api interaction here

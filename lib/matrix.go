@@ -1,8 +1,9 @@
 package lib
 
 import (
+    // Logger "github.com/JasonGiedymin/test-flight/lib/logging"
+
     "errors"
-    // "fmt"
     "sort"
     "strings"
 )
@@ -137,8 +138,12 @@ func (v *BuildMatrixVectors) Product() BuildMatrix {
         for _, from := range v.From {
             entry := BuildMatrixEntry{From: from}
 
-            for _, env := range v.Env {
-                entry.Env = env
+            if len(v.Env) > 0 {
+                for _, env := range v.Env {
+                    entry.Env = env
+                    matrix[entry.Key()] = entry // add to matrix
+                }
+            } else { // skip env and add
                 matrix[entry.Key()] = entry // add to matrix
             }
         }
@@ -155,6 +160,9 @@ func (v *BuildMatrixVectors) Product() BuildMatrix {
 
 func RunEntry(buildFile *BuildFile, handler BuildMatrixFunc, errorMessage string) error {
     matrix := ConvertBuildFileToMatrix(*buildFile)
+    if len(matrix.Keys()) <= 0 {
+        return errors.New("Could not construct a build matrix with the given values from the buildfile.")
+    }
 
     results := matrix.Map(handler)
     resultErrors := results.Errors()

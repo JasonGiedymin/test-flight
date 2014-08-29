@@ -5,5 +5,7 @@
 
   "dockerEndPoint": "http://192.168.59.103:2375",
 
-  "dockerRun": "RUN ansible-playbook $WORKDIR/playbook.yml -c local"
+  "dockerRun": "RUN ansible-playbook $WORKDIR/playbook.yml -c local",
+
+  "testFlightAssets": "/Users/jason/.test-flight"
 }

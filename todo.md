@@ -440,6 +440,16 @@ Version todos:
       - [x] construct build matrix from buildfile
       - [x] use registry client to search for 'from' docker name
         - [x] add error handling
+      - [x] fix buildcommand => only query registry service if from not
+            specified
+      - [x] fix matrix conversion => did not correctly generate matrix
+            when ENV not specified as a vector
+      - [x] add extra documentation on ConfigFile vars
+      - [x] add extra logging when maxtrix product produces empty data
+      - [ ] need ansible script to install test-flight, populate test-flight-config.json
+            `testFlightAssets` var to user home.
+      - [ ] refactor `configfile.go:findConfig()`. Method should take a list of
+            paths rather than hard coded logic.
       - [ ] FlightControl needs navigator to control builds
       - [ ] extend build entry
       - [ ] modify those needing buildfile to use new build entry =>

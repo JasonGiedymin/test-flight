@@ -18,8 +18,8 @@ var (
 type ConfigFile struct {
     Location                 string // fq path of config file
     LocationDir              string // fq path where config file resides
-    AnsibleTemplatesDir      string // playbook/.test-flight
-    TestFlightAssets         string // $HOME/.test-flight
+    AnsibleTemplatesDir      string // playbook/.test-flight (where the ansible templates will be output after generating)
+    TestFlightAssets         string // $HOME/.test-flight (where the test-flight (not ansible) templates are which are required to generate dockerfiles, etc...)
     UseSystemDockerTemplates bool   // to use DockerTemplatesDir/{system|user}
     DockerEndpoint           string
     OverwriteTemplates       bool
@@ -92,6 +92,8 @@ func getConfig(file string) (*ConfigFile, error) {
 
 // tries to find config file in user home, then if it cannot find one there
 // will try to find a config file in the local running directory
+// TODO: this should be a function that checks a list of constructed
+//       paths instead of this monstrosity.
 func findConfig(dir string) (*ConfigFile, error) {
     configFileName := Constants().configFileName
     configFile := NewConfigFile()
