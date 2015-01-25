@@ -404,7 +404,7 @@ Version todos:
         - [x] Add `build.type BuildMatrix` type
         - [x] ~~Add `Set` method~~
         - [x] Add `Product` method
-    - [~] Use matrix entry to building =>
+    - [x] Use matrix entry to building =>
       - [x] mismatch in Env var attribute, vector is string where buildfile
               uses []DockerEnv. Update matrix to use DockerEnv.
       - [x] convert buildfile to matrix as-is now via `BuildMatrixEntry` =>
@@ -429,7 +429,7 @@ Version todos:
             this with different dialects or compilers which work on a single 
             lang text. I.E. OracleJDK vs OpenJDK. For now recommend projects
             choose a recommended build Lang at first.
-      - [~] use matrix in commands
+      - [x] use matrix in commands
         - [x] fix templates not being created properly
         - [x] fix version and use LangVersion instead as version in buildfile
               is actually used for buildfile versioning.
@@ -446,10 +446,10 @@ Version todos:
             when ENV not specified as a vector
       - [x] add extra documentation on ConfigFile vars
       - [x] add extra logging when maxtrix product produces empty data
-      - [ ] need ansible script to install test-flight, populate test-flight-config.json
-            `testFlightAssets` var to user home.
-      - [ ] refactor `configfile.go:findConfig()`. Method should take a list of
+      - [x] fix bug language version was being added as a string array
+      - [~] refactor `configfile.go:findConfig()`. Method should take a list of
             paths rather than hard coded logic.
+            - [~] See configfile_test.go, finish `configPaths` function
       - [ ] FlightControl needs navigator to control builds
       - [ ] extend build entry
       - [ ] modify those needing buildfile to use new build entry =>
@@ -458,7 +458,18 @@ Version todos:
     - [ ] Add Travis vars to buildfile via a converter (from, env, etc...)
   - [ ] Allow yaml buildfile then json
 
-#### v0.9.8.3 - Alpha, Multi-run
+#### v0.9.8.3 - Alpha, Rename
+
+- [ ] Version app
+- [ ] Rename app to?
+
+#### v0.9.8.x - Alpha, Packager
+
+- [ ] Package binary, templates, etc...
+- [ ] need ansible script to install test-flight, populate test-flight-config.json
+      `testFlightAssets` var to user home.
+
+#### v0.9.8.x - Alpha, Multi-run
 
   - [ ] version
   - [ ] move into `$GOPATH`

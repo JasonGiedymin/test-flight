@@ -21,6 +21,8 @@ func ConvertBuildFileToMatrix(buildfile BuildFile) BuildMatrix {
 
     if len(buildfile.LanguageVersion) == 0 {
         languageVersion = []string{"latest"}
+    } else {
+        languageVersion = buildfile.LanguageVersion
     }
 
     vectors := BuildMatrixVectors{

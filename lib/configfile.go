@@ -90,11 +90,21 @@ func getConfig(file string) (*ConfigFile, error) {
     }
 }
 
+// need func to construct paths to check
+// need func to check each path
+func configPaths(dirFlag string, useHomeDir string) []string {
+    return []string{}
+}
+
+func findConfig2(dirFlag string) (*ConfigFile, error) {
+    return nil, nil
+}
+
 // tries to find config file in user home, then if it cannot find one there
 // will try to find a config file in the local running directory
 // TODO: this should be a function that checks a list of constructed
 //       paths instead of this monstrosity.
-func findConfig(dir string) (*ConfigFile, error) {
+func findConfig(dir string, userHomeDir string) (*ConfigFile, error) {
     configFileName := Constants().configFileName
     configFile := NewConfigFile()
     logConfigFile := func(configFile *ConfigFile) {
@@ -129,15 +139,7 @@ func findConfig(dir string) (*ConfigFile, error) {
         return configFile, nil
     }
 
-    // try home
-    usr, err := user.Current() // to get user home, get user first
-    if err != nil {
-        Logger.Error("Can't read user home.")
-        // return nil, ReadFileError.New("Can't read user home.")
-        return nil, errors.New("Can't read user home.")
-    }
-
-    homeConfigPath := FilePath(usr.HomeDir, ".test-flight", configFileName)
+    homeConfigPath := FilePath(userHomeDir, ".test-flight", configFileName)
     Logger.Debug("Checking for config file in user HOME: ", homeConfigPath)
 
     configFile, err = getConfig(homeConfigPath)
@@ -159,5 +161,13 @@ func ReadConfigFile(userSpecified string, dir string) (*ConfigFile, error) {
         return getConfig(userSpecified)
     }
 
-    return findConfig(dir)
+    // get home info first
+    usr, err := user.Current() // to get user home, get user first
+    if err != nil {
+        Logger.Error("Can't read user home.")
+        // return nil, ReadFileError.New("Can't read user home.")
+        return nil, errors.New("Can't read user home.")
+    }
+
+    return findConfig(dir, usr.HomeDir)
 }

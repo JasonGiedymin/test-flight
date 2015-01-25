@@ -30,7 +30,7 @@ func TestCreateBuildMatrixFromBuildFile(t *testing.T) {
             BuildFile{
                 OS:              []string{"ubuntu"},
                 Language:        "c++",
-                LanguageVersion: "4.6.1",
+                LanguageVersion: []string{"4.6.1"},
             },
             []string{
                 "(c++,ubuntu,4.6.1)",
@@ -40,7 +40,7 @@ func TestCreateBuildMatrixFromBuildFile(t *testing.T) {
             BuildFile{
                 OS:              []string{"centos", "ubuntu"},
                 Language:        "c++",
-                LanguageVersion: "4.6.1",
+                LanguageVersion: []string{"4.6.1"},
             },
             []string{
                 "(c++,centos,4.6.1)", "(c++,ubuntu,4.6.1)",

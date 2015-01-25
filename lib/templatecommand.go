@@ -19,7 +19,7 @@ func (cmd *TemplateCommand) Execute(args []string) error {
         return err
     }
 
-    cmd.App.AppState.Meta.Dir = cmd.Options.Dir
+    cmd.App.AppState.Meta.Dir = cmd.Options.Dir // this dir is the base dir
 
     dc := NewDockerApi(cmd.App.AppState.Meta, cmd.App.AppState.ConfigFile, cmd.App.AppState.BuildFile)
 
